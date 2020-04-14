@@ -13,7 +13,8 @@ static char buffer[1024];
 static std::random_device rd;
 static std::mt19937 gen(rd());
 i32 rand(i32 l, i32 r);
-rsid rsidByTime();
+RSID generateId();
+RSID rsidByTime();
 isize log(const char *format, ...);
 
 #endif //RUNESIM_COMMON_UTIL_H

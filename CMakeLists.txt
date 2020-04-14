@@ -9,26 +9,25 @@ set(RS_COMMON_HEADER_FILES common/type.h common/util.h common/result.h common/er
 set(RS_COMMON_FILES ${RS_COMMON_HEADER_FILES} common/util.cc common/error.cc common/result.cc)
 
 set(RS_CARD_HEADER_FILES card/card.h card/gallery.h)
-set(RS_CARD_FILES ${RS_CARD_HEADER_FILES} card/card.cc card/gallery.cc)
+set(RS_CARD_FILES ${RS_CARD_HEADER_FILES} card/card.cc card/gallery.cc card/noxus_spell.cc card/ionia_spell.cc)
 
 # libcard
 add_library(card SHARED ${RS_COMMON_FILES} ${RS_CARD_FILES})
 target_include_directories(card PUBLIC card common)
 
 # libgame
-set(RS_GAME_HEADER_FILES game/event.h game/event_type.h
-        game/card_wrapper.h game/player.h game/game.h)
+set(RS_GAME_HEADER_FILES game/event.h game/object.h game/game.h)
 add_library(game SHARED ${RS_GAME_HEADER_FILES}
-        game/game.cc game/player.cc game/event.cc game/card_wrapper.cc)
+        game/game.cc game/player.cc game/event.cc game/object.cc)
 target_include_directories(game PRIVATE card common)
 target_link_libraries(game card)
 
 # sim
-add_executable(sim main.cc runesim.h)
+add_executable(sim app/runesim.h app/client.cc app/server.cc app/operation.cc app/operation.h app/view.cc app/view.h)
 target_include_directories(sim PRIVATE card game)
 target_link_libraries(sim card game)
 
 # test
-add_executable(test test.cc runesim.h)
+add_executable(test test.cc app/runesim.h)
 target_include_directories(test PRIVATE card game)
 target_link_libraries(test card game)

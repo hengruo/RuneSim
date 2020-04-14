@@ -109,13 +109,21 @@ public:
 
 class Heimerdinger final : public Card {
 public:
-  Heimerdinger() : Card(9, "Heimerdinger",
+  Heimerdinger() : Card(9,
+                        "Heimerdinger",
                         "When you cast a spell, create a Fleeting Turret in hand with equal cost. It costs 0 this round.",
                         "I've seen you summon 12+ Power of Turrets.",
-                        "01PZ056", CardRegion::PILTOVER_N_ZAUN, CardRarity::CHAMPION,
-                        CardType::UNIT, CardSupType::CHAMPION, CardSubType::NONE,
+                        "01PZ056",
+                        CardRegion::PILTOVER_N_ZAUN,
+                        CardRarity::CHAMPION,
+                        CardType::UNIT,
+                        CardSupType::CHAMPION,
+                        CardSubType::NONE,
                         K_IMBUE,
-                        5, 1, 3, true) {}
+                        5,
+                        1,
+                        3,
+                        true) {}
 };
 
 class KeeperOfMasks final : public Card {
@@ -186,13 +194,21 @@ public:
 
 class Heimerdinger1 final : public Card {
 public:
-  Heimerdinger1() : Card(16, "Heimerdinger",
+  Heimerdinger1() : Card(16,
+                         "Heimerdinger",
                          "When you cast a spell, create a Fleeting Turret in hand with equal cost. Grant it +1|+1 and it costs 0 this round.",
                          "",
-                         "01PZ056T10", CardRegion::PILTOVER_N_ZAUN, CardRarity::NONE,
-                         CardType::UNIT, CardSupType::CHAMPION, CardSubType::NONE,
+                         "01PZ056T10",
+                         CardRegion::PILTOVER_N_ZAUN,
+                         CardRarity::NONE,
+                         CardType::UNIT,
+                         CardSupType::CHAMPION,
+                         CardSubType::NONE,
                          K_IMBUE,
-                         5, 2, 4, false) {}
+                         5,
+                         2,
+                         4,
+                         false) {}
 };
 
 class PhantomPrankster final : public Card {
@@ -897,6 +913,7 @@ public:
                          CardType::SPELL, CardSupType::NONE, CardSubType::NONE,
                          K_BURST,
                          2, 0, 0, true) {}
+  void onCast(Event event);
 };
 
 class HouseSpider final : public Card {
@@ -967,24 +984,40 @@ public:
 
 class Teemo_sMushroomCloud1 final : public Card {
 public:
-  Teemo_sMushroomCloud1() : Card(87, "Teemo's Mushroom Cloud",
+  Teemo_sMushroomCloud1() : Card(87,
+                                 "Teemo's Mushroom Cloud",
                                  "Plant 5 Poison Puffcap on random cards in the enemy deck.\nShuffle a Teemo into your deck.",
                                  "",
-                                 "01PZ008T1", CardRegion::PILTOVER_N_ZAUN, CardRarity::NONE,
-                                 CardType::SPELL, CardSupType::CHAMPION, CardSubType::NONE,
+                                 "01PZ008T1",
+                                 CardRegion::PILTOVER_N_ZAUN,
+                                 CardRarity::NONE,
+                                 CardType::SPELL,
+                                 CardSupType::CHAMPION,
+                                 CardSubType::NONE,
                                  K_BURST,
-                                 1, 0, 0, false) {}
+                                 1,
+                                 0,
+                                 0,
+                                 false) {}
 };
 
 class Kalista1 final : public Card {
 public:
-  Kalista1() : Card(88, "Kalista",
+  Kalista1() : Card(88,
+                    "Kalista",
                     "The first time I attack each round, revive an attacking Ephemeral copy of the Strongest dead allied follower. This round, we're bonded and it takes damage for me.",
                     "",
-                    "01SI030T2", CardRegion::SHADOW_ISLES, CardRarity::NONE,
-                    CardType::UNIT, CardSupType::CHAMPION, CardSubType::NONE,
+                    "01SI030T2",
+                    CardRegion::SHADOW_ISLES,
+                    CardRarity::NONE,
+                    CardType::UNIT,
+                    CardSupType::CHAMPION,
+                    CardSubType::NONE,
                     K_FEARSOME,
-                    3, 5, 4, false) {}
+                    3,
+                    5,
+                    4,
+                    false) {}
 };
 
 class Entreat final : public Card {
@@ -1033,13 +1066,21 @@ public:
 
 class Ezreal1 final : public Card {
 public:
-  Ezreal1() : Card(93, "Ezreal",
+  Ezreal1() : Card(93,
+                   "Ezreal",
                    "Nexus Strike: Create a Fleeting Mystic Shot in hand.\nWhen you cast a spell, deal 2 to the enemy Nexus.",
                    "",
-                   "01PZ036T1", CardRegion::PILTOVER_N_ZAUN, CardRarity::NONE,
-                   CardType::UNIT, CardSupType::CHAMPION, CardSubType::NONE,
+                   "01PZ036T1",
+                   CardRegion::PILTOVER_N_ZAUN,
+                   CardRarity::NONE,
+                   CardType::UNIT,
+                   CardSupType::CHAMPION,
+                   CardSubType::NONE,
                    K_ELUSIVE | K_IMBUE,
-                   3, 2, 4, false) {}
+                   3,
+                   2,
+                   4,
+                   false) {}
 };
 
 class UnscarredReaver final : public Card {
@@ -1099,13 +1140,21 @@ public:
 
 class CorinaVeraza final : public Card {
 public:
-  CorinaVeraza() : Card(99, "Corina Veraza",
+  CorinaVeraza() : Card(99,
+                        "Corina Veraza",
                         "Play: Obliterate the top 5 cards of your deck to deal 1 to all enemies for each spell obliterated.",
                         "",
-                        "01PZ048", CardRegion::PILTOVER_N_ZAUN, CardRarity::EPIC,
-                        CardType::UNIT, CardSupType::NONE, CardSubType::NONE,
+                        "01PZ048",
+                        CardRegion::PILTOVER_N_ZAUN,
+                        CardRarity::EPIC,
+                        CardType::UNIT,
+                        CardSupType::NONE,
+                        CardSubType::NONE,
                         K_NONE,
-                        9, 6, 6, true) {}
+                        9,
+                        6,
+                        6,
+                        true) {}
 };
 
 class CatalystOfAeons final : public Card {
@@ -1209,13 +1258,21 @@ public:
 
 class BackAlleyBarkeep final : public Card {
 public:
-  BackAlleyBarkeep() : Card(109, "Back Alley Barkeep",
+  BackAlleyBarkeep() : Card(109,
+                            "Back Alley Barkeep",
                             "When I'm summoned, create a random card in hand for each Back Alley Barkeep you've summoned this game. ",
                             "",
-                            "01PZ002", CardRegion::PILTOVER_N_ZAUN, CardRarity::COMMON,
-                            CardType::UNIT, CardSupType::NONE, CardSubType::NONE,
+                            "01PZ002",
+                            CardRegion::PILTOVER_N_ZAUN,
+                            CardRarity::COMMON,
+                            CardType::UNIT,
+                            CardSupType::NONE,
+                            CardSubType::NONE,
                             K_NONE,
-                            4, 3, 2, true) {}
+                            4,
+                            3,
+                            2,
+                            true) {}
 };
 
 class Spiderling1 final : public Card {
@@ -1605,13 +1662,21 @@ public:
 
 class CommanderLedros final : public Card {
 public:
-  CommanderLedros() : Card(145, "Commander Ledros",
+  CommanderLedros() : Card(145,
+                           "Commander Ledros",
                            "Play: Deal damage to the enemy Nexus equal to half its Health, rounded up.\nLast Breath: Return me to hand.",
                            "",
-                           "01SI033", CardRegion::SHADOW_ISLES, CardRarity::EPIC,
-                           CardType::UNIT, CardSupType::NONE, CardSubType::NONE,
+                           "01SI033",
+                           CardRegion::SHADOW_ISLES,
+                           CardRarity::EPIC,
+                           CardType::UNIT,
+                           CardSupType::NONE,
+                           CardSubType::NONE,
                            K_FEARSOME | K_LAST_BREATH,
-                           9, 9, 6, true) {}
+                           9,
+                           9,
+                           6,
+                           true) {}
 };
 
 class MidenstokkeHenchmen final : public Card {
@@ -1968,13 +2033,21 @@ public:
 
 class Heimerdinger_sProgressDay_1 final : public Card {
 public:
-  Heimerdinger_sProgressDay_1() : Card(178, "Heimerdinger's Progress Day!",
+  Heimerdinger_sProgressDay_1() : Card(178,
+                                       "Heimerdinger's Progress Day!",
                                        "Draw 3, then reduce those cards' costs by 1.\nShuffle a Heimerdinger into your deck.",
                                        "",
-                                       "01PZ056T3", CardRegion::PILTOVER_N_ZAUN, CardRarity::NONE,
-                                       CardType::SPELL, CardSupType::CHAMPION, CardSubType::NONE,
+                                       "01PZ056T3",
+                                       CardRegion::PILTOVER_N_ZAUN,
+                                       CardRarity::NONE,
+                                       CardType::SPELL,
+                                       CardSupType::CHAMPION,
+                                       CardSubType::NONE,
                                        K_BURST,
-                                       8, 0, 0, false) {}
+                                       8,
+                                       0,
+                                       0,
+                                       false) {}
 };
 
 class Winter_sBreath final : public Card {
@@ -2129,6 +2202,9 @@ public:
                        CardType::SPELL, CardSupType::NONE, CardSubType::NONE,
                        K_FAST,
                        1, 0, 0, true) {}
+  void onCast(Event event) override;
+  bool playable(Event event);
+  bool castable(Event event);
 };
 
 class SilverwingScout final : public Card {
@@ -2793,13 +2869,21 @@ public:
 
 class Jinx1 final : public Card {
 public:
-  Jinx1() : Card(253, "Jinx",
+  Jinx1() : Card(253,
+                 "Jinx",
                  "Start of Round: Draw 1.\nEach round, the first time you empty your hand, create in hand a Super Mega Death Rocket!.",
                  "",
-                 "01PZ040T1", CardRegion::PILTOVER_N_ZAUN, CardRarity::NONE,
-                 CardType::UNIT, CardSupType::CHAMPION, CardSubType::NONE,
+                 "01PZ040T1",
+                 CardRegion::PILTOVER_N_ZAUN,
+                 CardRarity::NONE,
+                 CardType::UNIT,
+                 CardSupType::CHAMPION,
+                 CardSubType::NONE,
                  K_QUICK_ATTACK,
-                 4, 5, 4, false) {}
+                 4,
+                 5,
+                 4,
+                 false) {}
 };
 
 class BattleFury final : public Card {
@@ -2899,6 +2983,8 @@ public:
                          CardType::SPELL, CardSupType::NONE, CardSubType::NONE,
                          K_BURST,
                          1, 0, 0, true) {}
+  void onCast(Event event);
+  bool castable(Event event);
 };
 
 class SilentShadowseer final : public Card {
@@ -3042,6 +3128,7 @@ public:
                       CardType::SPELL, CardSupType::NONE, CardSubType::NONE,
                       K_FAST,
                       2, 0, 0, true) {}
+  void onCast(Event event);
 };
 
 class Mk0_WindupShredder1 final : public Card {
@@ -3552,13 +3639,21 @@ public:
 
 class TroopOfElnuks final : public Card {
 public:
-  TroopOfElnuks() : Card(322, "Troop of Elnuks",
+  TroopOfElnuks() : Card(322,
+                         "Troop of Elnuks",
                          "Play: For the top 6 cards in your deck, summon each Elnuk and shuffle the rest into your deck.",
                          "",
-                         "01FR017", CardRegion::FRELJORD, CardRarity::COMMON,
-                         CardType::UNIT, CardSupType::NONE, CardSubType::ELNUK,
+                         "01FR017",
+                         CardRegion::FRELJORD,
+                         CardRarity::COMMON,
+                         CardType::UNIT,
+                         CardSupType::NONE,
+                         CardSubType::ELNUK,
                          K_NONE,
-                         5, 3, 3, true) {}
+                         5,
+                         3,
+                         3,
+                         true) {}
 };
 
 class HealthPotion final : public Card {
@@ -3713,6 +3808,8 @@ public:
                 CardType::SPELL, CardSupType::NONE, CardSubType::NONE,
                 K_FAST,
                 4, 0, 0, true) {}
+  void onCast(Event event) override;
+  bool castable(Event event) override;
 };
 
 class TrifarianGloryseeker final : public Card {
@@ -4124,13 +4221,21 @@ public:
 
 class Draven_sBiggestFan final : public Card {
 public:
-  Draven_sBiggestFan() : Card(374, "Draven's Biggest Fan",
+  Draven_sBiggestFan() : Card(374,
+                              "Draven's Biggest Fan",
                               "When I'm summoned, move Draven to the top of your deck if you don't have him in hand or in play.",
                               "",
-                              "01NX035", CardRegion::NOXUS, CardRarity::COMMON,
-                              CardType::UNIT, CardSupType::NONE, CardSubType::NONE,
+                              "01NX035",
+                              CardRegion::NOXUS,
+                              CardRarity::COMMON,
+                              CardType::UNIT,
+                              CardSupType::NONE,
+                              CardSubType::NONE,
                               K_NONE,
-                              1, 2, 1, true) {}
+                              1,
+                              2,
+                              1,
+                              true) {}
 };
 
 class GlacialStorm2 final : public Card {
@@ -4190,13 +4295,21 @@ public:
 
 class Vladimir_sTransfusion1 final : public Card {
 public:
-  Vladimir_sTransfusion1() : Card(380, "Vladimir's Transfusion",
+  Vladimir_sTransfusion1() : Card(380,
+                                  "Vladimir's Transfusion",
                                   "Deal 1 to an ally and give another ally +2|+2 this round.\nShuffle a Vladimir into deck.",
                                   "",
-                                  "01NX006T3", CardRegion::NOXUS, CardRarity::NONE,
-                                  CardType::SPELL, CardSupType::CHAMPION, CardSubType::NONE,
+                                  "01NX006T3",
+                                  CardRegion::NOXUS,
+                                  CardRarity::NONE,
+                                  CardType::SPELL,
+                                  CardSupType::CHAMPION,
+                                  CardSubType::NONE,
                                   K_BURST,
-                                  2, 0, 0, false) {}
+                                  2,
+                                  0,
+                                  0,
+                                  false) {}
 };
 
 class FluftOfPoros1 final : public Card {
@@ -4410,13 +4523,21 @@ public:
 
 class Karma_sInsightOfAges1 final : public Card {
 public:
-  Karma_sInsightOfAges1() : Card(400, "Karma's Insight of Ages",
+  Karma_sInsightOfAges1() : Card(400,
+                                 "Karma's Insight of Ages",
                                  "Create another random spell in hand.\nEnlightened: Create 2 instead.\nShuffle a Karma into your deck.",
                                  "",
-                                 "01IO041T2", CardRegion::IONIA, CardRarity::NONE,
-                                 CardType::SPELL, CardSupType::CHAMPION, CardSubType::NONE,
+                                 "01IO041T2",
+                                 CardRegion::IONIA,
+                                 CardRarity::NONE,
+                                 CardType::SPELL,
+                                 CardSupType::CHAMPION,
+                                 CardSubType::NONE,
                                  K_BURST,
-                                 2, 0, 0, false) {}
+                                 2,
+                                 0,
+                                 0,
+                                 false) {}
 };
 
 class Shadowshift final : public Card {
@@ -4560,6 +4681,8 @@ public:
                  CardType::SPELL, CardSupType::NONE, CardSubType::NONE,
                  K_SLOW,
                  1, 0, 0, true) {}
+  void onCast(Event event);
+  bool castable(Event event);
 };
 
 class BabblingBjerg final : public Card {
@@ -4628,8 +4751,8 @@ public:
                           0, 0, 0, true) {}
 };
 
-static umap<rsid, Card *> gallery;
-static umap<rsid, Card *> collectible;
+static umap<RSID, Card *> gallery;
+static umap<RSID, Card *> collectible;
 void init_gallery();
 void clear_gallery();
 

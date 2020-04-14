@@ -4,8 +4,13 @@
 
 #include "util.h"
 
-rsid rsidByTime() {
+RSID rsidByTime() {
   return duration_cast<nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+}
+
+RSID generateId() {
+  static RSID id = 0;
+  return id++;
 }
 
 isize log(const char *format, ...) {

@@ -3,4 +3,5 @@
 //
 
 #include "error.h"
-Error::Error(const str &Message) : message(Message) {}
+Error::Error(ErrorType Type, const str &Message) : type(Type), message(Message) {}
+Error::Error() : type(ErrorType::NONE), message("") {}

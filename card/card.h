@@ -90,9 +90,12 @@ enum class CardRegion {
   SHADOW_ISLES
 };
 
+class Game;
+class Event;
+
 class Card {
 public:
-  const rsid id;
+  const RSID id;
   const char *const name;
   const char *const description;
   const char *const levelUpDescription;
@@ -107,7 +110,7 @@ public:
   const u8 attack;
   const u8 health;
   const bool collectible;
-  Card(const rsid Id,
+  Card(const RSID Id,
        const char *const Name,
        const char *const Description,
        const char *const LevelUpDescription,
@@ -122,6 +125,21 @@ public:
        const u8 Attack,
        const u8 Health,
        const bool Collectible);
+  // functions to register event listeners
+  virtual void regWhenGameStarts();
+  virtual void regWhenPlayed();
+  virtual void regWhenSummoned();
+  // whether this card can be played
+  virtual bool playable(Event event);
+  // whether this spell or skill can be casted
+  virtual bool castable(Event event);
+  // action when play this card
+  virtual void onPlay(Event event);
+  // action when cast this spell, skill, or trap
+  virtual void onCast(Event event);
+  virtual void onDiscard(Event event);
+  virtual void onDie(Event event);
+  virtual void onSummon(Event event);
 };
 
 #endif //RUNESIM_CARD_CARD_H

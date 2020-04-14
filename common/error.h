@@ -6,10 +6,20 @@
 #define RUNESIM_COMMON_ERROR_H
 
 #include "type.h"
+
+enum class ErrorType {
+  NONE,
+  INVALID_DECK,
+  NON_EXISTENT_CARD,
+  NON_COLLECTIBLE_CARD
+};
+
 class Error {
 public:
+  ErrorType type;
   str message;
-  explicit Error(const str &Message);
+  Error();
+  Error(ErrorType Type, const str &Message);
 };
 
 #endif //RUNESIM_COMMON_ERROR_H

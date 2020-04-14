@@ -12,7 +12,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <memory>
-//#include <cstdlib>
 #include <cstdarg>
 #include <utility>
 #include <random>
@@ -28,7 +27,7 @@ typedef int8_t i8;
 typedef int16_t i16;
 typedef int32_t i32;
 typedef int64_t i64;
-typedef i64 rsid;
+typedef i64 RSID;
 typedef size_t isize;
 
 typedef float f32;

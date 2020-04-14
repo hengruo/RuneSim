@@ -1,5 +1,5 @@
 //
-// Created by Hengruo Zhang on 2/7/20.
+// Created by Hengruo Zhang on 4/10/20.
 //
 
 #include "runesim.h"
@@ -7,7 +7,13 @@
 
 using namespace std;
 
-extern umap<rsid, Card *> gallery;
+extern umap<RSID, Card *> gallery;
+
+Error goRound(RSID former, Game * game){
+
+  game->startRound();
+
+}
 
 int main() {
   // Initialization
@@ -17,13 +23,14 @@ int main() {
   char end = 'N';
   const char *pName[2] = {"[PLAYER 1]", "[PLAYER 2]"};
   const char *pPrompt[2] = {"PLAYER 1 >", "PLAYER 2 >"};
-  vector<pair<rsid, isize>> decks[2];
+  vector<pair<RSID, isize>> decks[2];
   bool preset[2];
-  rsid indices[2];
+  RSID indices[2];
 
   while (true) {
     preset[0] = preset[1] = false;
-    log("=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=\nGAME %d\n=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=\n", iter++);
+    log("=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=\nGAME %d\n=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=\n",
+        iter++);
 
     for (isize i = 0; i < 2; i++) {
       if (iter > 1) {
@@ -44,27 +51,28 @@ int main() {
       res.printErr();
       continue;
     }
-    sptr<Game> game = res.val();
+    Game *game = res.val();
 
-    rsid fh = rand(0,1); // First hand player index
-    log("%s is the first hand!\n", pName[fh]);
-    indices[0] = fh;
-    indices[1] = 1 - fh;
+    RSID former = rand(0, 1); // starting hand player index
+    log("%s is the starting hand!\n", pName[former]);
+    indices[0] = former;
+    indices[1] = 1 - former;
 
     // TODO: Players select and replace their first four cards
     //
 
     u64 round = 1;
-    while (!game->end()) {
-      log("-------------------------------------------------\nROUND %d\n-------------------------------------------------\n", round++);
-      for (rsid idx : indices) {
-
-      }
+    while (!game->ended()) {
+      log("-------------------------------------------------\nROUND %d\n-------------------------------------------------\n",
+          round++);
+      Error err = goRound(former, game);
+      former = 1 - former;
     }
 
     log("END GAME? (Y/N): ");
     cin >> end;
     if (end == 'Y' || end == 'y') {
+      delete game;
       clear_gallery();
       return 0;
     }

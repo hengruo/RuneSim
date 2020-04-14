@@ -26,12 +26,12 @@ public:
   static Result mkVal(R v) {
     return Result(v, nullptr);
   }
-  static Result mkErr(const char *format, ...) {
+  static Result mkErr(ErrorType type, const char *format, ...) {
     va_list arg;
     va_start(arg, format);
     vsprintf(buffer, format, arg);
     va_end (arg);
-    return Result({}, new Error(string(buffer)));
+    return Result({}, new Error(type, string(buffer)));
   }
   static Result mkErr(Error *err) {
     return Result({}, err);
