@@ -6,24 +6,6 @@
 
 using namespace std;
 
-vec<pair<RSID, isize>> deck1 = {
-    {50, 3},
-    {271,3},
-    {176,3},
-    {199,3},
-    {127,3},
-    {360,3},
-    {405,3},
-    {336,2},
-    {27,3},
-    {297,2},
-    {288,3},
-    {306,3},
-    {268,3},
-    {365,3},
-    {411,1}
-};
-
 int main(int argc, char** argv)
 {
   ::testing::InitGoogleTest(&argc, argv);

@@ -18,6 +18,7 @@ isize log(const char *format, ...) {
   va_start(arg, format);
   isize n = vprintf(format, arg);
   va_end (arg);
+  printf("\n");
   return n;
 }
 

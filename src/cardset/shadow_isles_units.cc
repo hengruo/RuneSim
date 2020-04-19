@@ -19,7 +19,7 @@ void Kalista0088::onDeclAttack(Event event) const {
   }
   auto bondee = strongest.getEphemeralCopy();
   auto & front = GAME_PTR->frontier[event.playerId];
-  if(front.size()<FRONTIER_SIZE){
+  if(front.size()<FRONTIER_LIMIT){
     bondee.prepareAttack(front.size()-1);
     ent.bond(bondee.getEntityId());
   }else{

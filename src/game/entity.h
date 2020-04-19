@@ -58,7 +58,6 @@ private:
 public:
   static Result<Entity> buildNexus(RSID entityId, RSID playerId);
   static Result<Entity> buildCard(RSID entityId, RSID cardId, RSID playerId);
-  static Result<Entity> buildCardForDeck(RSID entityId, RSID cardId, RSID playerId);
   // ================================
   // get the value of a member
   // ================================

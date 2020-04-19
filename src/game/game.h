@@ -8,12 +8,16 @@
 #include "entity.h"
 #include "event.h"
 
-#define DECK_SIZE 40
-#define REGION_SIZE 2
-#define HAND_SIZE 10
-#define TABLE_SIZE 6
-#define FRONTIER_SIZE 6
-#define SPELL_SIZE 10
+#define SINGLE_CARD_LIMIT 3
+#define REGION_LIMIT 2
+#define CHAMPION_LIMIT 6
+#define DECK_LIMIT 40
+#define HAND_LIMIT 10
+#define TABLE_LIMIT 6
+#define FRONTIER_LIMIT 6
+#define SPELL_STACK_LIMIT 10
+
+extern umap<RSID, Card *> GALLERY;
 
 class Player {
 public:
@@ -33,8 +37,6 @@ public:
 
   static Result<vec<RSID>> buildDeck(const vec<pair<RSID, isize>> &v, RSID pid);
   static Result<sptr<Player>> build(RSID pid, vec<pair<RSID, isize>> &v);
-
-  vec<RSID> firstDraw();
 };
 
 class Game final {
@@ -46,8 +48,10 @@ public:
   vec<RSID> frontier[2];
   vec<Event> spellStack;
   RSID winner = -1;
+  RSID firstPlayer = -1;
 
-  static Result<Game *> build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2);
+  static Result<Game *> build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2, RSID firstPlayer);
+  static Result<void *> checkDeck(vec<pair<RSID, isize>> &v);
 
 //  void castBurst(RSID playerId);
 //  void declCast(RSID playerId, vec<Event> events);
@@ -86,7 +90,7 @@ public:
 
   void trigger(Event event);
 
-  void printObj(RSID entityId);
+  void printEntity(RSID entityId);
 
   virtual ~Game();
 };

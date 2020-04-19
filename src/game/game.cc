@@ -6,28 +6,42 @@
 
 Game *GAME_PTR = nullptr;
 
-Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2) {
+Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2, RSID firstPlayer) {
   Game *_game = new Game;
   GAME_PTR = _game;
+  _game->firstPlayer = firstPlayer;
   // build decks
-  auto p1 = Player::build(1, v1);
+  auto res1 = Game::checkDeck(v1);
+  if(res1.isErr()) return res1.castErr<Game*>();
+  auto res2 = Game::checkDeck(v2);
+  if(res2.isErr()) return res2.castErr<Game*>();
+  auto p1 = Player::build(0, v1);
   if (p1.isErr())
-    return move(p1.castErr<Game *>());
+    return p1.castErr<Game *>();
   _game->players[0] = p1.val();
-  auto p2 = Player::build(2, v2);
+  auto p2 = Player::build(1, v2);
   if (p2.isErr())
-    return move(p2.castErr<Game *>());
+    return p2.castErr<Game *>();
   _game->players[1] = p2.val();
   // init frontier
-  _game->frontier[0].resize(FRONTIER_SIZE);
-  _game->frontier[1].resize(FRONTIER_SIZE);
+  _game->frontier[0].resize(FRONTIER_LIMIT);
+  _game->frontier[1].resize(FRONTIER_LIMIT);
   // TODO: Initialize game environment
   //
-  return move(Result<Game *>::mkVal(_game));
+  return Result<Game *>::mkVal(_game);
 }
 
 vec<RSID> Game::firstDraw(RSID pid) {
-  return players[pid]->firstDraw();
+  vec<RSID> res;
+  isize i = rand(1, DECK_LIMIT) - 1;
+  res.push_back(players[pid]->deck[i]);
+  i = rand(1, DECK_LIMIT) - 1;
+  res.push_back(players[pid]->deck[i]);
+  i = rand(1, DECK_LIMIT) - 1;
+  res.push_back(players[pid]->deck[i]);
+  i = rand(1, DECK_LIMIT) - 1;
+  res.push_back(players[pid]->deck[i]);
+  return res;
 }
 
 Game::~Game() {
@@ -37,7 +51,7 @@ Game::~Game() {
 bool Game::isEnded() {
   return winner != -1;
 }
-void Game::printObj(RSID entityId) {
+void Game::printEntity(RSID entityId) {
   auto obj = ents[entityId];
   if (obj.isCard())
     log("ID: %04d, NAME: %s", obj.getCard()->id, obj.getCard()->name);
@@ -173,7 +187,7 @@ void Game::moveFirstAppearingCardToTop(RSID playerId, RSID cardId) {
 RSID Game::putCardInHand(RSID playerId, RSID cardId) {
   Entity obj = Entity::buildCard(generateId(), cardId, playerId).val();
   GAME_PTR->ents[obj.getEntityId()] = obj;
-  if (GAME_PTR->players[playerId]->hand.size() >= HAND_SIZE) {
+  if (GAME_PTR->players[playerId]->hand.size() >= HAND_LIMIT) {
     obj.beDiscarded();
     return obj.getEntityId();
   }
@@ -192,4 +206,41 @@ void Game::trigger(Event event) {
   for (auto &l : listeners[event.type]) {
     l(event);
   }
+}
+Result<void *> Game::checkDeck(vec<pair<RSID, isize>> &v) {
+  uset<CardRegion> regions;
+  umap<RSID, i32> eachCnt;
+  isize championCnt = 0;
+  isize totalCnt = 0;
+  for (pair<RSID, isize> p : v) {
+    if(GALLERY.find(p.first) == GALLERY.end())
+      return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Non-existent card ID: %04d.", p.first);
+    if (!GALLERY[p.first]->collectible)
+      return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Non-collectible card %04d.", p.first);
+    if (GALLERY[p.first]->supType == CardSupType::CHAMPION) {
+      championCnt += 1;
+      if (championCnt > CHAMPION_LIMIT)
+        return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Exceed champion size.");
+    }
+    if (p.second <= 0 || p.second > SINGLE_CARD_LIMIT)
+      return Result<void *>::mkErr(ErrorType::INVALID_DECK,
+                                   "Invalid number of card %04d: %d.",
+                                   p.first,
+                                   p.second);
+    eachCnt[p.first] += p.second;
+    if (eachCnt[p.first] > SINGLE_CARD_LIMIT)
+      return Result<void *>::mkErr(ErrorType::INVALID_DECK,
+                                   "Invalid number of card %04d: %d.",
+                                   p.first,
+                                   eachCnt[p.first]);
+    for (RSID k = 0; k < p.second; k++) {
+      totalCnt++;
+      if (totalCnt > DECK_LIMIT)
+        return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Exceed deck limit.");
+      regions.insert(GALLERY[p.first]->region);
+      if (regions.size() > REGION_LIMIT)
+        return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Exceed region limit.");
+    }
+  }
+  return Result<void *>::mkVal(nullptr);
 }

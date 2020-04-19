@@ -26,19 +26,11 @@ Entity::Entity() {
 Entity::Entity(RSID entId, RSID cardId, RSID playerId) {
   content = make_shared<EntityImpl>(entId, cardId, playerId);
 }
-Result<Entity> Entity::buildCardForDeck(RSID entityId, RSID cardId, RSID playerId) {
-  if (COLLECTIBLE.find(cardId) == COLLECTIBLE.end())
-    return Result<Entity>::mkErr(ErrorType::NON_COLLECTIBLE_CARD,
-                                 "Card with ID %d is non-existent or non-collectible.",
-                                 cardId);
-  Entity ent(entityId, cardId, playerId);
-  GAME_PTR->ents[ent.getEntityId()] = ent;
-  return Result<Entity>::mkVal(ent);
-}
 Result<Entity> Entity::buildCard(RSID entityId, RSID cardId, RSID playerId) {
   if (GALLERY.find(cardId) == GALLERY.end())
     return Result<Entity>::mkErr(ErrorType::NON_EXISTENT_CARD, "Non-existent card ID: %d.", cardId);
   Entity ent(entityId, cardId, playerId);
+  ent.type = EntityType::CARD;
   GAME_PTR->ents[ent.getEntityId()] = ent;
   return Result<Entity>::mkVal(ent);
 }
