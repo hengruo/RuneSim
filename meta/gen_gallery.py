@@ -1,77 +1,70 @@
-from collections import defaultdict
 import ujson as json
 
-data = json.load(open("data.json"))
+
+def build_class_name(name, id):
+    name0 = name.replace("'", "").replace(":", " ").replace("!", " ").replace(",", " ").replace("-", " ")
+    name1 = "".join([x.capitalize() for x in name0.split(' ')])
+    return name1 + "{0:#0{1}d}".format(id, 4)
 
 
-def gen_cname(name, col, nid):
-    cname = "".join([x.capitalize() for x in name.split(' ')])
-    cname = cname.replace("'", "_")
-    cname = cname.replace(":", "_")
-    cname = cname.replace("!", "_")
-    cname = cname.replace(",", "_")
-    cname = cname.replace("-", "_")
-    if not col:
-        cname = cname + str(nid)
-    return cname
-
-
-def gen_class(id, name: str, des, ldes, code, reg, rar, type, sub, sup, keys, cost, att, heal, col, nid):
-    cname = gen_cname(name, col, nid)
-    if sub == "":
-        sub = "NONE"
-    if sup == "":
-        sup = "NONE"
-    klist = []
-    for k in keys:
-        if k == "Can\'t Block":
-            klist.append("K_CANT_BLOCK")
-        elif k == 'Double Attack':
-            klist.append("K_DOUBLE_ATTACK")
-        elif k == 'Quick Attack':
-            klist.append("K_QUICK_ATTACK")
-        elif k == 'Last Breath':
-            klist.append("K_LAST_BREATH")
-        else:
-            klist.append("K_" + k.upper())
-    if len(klist) == 0: klist.append("K_NONE")
-    keywords = " | ".join(klist)
-    if reg == 'Piltover & Zaun':
-        reg = 'PILTOVER_N_ZAUN'
-    elif reg == 'Shadow Isles':
-        reg = 'SHADOW_ISLES'
-
-    item = "class {} final".format(cname)
-    item += " : public Card {\n"
-    item += "public:\n"
-    item += "  {}() : Card({}, \"{}\",\n".format(cname, id, name)
-    item += "             \"{}\",\n".format(des.replace('\r\n', '\\n'))
-    item += "             \"{}\",\n".format(ldes.replace('\r\n', '\\n'))
-    item += "             \"{}\", CardRegion::{}, CardRarity::{},\n".format(code, reg.upper(), rar.upper())
-    item += "             CardType::{}, CardSupType::{}, CardSubType::{},\n".format(type.upper(), sup.upper(),
-                                                                                    sub.upper())
-    item += "             {},\n".format(keywords)
-    item += "             {}, {}, {}, {})".format(cost, att, heal, str(col).lower())
-    item += " {}\n};\n"
-    return item
-
-
-named = defaultdict(lambda: 0)
-classdef = []
-galinit = ["Card *card = nullptr;\n"]
+data = json.load(open("set1-en_us.json"))
+code2id = dict()
+id2classname = dict()
 for id, item in enumerate(data):
-    n = item['name']
-    if not item['collectible']:
-        named[n] = named[n] + 1
-    res = gen_class(id, item['name'], item['descriptionRaw'], item['levelupDescriptionRaw'],
-                    item['cardCode'], item['region'], item['rarity'],
-                    item['type'], item['subtype'], item['supertype'],
-                    item['keywords'], item['cost'], item['attack'], item['health'], item['collectible'],
-                    named[item['name']])
-    classdef.append(res)
-    galinit.append("card = new {};\ngallery[card->id] = card;\n".format(gen_cname(n, item['collectible'], named[n])))
+    code2id[item['cardCode']] = id
+    id2classname[id] = build_class_name(item['name'], id)
 
-cf = open("class.h", 'w')
-cf.writelines(classdef)
-gf = open("gallery.cc", 'w')
-gf.writelines(galinit)
+
+# generate gallery.h
+gallery_h = ['''#ifndef RUNESIM_CARD_GALLERY_H
+#define RUNESIM_CARD_GALLERY_H
+
+#include "cardset.h"
+
+extern umap<RSID, Card *> GALLERY;
+extern umap<RSID, Card *> COLLECTIBLE;
+extern vec<RSID> DRAVEN;
+extern vec<RSID> PORO_WITH_1_COST;
+void init_gallery();
+void clear_gallery();
+#endif //RUNESIM_CARD_GALLERY_H
+''']
+gh = open("../src/cardset/gallery.h", 'w')
+gh.writelines(gallery_h)
+
+# generate gallery.cc
+gallery_cc = ['''#include "gallery.h"
+void init_gallery_() {
+''']
+
+for id in id2classname:
+    gallery_cc.append("  GALLERY[{}] = new {};\n".format(id, id2classname[id]))
+
+gallery_cc.append("}\n")
+poro_with_1_cost = []
+for id, item in enumerate(data):
+    if item['subtype'] == 'Poro' and item['cost'] == 1 and item['collectible']:
+        poro_with_1_cost.append(id)
+gallery_cc.append("umap<RSID, Card *> GALLERY;")
+gallery_cc.append("umap<RSID, Card *> COLLECTIBLE;")
+gallery_cc.append("vec<RSID> DRAVEN = {1, 130};\n")
+gallery_cc.append("vec<RSID> PORO_WITH_1_COST = {" + ",".join(map(lambda x:str(x), poro_with_1_cost)) +"};\n")
+gallery_cc.append('''
+void init_gallery() {
+  init_gallery_();
+  for(auto p: GALLERY){
+    if(p.second->collectible)
+      COLLECTIBLE[p.first] = p.second;
+  }
+}
+
+void clear_gallery() {
+  for(auto entry: GALLERY){
+    delete entry.second;
+  }
+  GALLERY.clear();
+}
+''')
+
+gf = open("../src/cardset/gallery.cc", 'w')
+gf.writelines(gallery_cc)
