@@ -3,6 +3,7 @@
 //
 
 #include "game.h"
+#include <algorithm>
 
 Game *GAME_PTR = nullptr;
 
@@ -17,9 +18,11 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   _game->firstPlayer = firstPlayer;
   // build decks
   auto res1 = Game::checkDeck(v1);
-  if(res1.isErr()) return res1.castErr<Game*>();
+  if (res1.isErr())
+    return res1.castErr<Game *>();
   auto res2 = Game::checkDeck(v2);
-  if(res2.isErr()) return res2.castErr<Game*>();
+  if (res2.isErr())
+    return res2.castErr<Game *>();
   auto p1 = Player::build(0, v1);
   if (p1.isErr())
     return p1.castErr<Game *>();
@@ -36,32 +39,41 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
 }
 
 vec<RSID> Game::firstDraw(RSID pid) {
-  vec<RSID> res;
-  isize i = rand(1, DECK_LIMIT) - 1;
-  res.push_back(players[pid]->deck[i]);
-  i = rand(1, DECK_LIMIT) - 1;
-  res.push_back(players[pid]->deck[i]);
-  i = rand(1, DECK_LIMIT) - 1;
-  res.push_back(players[pid]->deck[i]);
-  i = rand(1, DECK_LIMIT) - 1;
-  res.push_back(players[pid]->deck[i]);
-  return res;
+  uset<RSID> res;
+  for (isize k = 0; k < 4; k++) {
+    isize i = rand(1, DECK_LIMIT) - 1;
+    while (res.find(players[pid]->deck[i]) != res.end())
+      i = rand(1, DECK_LIMIT) - 1;
+    res.insert(players[pid]->deck[i]);
+  }
+  return vec<RSID>(res.begin(), res.end());
 }
 
 void Game::replaceFirstDraw(RSID pid, vec<RSID> &draw, vec<bool> toRep) {
-  for(isize i = 0; i < toRep.size(); i++){
-    if(toRep[i]){
+  uset<RSID> res;
+  for (isize i = 0; i < toRep.size(); i++)
+    if (!toRep[i])
+      res.insert(draw[i]);
+  for (isize i = 0; i < toRep.size(); i++) {
+    if (toRep[i]) {
       isize n = rand(1, DECK_LIMIT) - 1;
+      while (res.find(players[pid]->deck[n]) != res.end())
+        n = rand(1, DECK_LIMIT) - 1;
+      res.insert(players[pid]->deck[n]);
       draw[i] = players[pid]->deck[n];
     }
   }
 }
 
-void Game::putFirstDrawInHand(RSID pid, vec<RSID> &draw) {
-  for(auto eid: draw){
-    GAME_PTR->players[pid]->hand.push_back(eid);
+void Game::putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw) {
+  uset<RSID> deckSet(players[pid]->deck.begin(), players[pid]->deck.end());
+  for (auto eid: draw) {
+    players[pid]->hand.push_back(eid);
+    deckSet.erase(eid);
     trigger(Event::buildGetCardEvent(pid, eid));
   }
+  players[pid]->deck = vector<RSID>(deckSet.begin(), deckSet.end());
+  std::shuffle(players[pid]->deck.begin(), players[pid]->deck.end(), getRandomGenerator());
 }
 
 bool Game::isEnded() {
@@ -227,7 +239,7 @@ Result<void *> Game::checkDeck(vec<pair<RSID, isize>> &v) {
   isize championCnt = 0;
   isize totalCnt = 0;
   for (pair<RSID, isize> p : v) {
-    if(GALLERY.find(p.first) == GALLERY.end())
+    if (GALLERY.find(p.first) == GALLERY.end())
       return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Non-existent card ID: %04d.", p.first);
     if (!GALLERY[p.first]->collectible)
       return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Non-collectible card %04d.", p.first);

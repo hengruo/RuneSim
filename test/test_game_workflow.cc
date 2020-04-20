@@ -40,7 +40,7 @@ vec<pair<RSID, isize>> deckThreshLux = {
     {411, 1}
 };
 
-TEST(GAME_INIT, SUCCESS) {
+TEST(GAME_WORKFLOW, SUCCESS) {
   RSID pid1 = 0, pid2 = 1;
   Game::build(deckSpiderKarma, deckThreshLux, pid2);
   EXPECT_EQ(GAME_PTR->firstPlayer, pid2);
@@ -58,10 +58,12 @@ TEST(GAME_INIT, SUCCESS) {
   GAME_PTR->replaceFirstDraw(pid2, firstDrawRes2, {true, false, true, false});
   for (auto eid: firstDrawRes2)
     GAME_PTR->printEntity(eid);
-  GAME_PTR->putFirstDrawInHand(pid1, firstDrawRes1);
-  GAME_PTR->putFirstDrawInHand(pid2, firstDrawRes2);
+  GAME_PTR->putFirstDrawInHandAndShuffleDeck(pid1, firstDrawRes1);
+  GAME_PTR->putFirstDrawInHandAndShuffleDeck(pid2, firstDrawRes2);
   for (isize i = 0; i < firstDrawRes1.size(); i++)
     EXPECT_EQ(firstDrawRes1[i], p1->hand[i]);
   for (isize i = 0; i < firstDrawRes2.size(); i++)
     EXPECT_EQ(firstDrawRes2[i], p2->hand[i]);
+  EXPECT_EQ(p1->deck.size(), DECK_LIMIT - 4);
+  EXPECT_EQ(p2->deck.size(), DECK_LIMIT - 4);
 }

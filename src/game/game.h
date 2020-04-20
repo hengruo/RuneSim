@@ -66,7 +66,9 @@ public:
   void end(RSID Winner);
   vec<RSID> firstDraw(RSID pid);
   void replaceFirstDraw(RSID pid, vec<RSID> &draw, vec<bool> toRep);
-  void putFirstDrawInHand(RSID pid, vec<RSID> &draw);
+  void putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw);
+  void shuffleDeck(RSID pid);
+
   void startRound();
   bool canDoSth(RSID pid);
   vec<RSID> showHand(RSID pid);

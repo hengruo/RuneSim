@@ -27,3 +27,7 @@ i32 rand(i32 l, i32 r) {
   std::uniform_int_distribution<> dis(l, r);
   return dis(gen);
 }
+
+std::mt19937 getRandomGenerator() {
+  return gen;
+}
