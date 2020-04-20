@@ -6,6 +6,11 @@
 
 Game *GAME_PTR = nullptr;
 
+Game::~Game() {
+  players[0] = nullptr;
+  players[1] = nullptr;
+}
+
 Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2, RSID firstPlayer) {
   Game *_game = new Game;
   GAME_PTR = _game;
@@ -26,8 +31,7 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   // init frontier
   _game->frontier[0].resize(FRONTIER_LIMIT);
   _game->frontier[1].resize(FRONTIER_LIMIT);
-  // TODO: Initialize game environment
-  //
+
   return Result<Game *>::mkVal(_game);
 }
 
@@ -44,10 +48,22 @@ vec<RSID> Game::firstDraw(RSID pid) {
   return res;
 }
 
-Game::~Game() {
-  players[0] = nullptr;
-  players[1] = nullptr;
+void Game::replaceFirstDraw(RSID pid, vec<RSID> &draw, vec<bool> toRep) {
+  for(isize i = 0; i < toRep.size(); i++){
+    if(toRep[i]){
+      isize n = rand(1, DECK_LIMIT) - 1;
+      draw[i] = players[pid]->deck[n];
+    }
+  }
 }
+
+void Game::putFirstDrawInHand(RSID pid, vec<RSID> &draw) {
+  for(auto eid: draw){
+    GAME_PTR->players[pid]->hand.push_back(eid);
+    trigger(Event::buildGetCardEvent(pid, eid));
+  }
+}
+
 bool Game::isEnded() {
   return winner != -1;
 }
@@ -61,9 +77,7 @@ void Game::printEntity(RSID entityId) {
 void Game::end(RSID Winner) {
   winner = Winner;
 }
-vec<RSID> Game::replaceFirstDraw(vec<RSID>) {
-  return vec<RSID>();
-}
+
 void Game::startRound() {
 
 }
