@@ -16,6 +16,7 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   Game *_game = new Game;
   GAME_PTR = _game;
   _game->firstPlayer = firstPlayer;
+  _game->starterInRound = firstPlayer;
   // build decks
   auto res1 = Game::checkDeck(v1);
   if (res1.isErr())
@@ -23,6 +24,7 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   auto res2 = Game::checkDeck(v2);
   if (res2.isErr())
     return res2.castErr<Game *>();
+
   auto p1 = Player::build(0, v1);
   if (p1.isErr())
     return p1.castErr<Game *>();
@@ -35,6 +37,9 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   _game->frontier[0].resize(FRONTIER_LIMIT);
   _game->frontier[1].resize(FRONTIER_LIMIT);
 
+  for (auto eid: _game->players[0]->deck) {
+
+  }
   return Result<Game *>::mkVal(_game);
 }
 
@@ -82,22 +87,37 @@ bool Game::isEnded() {
 void Game::printEntity(RSID entityId) {
   auto obj = ents[entityId];
   if (obj.isCard())
-    log("ID: %04d, NAME: %s", obj.getCard()->id, obj.getCard()->name);
+    log("[EID %04d] CARD ID: %04d, NAME: %s", obj.getId(), obj.getCard()->id, obj.getCard()->name);
   else if (obj.isNexus())
-    log("Player %d's nexus health: %d", obj.getPlayerId(), obj.getHealth());
+    log("[EID %04d] Player %d's nexus health: %d", obj.getId(), obj.getPlayerId() + 1, obj.getHealth());
 }
 void Game::end(RSID Winner) {
   winner = Winner;
 }
 
 void Game::startRound() {
+  round += 1;
+  auto p1 = players[0], p2 = players[1];
+  p1->spellMana = min(p1->spellMana + p1->unitMana, MAX_SPELL_MANA);
+  p2->spellMana = min(p2->spellMana + p2->unitMana, MAX_SPELL_MANA);
+  p1->unitMana = min(round, MAX_MANA);
+  p2->unitMana = min(round, MAX_MANA);
+  players[starterInRound]->inAttack = true;
+  players[1 - starterInRound]->inAttack = false;
+  trigger(Event::buildStartRoundEvent(starterInRound, round));
 
 }
-bool Game::canDoSth(RSID pid) {
-  return false;
-}
-vec<RSID> Game::showHand(RSID pid) {
-  return vec<RSID>();
+void Game::drawACard(RSID pid) {
+  auto p = players[pid];
+  RSID id = p->deck.back();
+  p->deck.pop_back();
+  auto card = ents[id];
+  if (p->hand.size() >= HAND_LIMIT) {
+    card.beDiscarded();
+  } else {
+    p->hand.push_back(id);
+    trigger(Event::buildDrawCardEvent(pid, id));
+  }
 }
 bool Game::cast(RSID pid, RSID handId, vec<RSID> args) {
   return false;
@@ -211,16 +231,14 @@ void Game::moveFirstAppearingCardToTop(RSID playerId, RSID cardId) {
   }
 }
 RSID Game::putCardInHand(RSID playerId, RSID cardId) {
-  Entity obj = Entity::buildCard(generateId(), cardId, playerId).val();
-  GAME_PTR->ents[obj.getEntityId()] = obj;
+  Entity obj = Entity::buildAndRegCard(generateId(), cardId, playerId).val();
+  GAME_PTR->ents[obj.getId()] = obj;
   if (GAME_PTR->players[playerId]->hand.size() >= HAND_LIMIT) {
     obj.beDiscarded();
-    return obj.getEntityId();
+    return obj.getId();
   }
-  GAME_PTR->players[playerId]->hand.push_back(obj.getEntityId());
-  Event event = Event::buildGetCardEvent(playerId, obj.getEntityId());
-  trigger(event);
-  return obj.getEntityId();
+  GAME_PTR->players[playerId]->hand.push_back(obj.getId());
+  return obj.getId();
 }
 RSID Game::summonAUnitOnTable(RSID playerId, RSID cardId) {
   return 0;
@@ -229,8 +247,12 @@ RSID Game::summonAUnitInAttack(RSID playerId, RSID cardId) {
   return 0;
 }
 void Game::trigger(Event event) {
-  for (auto &l : listeners[event.type]) {
-    l(event);
+  for (const RSID &lid: elByType[event.type]) {
+    if (evlsnr.find(lid) != evlsnr.end()) {
+      auto l = evlsnr[lid];
+      l(event);
+    } else
+      elByType[event.type].erase(lid);
   }
 }
 Result<void *> Game::checkDeck(vec<pair<RSID, isize>> &v) {

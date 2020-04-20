@@ -3,7 +3,7 @@
 //
 #include "test.h"
 
-TEST(DECK_CHECK, EXCEED_SINGLE_CARD_LIMIT){
+TEST(DECK, EXCEED_SINGLE_CARD_LIMIT){
   vec<pair<RSID, isize>> wrongDeck = {
       {50, 3}, {271, 3}, {176, 2}, {199, 3},
       {127, 3}, {360, 3}, {405, 3}, {336, 2},
@@ -16,7 +16,7 @@ TEST(DECK_CHECK, EXCEED_SINGLE_CARD_LIMIT){
   EXPECT_EQ(res.err()->type, ErrorType::INVALID_DECK);
 }
 
-TEST(DECK_CHECK, EXCEED_DECK_SIZE){
+TEST(DECK, EXCEED_DECK_SIZE){
   vec<pair<RSID, isize>> wrongDeck = {
       {50, 3}, {271, 3}, {176, 2}, {199, 3},
       {127, 3}, {360, 3}, {405, 3}, {336, 2},

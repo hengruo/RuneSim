@@ -6,48 +6,41 @@
 #include "game.h"
 #include "../cardset/gallery.h"
 
-EntityImpl *EntityImpl::build(RSID entId, RSID cardId, RSID playerId) {
-  auto c = new EntityImpl(entId, cardId, playerId);
-  return c;
-}
 EntityImpl::EntityImpl(RSID EntId, RSID CardId, RSID PlayerId)
     : entityId(EntId), cardId(CardId), playerId(PlayerId), card(GALLERY[CardId]) {
   currentHealth = maxHealthInRound = maxHealthInGame = card->health;
   cost = card->cost;
   currentAttack = maxAttackInRound = maxAttackInGame = card->attack;
 }
-EntityImpl::EntityImpl() {
-
-}
 
 Entity::Entity() {
-  content = make_shared<EntityImpl>();
+  content = nullptr;
 }
 Entity::Entity(RSID entId, RSID cardId, RSID playerId) {
   content = make_shared<EntityImpl>(entId, cardId, playerId);
 }
-Result<Entity> Entity::buildCard(RSID entityId, RSID cardId, RSID playerId) {
+Result<Entity> Entity::buildAndRegCard(RSID entityId, RSID cardId, RSID playerId) {
   if (GALLERY.find(cardId) == GALLERY.end())
     return Result<Entity>::mkErr(ErrorType::NON_EXISTENT_CARD, "Non-existent card ID: %d.", cardId);
   Entity ent(entityId, cardId, playerId);
   ent.type = EntityType::CARD;
-  GAME_PTR->ents[ent.getEntityId()] = ent;
+  GAME_PTR->ents[ent.getId()] = ent;
   return Result<Entity>::mkVal(ent);
 }
-Result<Entity> Entity::buildNexus(RSID entityId, RSID playerId) {
+Result<Entity> Entity::buildAndRegNexus(RSID entityId, RSID playerId) {
   Entity nexus;
   nexus.content->playerId = playerId;
   nexus.content->entityId = entityId;
   nexus.content->currentHealth = 20;
   nexus.type = EntityType::NEXUS;
-  GAME_PTR->ents[nexus.getEntityId()] = nexus;
+  GAME_PTR->ents[nexus.getId()] = nexus;
   return Result<Entity>::mkVal(nexus);
 }
 
 const Card *Entity::getCard() const {
   return content->card;
 }
-RSID Entity::getEntityId() const {
+RSID Entity::getId() const {
   return content->entityId;
 }
 bool Entity::isNexus() const {
@@ -113,7 +106,7 @@ i8 Entity::getHealth() const {
   return 0;
 }
 Entity Entity::getCopy() {
-  Entity ent = Entity::buildCard(generateId(), content->cardId, getPlayerId()).val();
+  Entity ent = Entity::buildAndRegCard(generateId(), content->cardId, getPlayerId()).val();
   ent.content->currentHealth = ent.content->maxHealthInGame = ent.content->maxHealthInRound = content->maxHealthInGame;
   ent.content->dead = false;
   return ent;
@@ -191,9 +184,9 @@ void Entity::transform(RSID cardId) {
 void Entity::levelUp(RSID cardId) {
   content->cardId = cardId;
   content->card = GALLERY[cardId];
-  content->card->onSummon((Event::buildLevelUpEvent(getPlayerId(), getEntityId())));
+  content->card->onSummon((Event::buildLevelUpEvent(getPlayerId(), getId())));
   if (isInAttack()) {
-    content->card->onDeclAttack(Event::buildDeclAttackEvent(getPlayerId(), getEntityId(), content->attackPosition));
+    content->card->onDeclAttack(Event::buildDeclAttackEvent(getPlayerId(), getId(), content->attackPosition));
   }
 }
 void Entity::prepareAttack(i8 position) {
@@ -217,5 +210,5 @@ void Entity::enableBondee(RSID bonderId) {
 void Entity::bond(RSID bondeeId) {
   enableBonder(bondeeId);
   auto bondee = GAME_PTR->ents[bondeeId];
-  bondee.enableBonder(getEntityId());
+  bondee.enableBonder(getId());
 }

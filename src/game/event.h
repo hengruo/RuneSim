@@ -11,9 +11,10 @@
 // 1. Player triggered:
 // 2. Card triggered:
 enum class EventType {
-  ROUND_START,
-  ROUND_END,
+  START_ROUND,
+  END_ROUND,
   SUMMON,
+  DRAW_CARD,
   GET_CARD,
   DIE,
   DECL_ATTACK,
@@ -43,6 +44,9 @@ struct SummonArgs{
   u8 argObjNum;
   RSID argObjIds[EVENT_ARG_MAX_NUM];
 };
+struct DrawCardArgs{
+  RSID entityId;
+};
 struct GetCardArgs{
   RSID entityId;
 };
@@ -56,20 +60,18 @@ struct DeclAttackArgs{
   RSID attackerId;
   i8 position;
 };
-struct KVArgs{
-  RSID subject;
-  u8 kvNum;
-  RSID keys[EVENT_ARG_MAX_NUM/2];
-  i64 vals[EVENT_ARG_MAX_NUM/2];
+struct StartRoundArgs{
+  i32 round;
 };
 union EventArgs{
   CastArgs castArgs;
   SummonArgs summonArgs;
   DieArgs dieArgs;
   GetCardArgs getCardArgs;
+  DrawCardArgs drawCardArgs;
   LevelUpArgs levelUpArgs;
   DeclAttackArgs declAttackArgs;
-  KVArgs kvArgs;
+  StartRoundArgs startRoundArgs;
 };
 
 class Event {
@@ -79,10 +81,12 @@ public:
   EventArgs args;
   Event(EventType Type, RSID PlayerId);
   static Event buildGetCardEvent(RSID PlayerId, RSID entityId);
+  static Event buildDrawCardEvent(RSID PlayerId, RSID entityId);
   static Event buildLevelUpEvent(RSID PlayerId, RSID subjectId);
   static Event buildDeclAttackEvent(RSID PlayerId, RSID attackerId, i8 postion);
+  static Event buildStartRoundEvent(RSID PlayerId, i32 round);
 };
 
-typedef function<void(Event)> EventListener;
+typedef function<void(Event)> Listener;
 
 #endif //RUNESIM_GAME_EVENT_H

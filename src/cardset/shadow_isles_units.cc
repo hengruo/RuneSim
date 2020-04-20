@@ -21,36 +21,35 @@ void Kalista0088::onDeclAttack(Event event) const {
   auto & front = GAME_PTR->frontier[event.playerId];
   if(front.size()<FRONTIER_LIMIT){
     bondee.prepareAttack(front.size()-1);
-    ent.bond(bondee.getEntityId());
+    ent.bond(bondee.getId());
   }else{
     bondee.beDiscarded();
   }
 }
 
 void Kalista0091::onSummon(Event event) const {
-  static i32 counter = 0;
-  static RSID kalistaId = event.args.summonArgs.objectId;
-  static RSID kalistaPlayerId = event.playerId;
-  auto func = [](Event e) {
+  RSID lid = generateId();
+  EventListener listener = EventListener::buildAndReg(lid, EventType::DIE);
+  RSID kalistaPlayerId = event.playerId;
+  RSID kalistaId = event.args.summonArgs.objectId;
+  listener.data[0] = kalistaPlayerId;
+  listener.data[1] = kalistaId;
+  auto func = [=](RSID lid, Event e) {
+    auto el = GAME_PTR->evlsnr[lid];
     if (e.type != EventType::DIE || e.playerId != kalistaPlayerId)
       return;
-    counter += 1;
-    if(counter >= 4){
+    el.data[2] += 1;
+    if(el.data[2] >= 4){
       GAME_PTR->ents[kalistaId].levelUp(88);
-      auto l = GAME_PTR->listeners[EventType::DIE];
-      auto p = GAME_PTR->entityListeners[kalistaId];
-      l.erase(l.begin() + p.second);
-      GAME_PTR->entityListeners.erase(kalistaId);
+      GAME_PTR->evlsnr.erase(kalistaId);
     }
   };
-  GAME_PTR->listeners[EventType::DIE].push_back(func);
-  isize pos = GAME_PTR->listeners[EventType::DIE].size();
-  GAME_PTR->entityListeners[kalistaId] = {EventType::DIE, pos};
+  GAME_PTR->elByEntId[kalistaId].insert(lid);
 }
 
 void Kalista0091::onDie(Event event) const {
-  auto l = GAME_PTR->listeners[EventType::DIE];
-  auto p = GAME_PTR->entityListeners[event.args.dieArgs.subjectId];
-  l.erase(l.begin() + p.second);
-  GAME_PTR->entityListeners.erase(event.args.dieArgs.subjectId);
+  RSID kalistaId = event.args.dieArgs.subjectId;
+  set<RSID> lids = GAME_PTR->elByEntId[kalistaId];
+  for(auto lid: lids)
+    GAME_PTR->evlsnr.erase(lid);
 }

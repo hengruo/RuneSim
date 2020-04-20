@@ -130,9 +130,7 @@ public:
        const bool Collectible,
        const vec<RSID> &AssociatedCards);
   // functions to register event listeners
-  virtual void regWhenGameStarts();
-  virtual void regWhenPlayed();
-  virtual void regWhenSummoned();
+  virtual void beforeGameStarts(RSID playerId, RSID entityId);
   // whether this card can be played
   virtual bool playable(Event event) const;
   // whether this spell or skill can be casted

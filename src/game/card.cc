@@ -5,13 +5,7 @@
 #include "card.h"
 #include "event.h"
 
-void Card::regWhenGameStarts() {
-
-}
-void Card::regWhenPlayed() {
-
-}
-void Card::regWhenSummoned() {
+void Card::beforeGameStarts(RSID playerId, RSID entityId) {
 
 }
 bool Card::playable(Event event) const {

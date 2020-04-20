@@ -21,8 +21,8 @@ void DravensBiggestFan0374::onSummon(Event event) const {
 void LegionSaboteur0056::onDeclAttack(Event event) const {
   if(GAME_PTR->spellStack.size() < SPELL_STACK_LIMIT){
     RSID pid = event.playerId;
-    Entity sabotage = Entity::buildCard(generateId(), Sabotage0149().id, pid).val();
-    GAME_PTR->ents[sabotage.getEntityId()] = sabotage;
+    Entity sabotage = Entity::buildAndRegCard(generateId(), Sabotage0149().id, pid).val();
+    GAME_PTR->ents[sabotage.getId()] = sabotage;
     Event castSabotage(EventType::DECL_CAST, pid);
     GAME_PTR->spellStack.push_back(castSabotage);
   }

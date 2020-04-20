@@ -6,9 +6,10 @@
 #define RUNESIM_GAME_ENTITY_H
 
 #include "card.h"
-
+class Entity;
 class EntityImpl {
-public:
+  friend Entity;
+private:
   RSID entityId = -1;
   RSID cardId = -1;
   RSID playerId = -1;
@@ -34,10 +35,8 @@ public:
   bool isBonder = false;
   RSID detainerId = -1;
   RSID bondedId = -1;
-  EntityImpl();
+public:
   EntityImpl(RSID EntId, RSID CardId, RSID PlayerId);
-
-  static EntityImpl *build(RSID entId, RSID cardId, RSID PlayerId);
 };
 
 enum class EntityType {
@@ -49,20 +48,18 @@ class Entity {
 private:
   EntityType type;
   sptr<EntityImpl> content;
-public:
-  Entity();
-private:
   Entity(RSID entId, RSID cardId, RSID playerId);
   void enableBonder(RSID bondeeId);
   void enableBondee(RSID bonderId);
 public:
-  static Result<Entity> buildNexus(RSID entityId, RSID playerId);
-  static Result<Entity> buildCard(RSID entityId, RSID cardId, RSID playerId);
+  Entity();
+  static Result<Entity> buildAndRegNexus(RSID entityId, RSID playerId);
+  static Result<Entity> buildAndRegCard(RSID entityId, RSID cardId, RSID playerId);
   // ================================
   // get the value of a member
   // ================================
   const Card *getCard() const;
-  RSID getEntityId() const;
+  RSID getId() const;
   RSID getPlayerId() const;
   bool isNexus() const;
   bool isCard() const;

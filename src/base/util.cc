@@ -4,12 +4,13 @@
 
 #include "util.h"
 
+static RSID id = 0;
+
 RSID rsidByTime() {
   return duration_cast<nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 
 RSID generateId() {
-  static RSID id = 0;
   return id++;
 }
 
@@ -30,4 +31,7 @@ i32 rand(i32 l, i32 r) {
 
 std::mt19937 getRandomGenerator() {
   return gen;
+}
+void resetId() {
+  id = 0;
 }

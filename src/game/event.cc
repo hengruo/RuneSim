@@ -4,6 +4,7 @@
 
 #include "event.h"
 Event::Event(EventType Type, RSID PlayerId) : type(Type), playerId(PlayerId) {}
+
 Event Event::buildGetCardEvent(RSID PlayerId, RSID entityId) {
   EventType type = EventType::GET_CARD;
   Event event(type, PlayerId);
@@ -21,5 +22,17 @@ Event Event::buildDeclAttackEvent(RSID PlayerId, RSID attackerId, i8 postion) {
   event.args.declAttackArgs = DeclAttackArgs();
   event.args.declAttackArgs.attackerId = attackerId;
   event.args.declAttackArgs.position = postion;
+  return event;
+}
+Event Event::buildStartRoundEvent(RSID PlayerId, i32 round) {
+  Event event(EventType::START_ROUND, PlayerId);
+  event.args.startRoundArgs = StartRoundArgs();
+  event.args.startRoundArgs.round = round;
+  return event;
+}
+Event Event::buildDrawCardEvent(RSID PlayerId, RSID entityId) {
+  EventType type = EventType::DRAW_CARD;
+  Event event(type, PlayerId);
+  event.args.drawCardArgs.entityId = entityId;
   return event;
 }
