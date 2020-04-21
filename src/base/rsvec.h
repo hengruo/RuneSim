@@ -24,7 +24,7 @@ public:
       data = &v;
       ptr = size == 0 ? nullptr : const_cast<RSID *>(&((*data)[0]));
     }
-    RSVecIterator(const RSVecIterator & it){
+    RSVecIterator(const RSVecIterator &it) {
       cur = it.cur;
       size = it.size;
       data = it.data;
@@ -32,6 +32,9 @@ public:
     }
     inline bool operator!=(const RSVecIterator &it) {
       return !(data == it.data && ptr == it.ptr);
+    }
+    inline bool operator==(const RSVecIterator &it) {
+      return data == it.data && ptr == it.ptr;
     }
     inline RSVecIterator &operator++() {
       if (cur < size) {
@@ -61,7 +64,7 @@ public:
       }
       return *this;
     }
-    inline RSID& operator*() {
+    inline RSID &operator*() {
       return *ptr;
     }
     inline RSID *operator->() {
@@ -82,7 +85,7 @@ public:
     inline bool operator<(const RSVecIterator &it) {
       return data == it.data && cur < it.cur;
     }
-    inline RSVecIterator& operator=(const RSVecIterator & it){
+    inline RSVecIterator &operator=(const RSVecIterator &it) {
       cur = it.cur;
       size = it.size;
       data = it.data;
@@ -102,9 +105,9 @@ private:
 public:
   typedef RSVecIterator iterator;
   rsvec() {}
-  rsvec(initializer_list<RSID> l){
+  rsvec(initializer_list<RSID> l) {
     isize i = 0;
-    for(auto it = l.begin(); it != l.end(); it++, i++){
+    for (auto it = l.begin(); it != l.end(); it++, i++) {
       idx2rsid[i] = *it;
       rsid2idx[*it] = i;
     }
@@ -234,6 +237,12 @@ public:
     for (isize i = 0; i < sz; i++)
       res[i] = (*this)[i];
     return res;
+  }
+
+  inline iterator find(RSID id) {
+    if (rsid2idx.find(id) == rsid2idx.end())
+      return end();
+    return begin() + rsid2idx[id];
   }
 };
 

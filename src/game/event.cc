@@ -36,3 +36,10 @@ Event Event::buildDrawCardEvent(RSID PlayerId, RSID entityId) {
   event.args.drawCardArgs.entityId = entityId;
   return event;
 }
+Event Event::buildSummonEvent(RSID PlayerId, RSID summonee, i8 num, RSID args[]) {
+  Event event(EventType::SUMMON, PlayerId);
+  event.args.summonArgs.objectId = summonee;
+  event.args.summonArgs.argObjNum = num;
+  memcpy(event.args.summonArgs.argObjIds, args, num * sizeof(RSID));
+  return event;
+}

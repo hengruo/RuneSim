@@ -85,6 +85,7 @@ public:
   static Event buildLevelUpEvent(RSID PlayerId, RSID subjectId);
   static Event buildDeclAttackEvent(RSID PlayerId, RSID attackerId, i8 postion);
   static Event buildStartRoundEvent(RSID PlayerId, i32 round);
+  static Event buildSummonEvent(RSID PlayerId, RSID summonee, i8 num, RSID args[]);
 };
 
 typedef function<void(Event)> Listener;

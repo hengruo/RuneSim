@@ -77,7 +77,7 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   _game->frontier[1].resize(FRONTIER_LIMIT);
 
   _game->players[firstPlayer]->hasToken = true;
-  _game->players[1 - firstPlayer]->hasToken = false;
+  _game->players[FLIP(firstPlayer)]->hasToken = false;
   for (auto eid: _game->players[0]->deck)
     _game->ents[eid].getCard()->beforeGameStarts(0, eid);
   for (auto eid: _game->players[1]->deck)
@@ -142,7 +142,7 @@ void Game::startRound() {
   GAME_PTR->state = GameState::START_OF_ROUND;
   round += 1;
   RSID pid1 = GAME_PTR->starterInRound;
-  RSID pid2 = 1 - GAME_PTR->starterInRound;
+  RSID pid2 = FLIP(GAME_PTR->starterInRound);
   auto p1 = players[pid1], p2 = players[pid2];
   p1->spellMana = min(p1->spellMana + p1->unitMana, MAX_SPELL_MANA);
   p2->spellMana = min(p2->spellMana + p2->unitMana, MAX_SPELL_MANA);
@@ -188,9 +188,15 @@ bool Game::canSummon(Event event) {
   return card.getCard()->playable(event);
 }
 
-void Game::summon(RSID playerId, RSID entityId) {
-  auto p = players[playerId];
-  //TODO: ?
+void Game::summon(Event event) {
+  auto p = players[event.playerId];
+  auto eid = event.args.summonArgs.objectId;
+  p->hand.erase(eid);
+  p->unitMana -= ents[eid].getCost();
+  ents[eid].getCard()->onSummon(event);
+  trigger(event);
+  p->table.push_back(eid);
+  whosTurn = FLIP(whosTurn);
 }
 
 void Game::endDeclCast(RSID playerId) {
@@ -211,10 +217,7 @@ void Game::endDeclCast(RSID playerId) {
 
 bool Game::isInHand(RSID playerId, RSID entityId) {
   rsvec &hand = GAME_PTR->players[playerId]->hand;
-  for (auto eid: hand)
-    if (entityId == eid)
-      return true;
-  return false;
+  return hand.find(entityId) != hand.end();
 }
 bool Game::isObjInGameView(RSID entityId) {
   if (GAME_PTR->ents.find(entityId) == GAME_PTR->ents.end())
@@ -253,7 +256,7 @@ bool Game::isEnemy(RSID playerId, RSID entityId) {
   Entity obj = GAME_PTR->ents[entityId];
   if (obj.isDead() || obj.isDiscarded() || obj.isDetained() || !obj.isSummoned())
     return false;
-  return obj.getCard()->type == CardType::UNIT && obj.getPlayerId() == 1 - playerId;
+  return obj.getCard()->type == CardType::UNIT && obj.getPlayerId() == FLIP(playerId);
 }
 
 bool Game::isFollowerInGameView(RSID entityId) {

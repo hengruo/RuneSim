@@ -87,7 +87,8 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   GAME_PTR->putFirstDrawInHandAndShuffleDeck(pid1, firstDrawRes1);
   GAME_PTR->putFirstDrawInHandAndShuffleDeck(pid2, firstDrawRes2);
 
-  p1->deck = {8, 15, 19, 6, 11, 22, 12, 24, 5, 32, 38, 16, 39, 14, 27, 31, 26, 17, 28, 33, 25, 40, 29, 18, 3, 34, 21, 37, 36,
+  p1->deck =
+      {8, 15, 19, 6, 11, 22, 12, 24, 5, 32, 38, 16, 39, 14, 27, 31, 26, 17, 28, 33, 25, 40, 29, 18, 3, 34, 21, 37, 36,
        9, 23, 4, 20, 35, 10, 30};
   p2->deck =
       {47, 54, 59, 46, 51, 63, 52, 65, 44, 73, 79, 55, 80, 53, 68, 72, 67, 56, 69, 74, 66, 81, 70, 57, 42, 75, 62, 78,
@@ -97,6 +98,7 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   log("ROUND 01");
   log("====================================");
   GAME_PTR->startRound();
+  EXPECT_EQ(GAME_PTR->state, GameState::FREE);
   EXPECT_EQ(p1->deck.size(), 35);
   EXPECT_EQ(p2->deck.size(), 35);
   EXPECT_EQ(p1->hand.size(), 5);
@@ -111,5 +113,11 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   log("Player %d's hand:", pid2 + 1);
   for (auto eid: p2->hand)
     GAME_PTR->printEntity(eid);
-
+  RSID args[EVENT_ARG_MAX_NUM];
+  Event event = Event::buildSummonEvent(pid2, 49, 0, args);
+  EXPECT_EQ(GAME_PTR->canSummon(event), true);
+  if(GAME_PTR->canSummon(event))
+    GAME_PTR->summon(event);
+  EXPECT_EQ(p2->unitMana, 0);
+  EXPECT_EQ(GAME_PTR->whosTurn, pid1);
 }

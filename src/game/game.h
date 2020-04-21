@@ -53,6 +53,8 @@ enum class GameState{
   FREE
 };
 
+#define FLIP(X) (1 - (X))
+
 class Game final {
 public:
   umap<RSID, Entity> ents;
@@ -80,7 +82,7 @@ public:
   void startRound();
   void drawACard(RSID pid);
   bool canSummon(Event event);
-  void summon(RSID playerId, RSID entityId);
+  void summon(Event event);
 //  void castBurst(RSID playerId);
 //  void declCast(RSID playerId, vec<Event> events);
 //  void declAttack(RSID playerId);

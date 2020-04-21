@@ -60,3 +60,11 @@ TEST(RSVEC, SHUFFLE){
   std::shuffle(v.begin(), v.end(), getRandomGenerator());
   EXPECT_EQ(v.size(), 6);
 }
+
+TEST(RSVEC, FIND){
+  rsvec v;
+  v.add({1,12,7,19,6,5});
+  EXPECT_EQ(v.find(100) == v.end(), true);
+  EXPECT_EQ(v.find(100) != v.end(), false);
+  EXPECT_EQ(v.find(19) != v.end(), true);
+}
