@@ -115,9 +115,9 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
     GAME_PTR->printEntity(eid);
   RSID args[EVENT_ARG_MAX_NUM];
   Event event = Event::buildSummonEvent(pid2, 49, 0, args);
-  EXPECT_EQ(GAME_PTR->canSummon(event), true);
-  if(GAME_PTR->canSummon(event))
-    GAME_PTR->summon(event);
+  EXPECT_EQ(GAME_PTR->canSummonFromHand(event), true);
+  if(GAME_PTR->canSummonFromHand(event))
+    GAME_PTR->summonFromHand(event);
   EXPECT_EQ(p2->unitMana, 0);
   EXPECT_EQ(GAME_PTR->whosTurn, pid1);
 }

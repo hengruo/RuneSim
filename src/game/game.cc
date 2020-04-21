@@ -169,7 +169,7 @@ void Game::drawACard(RSID pid) {
   }
 }
 
-bool Game::canSummon(Event event) {
+bool Game::canSummonFromHand(Event event) {
   RSID pid = event.playerId;
   RSID id = event.args.summonArgs.objectId;
   if (pid != whosTurn)
@@ -188,7 +188,7 @@ bool Game::canSummon(Event event) {
   return card.getCard()->playable(event);
 }
 
-void Game::summon(Event event) {
+void Game::summonFromHand(Event event) {
   auto p = players[event.playerId];
   auto eid = event.args.summonArgs.objectId;
   p->hand.erase(eid);

@@ -7,3 +7,7 @@ A simulator of *Legends of Runeterra*.
 2. `mkdir build && cd build`
 3. `cmake .. && make`
 4. `(sudo) make install`
+
+## Roadmap
+
+## Reference

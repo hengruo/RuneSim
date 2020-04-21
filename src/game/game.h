@@ -81,8 +81,8 @@ public:
   void putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw);
   void startRound();
   void drawACard(RSID pid);
-  bool canSummon(Event event);
-  void summon(Event event);
+  bool canSummonFromHand(Event event);
+  void summonFromHand(Event event);
 //  void castBurst(RSID playerId);
 //  void declCast(RSID playerId, vec<Event> events);
 //  void declAttack(RSID playerId);
