@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 4/20/20.
 //
 
-#ifndef RUNESIM_SRC_BASE_RSVEC_H
-#define RUNESIM_SRC_BASE_RSVEC_H
+#ifndef RUNESIM_BASE_RSVEC_H
+#define RUNESIM_BASE_RSVEC_H
 
 #include "type.h"
 #include <initializer_list>
@@ -237,4 +237,4 @@ public:
   }
 };
 
-#endif //RUNESIM_SRC_BASE_RSVEC_H
+#endif //RUNESIM_BASE_RSVEC_H

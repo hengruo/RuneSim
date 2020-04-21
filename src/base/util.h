@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 4/3/20.
 //
 
-#ifndef RUNESIM_COMMON_UTIL_H
-#define RUNESIM_COMMON_UTIL_H
+#ifndef RUNESIM_BASE_UTIL_H
+#define RUNESIM_BASE_UTIL_H
 
 #include "type.h"
 #include <chrono>
@@ -19,4 +19,4 @@ RSID generateId();
 RSID rsidByTime();
 isize log(const char *format, ...);
 
-#endif //RUNESIM_COMMON_UTIL_H
+#endif //RUNESIM_BASE_UTIL_H

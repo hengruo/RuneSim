@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 4/19/20.
 //
 
-#ifndef RUNESIM_SRC_GAME_EVENT_LISTENER_H
-#define RUNESIM_SRC_GAME_EVENT_LISTENER_H
+#ifndef RUNESIM_GAME_EVENT_LISTENER_H
+#define RUNESIM_GAME_EVENT_LISTENER_H
 
 #include "event.h"
 
@@ -34,4 +34,4 @@ public:
   virtual void operator()(Event event);
 };
 
-#endif //RUNESIM_SRC_GAME_EVENT_LISTENER_H
+#endif //RUNESIM_GAME_EVENT_LISTENER_H
