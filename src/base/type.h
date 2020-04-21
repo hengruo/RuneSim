@@ -18,6 +18,8 @@
 #include <random>
 #include <functional>
 #include <set>
+#include <map>
+#include <iterator>
 
 using namespace std;
 

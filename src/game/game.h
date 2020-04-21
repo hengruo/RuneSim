@@ -33,12 +33,12 @@ public:
   i8 deadAllyCnt = 0;
   i8 deadAllyInRoundCnt = 0;
   bool hasToken = false;
-  vec<RSID> deck;
-  vec<RSID> hand;
-  vec<RSID> table;
-  vec<RSID> graveyard;
+  rsvec deck;
+  rsvec hand;
+  rsvec table;
+  rsvec graveyard;
 
-  static Result<vec<RSID>> buildDeck(const vec<pair<RSID, isize>> &v, RSID pid);
+  static Result<rsvec> buildDeck(const vec<pair<RSID, isize>> &v, RSID pid);
   static Result<sptr<Player>> build(RSID pid, vec<pair<RSID, isize>> &v);
 };
 

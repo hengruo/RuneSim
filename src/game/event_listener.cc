@@ -35,4 +35,5 @@ EventListener EventListener::buildAndReg(RSID ListenerId, EventType Type) {
   EventListener el(ListenerId, Type);
   GAME_PTR->evlsnr[ListenerId] = el;
   GAME_PTR->elByType[Type].insert(ListenerId);
+  return el;
 }

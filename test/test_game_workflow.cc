@@ -87,8 +87,7 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   GAME_PTR->putFirstDrawInHandAndShuffleDeck(pid1, firstDrawRes1);
   GAME_PTR->putFirstDrawInHandAndShuffleDeck(pid2, firstDrawRes2);
 
-  p1->deck =
-      {8, 15, 19, 6, 11, 22, 12, 24, 5, 32, 38, 16, 39, 14, 27, 31, 26, 17, 28, 33, 25, 40, 29, 18, 3, 34, 21, 37, 36,
+  p1->deck = {8, 15, 19, 6, 11, 22, 12, 24, 5, 32, 38, 16, 39, 14, 27, 31, 26, 17, 28, 33, 25, 40, 29, 18, 3, 34, 21, 37, 36,
        9, 23, 4, 20, 35, 10, 30};
   p2->deck =
       {47, 54, 59, 46, 51, 63, 52, 65, 44, 73, 79, 55, 80, 53, 68, 72, 67, 56, 69, 74, 66, 81, 70, 57, 42, 75, 62, 78,

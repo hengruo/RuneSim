@@ -4,18 +4,18 @@
 
 #include "game.h"
 
-Result<vec<RSID>> Player::buildDeck(const vec<pair<RSID, isize>> &v, RSID pid) {
+Result<rsvec> Player::buildDeck(const vec<pair<RSID, isize>> &v, RSID pid) {
   vec<RSID> deck;
   for (pair<RSID, isize> p : v) {
     for (RSID k = 0; k < p.second; k++) {
       auto res = Entity::buildAndRegCard(generateId(), p.first, pid);
       if (res.isErr())
-        return res.castErr<vec<RSID>>();
+        return res.castErr<rsvec>();
       auto ent = res.val();
       deck.push_back(ent.getId());
     }
   }
-  return Result<vec<RSID>>::mkVal(deck);
+  return Result<rsvec>::mkVal(rsvec::fromVec(deck));
 }
 
 Result<sptr<Player>> Player::build(RSID pid, vec<pair<RSID, isize>> &v) {

@@ -115,13 +115,11 @@ void Game::replaceFirstDraw(RSID pid, vec<RSID> &draw, vec<bool> toRep) {
 }
 
 void Game::putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw) {
-  uset<RSID> deckSet(players[pid]->deck.begin(), players[pid]->deck.end());
   for (auto eid: draw) {
     players[pid]->hand.push_back(eid);
-    deckSet.erase(eid);
     trigger(Event::buildGetCardEvent(pid, eid));
   }
-  players[pid]->deck = vector<RSID>(deckSet.begin(), deckSet.end());
+  players[pid]->deck.erase(draw);
   std::shuffle(players[pid]->deck.begin(), players[pid]->deck.end(), getRandomGenerator());
   GAME_PTR->state = GameState::AFTER_FIRST_DRAW;
 }
@@ -212,7 +210,7 @@ void Game::endDeclCast(RSID playerId) {
 }
 
 bool Game::isInHand(RSID playerId, RSID entityId) {
-  vec<RSID> &hand = GAME_PTR->players[playerId]->hand;
+  rsvec &hand = GAME_PTR->players[playerId]->hand;
   for (auto eid: hand)
     if (entityId == eid)
       return true;
@@ -305,7 +303,7 @@ void Game::moveFirstAppearingCardToTop(RSID playerId, RSID cardId) {
     RSID id = players[playerId]->deck[i];
     auto obj = ents[id];
     if (obj.getCard()->id == cardId)
-      swap(players[playerId]->deck[0], players[playerId]->deck[i]);
+      players[playerId]->deck.swap(0, i);
   }
 }
 RSID Game::putCardInHand(RSID playerId, RSID cardId) {
