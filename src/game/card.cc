@@ -5,7 +5,7 @@
 #include "card.h"
 #include "event.h"
 
-void Card::beforeGameStarts(RSID playerId, RSID entityId) {
+void Card::beforeGameStarts(RSID playerId, RSID entityId) const {
 
 }
 bool Card::playable(Event event) const {

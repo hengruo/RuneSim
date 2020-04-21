@@ -32,7 +32,7 @@ public:
   i8 targetCnt = 0;
   i8 deadAllyCnt = 0;
   i8 deadAllyInRoundCnt = 0;
-  bool inAttack = false;
+  bool hasToken = false;
   vec<RSID> deck;
   vec<RSID> hand;
   vec<RSID> table;
@@ -40,6 +40,17 @@ public:
 
   static Result<vec<RSID>> buildDeck(const vec<pair<RSID, isize>> &v, RSID pid);
   static Result<sptr<Player>> build(RSID pid, vec<pair<RSID, isize>> &v);
+};
+
+enum class GameState{
+  INIT,
+  AFTER_FIRST_DRAW,
+  START_OF_ROUND,
+  END_OF_ROUND,
+  IN_SLOW_SPELL,
+  IN_FAST_SPELL,
+  IN_ATTACK_DECLARATION,
+  FREE
 };
 
 class Game final {
@@ -53,9 +64,12 @@ public:
   vec<RSID> frontier[2];
   vec<Event> spellStack;
   i32 round = 0;
+  GameState state;
+  bool attackDone = false;
   RSID winner = -1;
-  RSID firstPlayer = -1;
+  RSID startingHand = -1;
   RSID starterInRound = -1;
+  RSID whosTurn = -1;
 
   static Result<Game *> build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2, RSID firstPlayer);
   static Result<void *> checkDeck(vec<pair<RSID, isize>> &v);
@@ -65,6 +79,8 @@ public:
   void putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw);
   void startRound();
   void drawACard(RSID pid);
+  bool canSummon(Event event);
+  void summon(RSID playerId, RSID entityId);
 //  void castBurst(RSID playerId);
 //  void declCast(RSID playerId, vec<Event> events);
 //  void declAttack(RSID playerId);
@@ -72,13 +88,11 @@ public:
 //  void endDeclBlock(RSID playerId);
   void endDeclCast(RSID playerId);
 //  void endRound(RSID playerId);
-//  void summon(RSID playerId);
 
   bool isEnded();
   void end(RSID Winner);
 
-  bool cast(RSID pid, RSID handId, vec<RSID> args);
-  bool pass(RSID pid);
+  bool isInHand(RSID playerId, RSID entityId);
   bool isObjInGameView(RSID entityId);
   bool isDestructibleObjInGameView(RSID entityId);
   bool isAlly(RSID playerId, RSID entityId);

@@ -12,9 +12,10 @@ EntityImpl::EntityImpl(RSID EntId, RSID CardId, RSID PlayerId)
   cost = card->cost;
   currentAttack = maxAttackInRound = maxAttackInGame = card->attack;
 }
+EntityImpl::EntityImpl() {}
 
 Entity::Entity() {
-  content = nullptr;
+  content = make_shared<EntityImpl>();
 }
 Entity::Entity(RSID entId, RSID cardId, RSID playerId) {
   content = make_shared<EntityImpl>(entId, cardId, playerId);
@@ -97,6 +98,9 @@ RSID Entity::getDetainerId() const {
 }
 i8 Entity::getAttackPosition() const {
   return content->attackPosition;
+}
+i8 Entity::getCost() const {
+  return content->cost;
 }
 i8 Entity::getHealth() const {
   if (isNexus())

@@ -8,7 +8,7 @@ message("C Compiler: ${CMAKE_C_COMPILER}")
 message("C++ Compiler: ${CMAKE_CXX_COMPILER}")
 
 set(RS_HEADER_FILES
-        src/base/type.h src/base/util.h src/base/result.h src/base/error.h src/base/base.h
+        src/base/type.h src/base/util.h src/base/result.h src/base/error.h src/base/base.h src/base/rsvec.h
         src/cardset/gallery.h src/cardset/cardset01.h
         src/game/card.h src/game/event.h src/game/entity.h src/game/game.h src/game/event_listener.h)
 

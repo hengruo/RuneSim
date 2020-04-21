@@ -12,11 +12,50 @@ Game::~Game() {
   players[1] = nullptr;
 }
 
+Result<void *> Game::checkDeck(vec<pair<RSID, isize>> &v) {
+  uset<CardRegion> regions;
+  umap<RSID, i32> eachCnt;
+  isize championCnt = 0;
+  isize totalCnt = 0;
+  for (pair<RSID, isize> p : v) {
+    if (GALLERY.find(p.first) == GALLERY.end())
+      return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Non-existent card ID: %04d.", p.first);
+    if (!GALLERY[p.first]->collectible)
+      return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Non-collectible card %04d.", p.first);
+    if (GALLERY[p.first]->supType == CardSupType::CHAMPION) {
+      championCnt += 1;
+      if (championCnt > CHAMPION_LIMIT)
+        return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Exceed champion size.");
+    }
+    if (p.second <= 0 || p.second > SINGLE_CARD_LIMIT)
+      return Result<void *>::mkErr(ErrorType::INVALID_DECK,
+                                   "Invalid number of card %04d: %d.",
+                                   p.first,
+                                   p.second);
+    eachCnt[p.first] += p.second;
+    if (eachCnt[p.first] > SINGLE_CARD_LIMIT)
+      return Result<void *>::mkErr(ErrorType::INVALID_DECK,
+                                   "Invalid number of card %04d: %d.",
+                                   p.first,
+                                   eachCnt[p.first]);
+    for (RSID k = 0; k < p.second; k++) {
+      totalCnt++;
+      if (totalCnt > DECK_LIMIT)
+        return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Exceed deck limit.");
+      regions.insert(GALLERY[p.first]->region);
+      if (regions.size() > REGION_LIMIT)
+        return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Exceed region limit.");
+    }
+  }
+  return Result<void *>::mkVal(nullptr);
+}
+
 Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2, RSID firstPlayer) {
   Game *_game = new Game;
   GAME_PTR = _game;
-  _game->firstPlayer = firstPlayer;
+  _game->startingHand = firstPlayer;
   _game->starterInRound = firstPlayer;
+  _game->whosTurn = firstPlayer;
   // build decks
   auto res1 = Game::checkDeck(v1);
   if (res1.isErr())
@@ -37,9 +76,14 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   _game->frontier[0].resize(FRONTIER_LIMIT);
   _game->frontier[1].resize(FRONTIER_LIMIT);
 
-  for (auto eid: _game->players[0]->deck) {
+  _game->players[firstPlayer]->hasToken = true;
+  _game->players[1 - firstPlayer]->hasToken = false;
+  for (auto eid: _game->players[0]->deck)
+    _game->ents[eid].getCard()->beforeGameStarts(0, eid);
+  for (auto eid: _game->players[1]->deck)
+    _game->ents[eid].getCard()->beforeGameStarts(1, eid);
 
-  }
+  _game->state = GameState::INIT;
   return Result<Game *>::mkVal(_game);
 }
 
@@ -79,6 +123,7 @@ void Game::putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw) {
   }
   players[pid]->deck = vector<RSID>(deckSet.begin(), deckSet.end());
   std::shuffle(players[pid]->deck.begin(), players[pid]->deck.end(), getRandomGenerator());
+  GAME_PTR->state = GameState::AFTER_FIRST_DRAW;
 }
 
 bool Game::isEnded() {
@@ -96,17 +141,23 @@ void Game::end(RSID Winner) {
 }
 
 void Game::startRound() {
+  GAME_PTR->state = GameState::START_OF_ROUND;
   round += 1;
-  auto p1 = players[0], p2 = players[1];
+  RSID pid1 = GAME_PTR->starterInRound;
+  RSID pid2 = 1 - GAME_PTR->starterInRound;
+  auto p1 = players[pid1], p2 = players[pid2];
   p1->spellMana = min(p1->spellMana + p1->unitMana, MAX_SPELL_MANA);
   p2->spellMana = min(p2->spellMana + p2->unitMana, MAX_SPELL_MANA);
   p1->unitMana = min(round, MAX_MANA);
   p2->unitMana = min(round, MAX_MANA);
-  players[starterInRound]->inAttack = true;
-  players[1 - starterInRound]->inAttack = false;
+  p1->hasToken = true;
+  p2->hasToken = false;
   trigger(Event::buildStartRoundEvent(starterInRound, round));
-
+  drawACard(pid1);
+  drawACard(pid2);
+  GAME_PTR->state = GameState::FREE;
 }
+
 void Game::drawACard(RSID pid) {
   auto p = players[pid];
   RSID id = p->deck.back();
@@ -119,10 +170,52 @@ void Game::drawACard(RSID pid) {
     trigger(Event::buildDrawCardEvent(pid, id));
   }
 }
-bool Game::cast(RSID pid, RSID handId, vec<RSID> args) {
-  return false;
+
+bool Game::canSummon(Event event) {
+  RSID pid = event.playerId;
+  RSID id = event.args.summonArgs.objectId;
+  if (pid != whosTurn)
+    return false;
+  if (state != GameState::FREE)
+    return false;
+  if (!isInHand(pid, id))
+    return false;
+  if (ents.find(id) == ents.end())
+    return false;
+  auto card = ents[id];
+  if (!card.isUnit())
+    return false;
+  if (card.getCost() > players[pid]->unitMana)
+    return false;
+  return card.getCard()->playable(event);
 }
-bool Game::pass(RSID pid) {
+
+void Game::summon(RSID playerId, RSID entityId) {
+  auto p = players[playerId];
+  //TODO: ?
+}
+
+void Game::endDeclCast(RSID playerId) {
+  for (int i = spellStack.size() - 1; i >= 0; i--) {
+    RSID spellId = spellStack[i].args.castArgs.objectId;
+    auto spell = ents[spellId];
+    if (spell.isCastable(spellStack[i])) {
+      spellStack[i].type = EventType::CAST;
+      spell.perform(spellStack[i]);
+    } else
+      spell.quench();
+  }
+  for (int i = spellStack.size() - 1; i >= 0; i--) {
+    RSID spellId = spellStack[i].args.castArgs.objectId;
+    GAME_PTR->players[ents[spellId].getPlayerId()]->graveyard.push_back(spellId);
+  }
+}
+
+bool Game::isInHand(RSID playerId, RSID entityId) {
+  vec<RSID> &hand = GAME_PTR->players[playerId]->hand;
+  for (auto eid: hand)
+    if (entityId == eid)
+      return true;
   return false;
 }
 bool Game::isObjInGameView(RSID entityId) {
@@ -131,7 +224,6 @@ bool Game::isObjInGameView(RSID entityId) {
   Entity obj = GAME_PTR->ents[entityId];
   return !(obj.isDead() || obj.isDiscarded() || obj.isDetained());
 }
-
 bool Game::isDestructibleObjInGameView(RSID entityId) {
   if (GAME_PTR->ents.find(entityId) == GAME_PTR->ents.end())
     return false;
@@ -174,21 +266,7 @@ bool Game::isFollowerInGameView(RSID entityId) {
     return false;
   return obj.getCard()->type == CardType::UNIT && obj.getCard()->supType != CardSupType::CHAMPION;
 }
-void Game::endDeclCast(RSID playerId) {
-  for (int i = spellStack.size() - 1; i >= 0; i--) {
-    RSID spellId = spellStack[i].args.castArgs.objectId;
-    auto spell = ents[spellId];
-    if (spell.isCastable(spellStack[i])) {
-      spellStack[i].type = EventType::CAST;
-      spell.perform(spellStack[i]);
-    } else
-      spell.quench();
-  }
-  for (int i = spellStack.size() - 1; i >= 0; i--) {
-    RSID spellId = spellStack[i].args.castArgs.objectId;
-    GAME_PTR->players[ents[spellId].getPlayerId()]->graveyard.push_back(spellId);
-  }
-}
+
 bool Game::hasSummonedCard(RSID playerId, RSID cardId) {
   for (int i = 0; i < players[playerId]->table.size(); i++) {
     RSID id = players[playerId]->table[i];
@@ -207,8 +285,8 @@ bool Game::hasSummonedCard(RSID playerId, RSID cardId) {
 bool Game::hasCardInHand(RSID playerId, RSID cardId) {
   for (int i = 0; i < players[playerId]->hand.size(); i++) {
     RSID id = players[playerId]->hand[i];
-    auto obj = ents[id];
-    if (obj.getCard()->id == cardId)
+    auto card = ents[id];
+    if (card.getCard()->id == cardId)
       return true;
   }
   return false;
@@ -255,40 +333,4 @@ void Game::trigger(Event event) {
       elByType[event.type].erase(lid);
   }
 }
-Result<void *> Game::checkDeck(vec<pair<RSID, isize>> &v) {
-  uset<CardRegion> regions;
-  umap<RSID, i32> eachCnt;
-  isize championCnt = 0;
-  isize totalCnt = 0;
-  for (pair<RSID, isize> p : v) {
-    if (GALLERY.find(p.first) == GALLERY.end())
-      return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Non-existent card ID: %04d.", p.first);
-    if (!GALLERY[p.first]->collectible)
-      return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Non-collectible card %04d.", p.first);
-    if (GALLERY[p.first]->supType == CardSupType::CHAMPION) {
-      championCnt += 1;
-      if (championCnt > CHAMPION_LIMIT)
-        return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Exceed champion size.");
-    }
-    if (p.second <= 0 || p.second > SINGLE_CARD_LIMIT)
-      return Result<void *>::mkErr(ErrorType::INVALID_DECK,
-                                   "Invalid number of card %04d: %d.",
-                                   p.first,
-                                   p.second);
-    eachCnt[p.first] += p.second;
-    if (eachCnt[p.first] > SINGLE_CARD_LIMIT)
-      return Result<void *>::mkErr(ErrorType::INVALID_DECK,
-                                   "Invalid number of card %04d: %d.",
-                                   p.first,
-                                   eachCnt[p.first]);
-    for (RSID k = 0; k < p.second; k++) {
-      totalCnt++;
-      if (totalCnt > DECK_LIMIT)
-        return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Exceed deck limit.");
-      regions.insert(GALLERY[p.first]->region);
-      if (regions.size() > REGION_LIMIT)
-        return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Exceed region limit.");
-    }
-  }
-  return Result<void *>::mkVal(nullptr);
-}
+

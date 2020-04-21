@@ -47,22 +47,22 @@ TEST(GAME_WORKFLOW, GAME_INIT_SUCCESS) {
   log("====================================");
   RSID pid1 = 0, pid2 = 1;
   Game::build(deckSpiderKarma, deckThreshLux, pid2);
-  EXPECT_EQ(GAME_PTR->firstPlayer, pid2);
+  EXPECT_EQ(GAME_PTR->startingHand, pid2);
   log("Player %d is the starting hand.", pid2 + 1);
   sptr<Player> p1 = GAME_PTR->players[pid1], p2 = GAME_PTR->players[pid2];
   auto firstDrawRes1 = GAME_PTR->firstDraw(pid1);
   auto firstDrawRes2 = GAME_PTR->firstDraw(pid2);
-  log("-------------------------------------------------");
+  log("------------------------------------");
   GAME_PTR->printEntity(p1->nexusId);
   for (auto eid: firstDrawRes1)
     GAME_PTR->printEntity(eid);
-  log("-------------------------------------------------");
+  log("------------------------------------");
   GAME_PTR->printEntity(p2->nexusId);
   for (auto eid: firstDrawRes2)
     GAME_PTR->printEntity(eid);
-  log("-------------------------------------------------");
+  log("------------------------------------");
   log("Player 1 doesn't replace cards.");
-  log("-------------------------------------------------");
+  log("------------------------------------");
   log("Player 2 replaced cards at positions: 0 2.");
   GAME_PTR->replaceFirstDraw(pid2, firstDrawRes2, {true, false, true, false});
   for (auto eid: firstDrawRes2)
@@ -77,24 +77,40 @@ TEST(GAME_WORKFLOW, GAME_INIT_SUCCESS) {
   EXPECT_EQ(p2->deck.size(), DECK_LIMIT - 4);
 }
 
-TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS){
+TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   resetId();
-  log("====================================");
-  log("PREPARE");
-  log("====================================");
   RSID pid1 = 0, pid2 = 1;
   Game::build(deckSpiderKarma, deckThreshLux, pid2);
   sptr<Player> p1 = GAME_PTR->players[pid1], p2 = GAME_PTR->players[pid2];
-  vec<RSID> firstDrawRes1 = {1,2,7,13};
-  vec<RSID> firstDrawRes2 = {45,49,58,61};
+  vec<RSID> firstDrawRes1 = {1, 2, 7, 13};
+  vec<RSID> firstDrawRes2 = {45, 49, 58, 61};
   GAME_PTR->putFirstDrawInHandAndShuffleDeck(pid1, firstDrawRes1);
   GAME_PTR->putFirstDrawInHandAndShuffleDeck(pid2, firstDrawRes2);
 
-  p1->deck = {30, 10, 35, 20, 4, 23, 9, 36, 37, 21, 34, 3, 18, 29, 40, 25, 33, 28, 17, 26, 31, 27, 14, 39, 16, 38, 32, 5, 24, 12, 22, 11, 6, 19, 15, 8};
-  p2->deck = {71, 50, 76, 60, 43, 64, 48, 77, 78, 62, 75, 42, 57, 70, 81, 66, 74, 69, 56, 67, 72, 68, 53, 80, 55, 79, 73, 44, 65, 52, 63, 51, 46, 59, 54, 47};
+  p1->deck =
+      {8, 15, 19, 6, 11, 22, 12, 24, 5, 32, 38, 16, 39, 14, 27, 31, 26, 17, 28, 33, 25, 40, 29, 18, 3, 34, 21, 37, 36,
+       9, 23, 4, 20, 35, 10, 30};
+  p2->deck =
+      {47, 54, 59, 46, 51, 63, 52, 65, 44, 73, 79, 55, 80, 53, 68, 72, 67, 56, 69, 74, 66, 81, 70, 57, 42, 75, 62, 78,
+       77, 48, 64, 43, 60, 76, 50, 71};
 
   log("====================================");
   log("ROUND 01");
   log("====================================");
   GAME_PTR->startRound();
+  EXPECT_EQ(p1->deck.size(), 35);
+  EXPECT_EQ(p2->deck.size(), 35);
+  EXPECT_EQ(p1->hand.size(), 5);
+  EXPECT_EQ(p2->hand.size(), 5);
+  EXPECT_EQ(p1->unitMana, 1);
+  EXPECT_EQ(p2->unitMana, 1);
+  log("------------------------------------");
+  log("Player %d's hand:", pid1 + 1);
+  for (auto eid: p1->hand)
+    GAME_PTR->printEntity(eid);
+  log("------------------------------------");
+  log("Player %d's hand:", pid2 + 1);
+  for (auto eid: p2->hand)
+    GAME_PTR->printEntity(eid);
+
 }

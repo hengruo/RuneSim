@@ -36,6 +36,7 @@ private:
   RSID detainerId = -1;
   RSID bondedId = -1;
 public:
+  EntityImpl();
   EntityImpl(RSID EntId, RSID CardId, RSID PlayerId);
 };
 
@@ -66,6 +67,7 @@ public:
   i8 getHealth() const;
   i8 getAttack() const;
   i8 getAttackPosition() const;
+  i8 getCost() const;
   bool isDead() const;
   bool isDetained() const;
   bool isInAttack() const;

@@ -8,5 +8,6 @@
 #include "type.h"
 #include "result.h"
 #include "util.h"
+#include "rsvec.h"
 
 #endif //RUNESIM_COMMON_CARD_H
