@@ -2,18 +2,12 @@
 // Created by Hengruo Zhang on 4/10/20.
 //
 
-#include "../game/game.h"
+#include "../runesim.h"
 #include <iostream>
 
 using namespace std;
 
 extern umap<RSID, Card *> GALLERY;
-
-Error goRound(RSID former, Game * game){
-
-  game->startRound();
-
-}
 
 int main() {
   // Initialization
@@ -45,21 +39,21 @@ int main() {
         //
       }
     }
+
+    RSID former = rand(0, 1); // starting hand player index
+    log("%s is the starting hand!\n", pName[former]);
+    indices[0] = former;
+    indices[1] = FLIP(former);
+    // Skip 0 and 1
+    generateId();
+    generateId();
     // Initialize game environment
-    auto res = Game::build(decks[0], decks[1]);
+    auto res = Game::build(decks[0], decks[1], former);
     if (res.isErr()) {
       res.printErr();
       continue;
     }
     Game *game = res.val();
-
-    RSID former = rand(0, 1); // starting hand player index
-    log("%s is the starting hand!\n", pName[former]);
-    indices[0] = former;
-    indices[1] = 1 - former;
-    // Skip 0 and 1
-    generateId();
-    generateId();
 
     // TODO: Players select and replace their first four cards
     //
@@ -68,8 +62,7 @@ int main() {
     while (!game->isEnded()) {
       log("-------------------------------------------------\nROUND %d\n-------------------------------------------------\n",
           round++);
-      Error err = goRound(former, game);
-      former = 1 - former;
+      former = FLIP(former);
     }
 
     log("END GAME? (Y/N): ");

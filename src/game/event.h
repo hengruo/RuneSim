@@ -41,8 +41,6 @@ struct CastArgs{
 };
 struct SummonArgs{
   RSID objectId;
-  u8 argObjNum;
-  RSID argObjIds[EVENT_ARG_MAX_NUM];
 };
 struct DrawCardArgs{
   RSID entityId;

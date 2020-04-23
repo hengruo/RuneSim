@@ -176,6 +176,8 @@ bool Game::canSummonFromHand(Event event) {
     return false;
   if (state != GameState::FREE)
     return false;
+  if(passCnt >= 2)
+    return false;
   if (!isInHand(pid, id))
     return false;
   if (ents.find(id) == ents.end())
@@ -197,6 +199,7 @@ void Game::summonFromHand(Event event) {
   trigger(event);
   p->table.push_back(eid);
   whosTurn = FLIP(whosTurn);
+  passCnt = 0;
 }
 
 void Game::endDeclCast(RSID playerId) {

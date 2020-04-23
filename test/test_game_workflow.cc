@@ -75,6 +75,7 @@ TEST(GAME_WORKFLOW, GAME_INIT_SUCCESS) {
     EXPECT_EQ(firstDrawRes2[i], p2->hand[i]);
   EXPECT_EQ(p1->deck.size(), DECK_LIMIT - 4);
   EXPECT_EQ(p2->deck.size(), DECK_LIMIT - 4);
+  delete GAME_PTR;
 }
 
 TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
@@ -94,9 +95,6 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
       {47, 54, 59, 46, 51, 63, 52, 65, 44, 73, 79, 55, 80, 53, 68, 72, 67, 56, 69, 74, 66, 81, 70, 57, 42, 75, 62, 78,
        77, 48, 64, 43, 60, 76, 50, 71};
 
-  log("====================================");
-  log("ROUND 01");
-  log("====================================");
   GAME_PTR->startRound();
   EXPECT_EQ(GAME_PTR->state, GameState::FREE);
   EXPECT_EQ(p1->deck.size(), 35);
@@ -105,19 +103,17 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   EXPECT_EQ(p2->hand.size(), 5);
   EXPECT_EQ(p1->unitMana, 1);
   EXPECT_EQ(p2->unitMana, 1);
-  log("------------------------------------");
-  log("Player %d's hand:", pid1 + 1);
   for (auto eid: p1->hand)
     GAME_PTR->printEntity(eid);
-  log("------------------------------------");
-  log("Player %d's hand:", pid2 + 1);
   for (auto eid: p2->hand)
     GAME_PTR->printEntity(eid);
-  RSID args[EVENT_ARG_MAX_NUM];
-  Event event = Event::buildSummonEvent(pid2, 49, 0, args);
+  RSID eventArgs[EVENT_ARG_MAX_NUM];
+  Event event = Event::buildSummonEvent(pid2, 49, 0, eventArgs);
   EXPECT_EQ(GAME_PTR->canSummonFromHand(event), true);
   if(GAME_PTR->canSummonFromHand(event))
     GAME_PTR->summonFromHand(event);
   EXPECT_EQ(p2->unitMana, 0);
   EXPECT_EQ(GAME_PTR->whosTurn, pid1);
+
+  delete GAME_PTR;
 }

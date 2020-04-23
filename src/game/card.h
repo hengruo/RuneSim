@@ -6,6 +6,7 @@
 #define RUNESIM_GAME_CARD_H
 
 #include "event.h"
+#include "action.h"
 
 #define K_NONE 0x0000000000000000
 #define K_FEARSOME 0x0000000000000001
@@ -132,7 +133,7 @@ public:
   // functions to register event listeners
   virtual void beforeGameStarts(RSID playerId, RSID entityId) const;
   // whether this card can be played
-  virtual bool playable(Event event) const;
+  virtual bool playable(Action action) const;
   // whether this spell or skill can be casted
   virtual bool castable(Event event) const;
   // action when play this card

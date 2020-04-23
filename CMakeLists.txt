@@ -10,7 +10,7 @@ message("C++ Compiler: ${CMAKE_CXX_COMPILER}")
 set(RS_HEADER_FILES
         src/base/type.h src/base/util.h src/base/result.h src/base/error.h src/base/base.h src/base/rsvec.h
         src/cardset/gallery.h src/cardset/cardset01.h
-        src/game/card.h src/game/event.h src/game/entity.h src/game/game.h src/game/event_listener.h)
+        src/game/card.h src/game/event.h src/game/entity.h src/game/game.h src/game/event_listener.h src/game/action.cc)
 
 set(RS_BASE_SOURCE_FILES src/base/util.cc src/base/error.cc src/base/result.cc)
 set(RS_CARD_SOURCE_FILES
@@ -18,21 +18,23 @@ set(RS_CARD_SOURCE_FILES
         src/cardset/ionia_spells.cc
         src/cardset/noxus_spells.cc src/cardset/noxus_units.cc src/cardset/noxus_others.cc
         src/cardset/shadow_isles_units.cc)
-set(RS_GAME_SOURCE_FILES src/game/card.cc src/game/game.cc src/game/player.cc src/game/event.cc src/game/entity.cc src/game/event_listener.cc)
+set(RS_GAME_SOURCE_FILES
+        src/game/card.cc src/game/game.cc src/game/player.cc src/game/event.cc
+        src/game/entity.cc src/game/event_listener.cc src/game/action.h)
 
 add_library(rsgame SHARED ${RS_HEADER_FILES}
-        ${RS_BASE_SOURCE_FILES} ${RS_CARD_SOURCE_FILES} ${RS_GAME_SOURCE_FILES})
+        ${RS_BASE_SOURCE_FILES} ${RS_CARD_SOURCE_FILES} ${RS_GAME_SOURCE_FILES} src/runesim.h)
 
-# sim
-#add_executable(sim app/cmd.cc)
-#target_include_directories(sim PRIVATE game)
-#target_link_libraries(sim game)
+# rscmd
+add_executable(rscmd src/app/cmd.cc)
+target_include_directories(rscmd PRIVATE rsgame)
+target_link_libraries(rscmd rsgame)
 
 # test
 enable_testing()
 find_package(GTest REQUIRED)
 get_filename_component(GTEST_LIBRARY_DIR ${GTEST_LIBRARY} DIRECTORY)
-add_executable(unit_tests test/test.h test/main.cc test/test_deck.cc test/test_game_workflow.cc test/test_event_listener.cc test/test_base.cc)
+add_executable(unit_tests test/test.h test/main.cc test/test_deck.cc test/test_game_workflow.cc test/test_event_listener.cc test/test_base.cc src/runesim.h)
 target_include_directories(unit_tests PRIVATE src/game ${GTEST_INCLUDE_DIR})
 target_link_directories(unit_tests PUBLIC ${GTEST_LIBRARY_DIR})
 if (APPLE)

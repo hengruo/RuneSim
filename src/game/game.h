@@ -66,6 +66,7 @@ public:
   vec<RSID> frontier[2];
   vec<Event> spellStack;
   i32 round = 0;
+  i32 passCnt = 0;
   GameState state;
   bool attackDone = false;
   RSID winner = -1;

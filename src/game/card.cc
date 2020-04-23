@@ -4,12 +4,13 @@
 
 #include "card.h"
 #include "event.h"
+#include "action.h"
 
 void Card::beforeGameStarts(RSID playerId, RSID entityId) const {
 
 }
-bool Card::playable(Event event) const {
-  return castable(event);
+bool Card::playable(Action action) const {
+  return castable(action);
 }
 void Card::onCast(Event event) const {
 
