@@ -5,31 +5,31 @@
 #include "gallery.h"
 #include "../game/game.h"
 
-void DravensBiggestFan0374::onSummon(Event event) const {
+void DravensBiggestFan0374::onSummon(Action &action) const {
   RSID dravenId = DRAVEN[0];
   RSID dravenId2 = DRAVEN[1];
-  if (GAME_PTR->hasSummonedCard(event.playerId, dravenId) || GAME_PTR->hasSummonedCard(event.playerId, dravenId2))
+  if (GAME_PTR->hasSummonedCard(action.summon.playerId, dravenId) || GAME_PTR->hasSummonedCard(action.summon.playerId, dravenId2))
     return;
-  if (GAME_PTR->hasCardInHand(event.playerId, dravenId) || GAME_PTR->hasCardInHand(event.playerId, dravenId2))
+  if (GAME_PTR->hasCardInHand(action.summon.playerId, dravenId) || GAME_PTR->hasCardInHand(action.summon.playerId, dravenId2))
     return;
-  if (GAME_PTR->hasCardInDeck(event.playerId, dravenId))
-    GAME_PTR->moveFirstAppearingCardToTop(event.playerId, dravenId);
-  else if (GAME_PTR->hasCardInDeck(event.playerId, dravenId2))
-    GAME_PTR->moveFirstAppearingCardToTop(event.playerId, dravenId2);
+  if (GAME_PTR->hasCardInDeck(action.summon.playerId, dravenId))
+    GAME_PTR->moveFirstAppearingCardToTop(action.summon.playerId, dravenId);
+  else if (GAME_PTR->hasCardInDeck(action.summon.playerId, dravenId2))
+    GAME_PTR->moveFirstAppearingCardToTop(action.summon.playerId, dravenId2);
 }
 
-void LegionSaboteur0056::onDeclAttack(Event event) const {
+void LegionSaboteur0056::onDeclAttack(Action &action) const {
   if(GAME_PTR->spellStack.size() < SPELL_STACK_LIMIT){
-    RSID pid = event.playerId;
+    RSID pid = action.summon.playerId;
     Entity sabotage = Entity::buildAndRegCard(generateId(), Sabotage0149().id, pid).val();
     GAME_PTR->ents[sabotage.getId()] = sabotage;
-    Event castSabotage(EventType::DECL_CAST, pid);
-    GAME_PTR->spellStack.push_back(castSabotage);
+    Action cast(CastAction(pid, sabotage.getId()));
+    GAME_PTR->spellStack.push_back(cast);
   }
 }
 
-void LonelyPoro0270::onSummon(Event event) const {
+void LonelyPoro0270::onSummon(Action &action) const {
   isize poroId = PORO_WITH_1_COST.at(rand(0, PORO_WITH_1_COST.size()-1));
-  RSID objId = GAME_PTR->putCardInHand(event.playerId, poroId);
+  RSID objId = GAME_PTR->putCardInHand(action.summon.playerId, poroId);
 
 }

@@ -5,7 +5,7 @@
 #include "gallery.h"
 #include "../game/game.h"
 
-void Sabotage0149::onCast(Event event) const {
-  RSID enemy = 1 - event.playerId;
+void Sabotage0149::onCast(Action &action) const {
+  RSID enemy = 1 - action.playerId;
   GAME_PTR->players[enemy];
 }

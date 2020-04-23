@@ -6,8 +6,8 @@
 #include "gallery.h"
 #include "../game/game.h"
 
-bool Deny0336::castable(Event event) const {
-  auto id = event.args.castArgs.argObjIds[0];
+bool Deny0336::castable(const Action &action) const {
+  auto id = action.play.args[0];
   if(!(GAME_PTR->isObjInGameView(id)))
     return false;
   auto target = GAME_PTR->ents[id];
@@ -19,8 +19,8 @@ bool Deny0336::castable(Event event) const {
   return true;
 }
 
-void Deny0336::onCast(Event event) const {
-  auto id = event.args.castArgs.argObjIds[0];
+void Deny0336::onCast(Action &action) const {
+  auto id = action.cast.args[0];
   if(GAME_PTR->isObjInGameView(id)){
     auto target = GAME_PTR->ents[id];
     target.beDenied();

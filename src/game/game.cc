@@ -63,12 +63,14 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   auto res2 = Game::checkDeck(v2);
   if (res2.isErr())
     return res2.castErr<Game *>();
-
-  auto p1 = Player::build(0, v1);
+  resetId();
+  RSID pid1 = generateId();
+  RSID pid2 = generateId();
+  auto p1 = Player::build(pid1, v1);
   if (p1.isErr())
     return p1.castErr<Game *>();
   _game->players[0] = p1.val();
-  auto p2 = Player::build(1, v2);
+  auto p2 = Player::build(pid2, v2);
   if (p2.isErr())
     return p2.castErr<Game *>();
   _game->players[1] = p2.val();
@@ -176,7 +178,7 @@ bool Game::canSummonFromHand(Event event) {
     return false;
   if (state != GameState::FREE)
     return false;
-  if(passCnt >= 2)
+  if (passCnt >= 2)
     return false;
   if (!isInHand(pid, id))
     return false;

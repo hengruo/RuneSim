@@ -9,19 +9,19 @@
 void Card::beforeGameStarts(RSID playerId, RSID entityId) const {
 
 }
-bool Card::playable(Action action) const {
+bool Card::playable(const Action &action) const {
   return castable(action);
 }
-void Card::onCast(Event event) const {
+void Card::onCast(Action &action) const {
 
 }
-void Card::onDiscard(Event event) const {
+void Card::onDiscard(Action &action) const {
 
 }
-void Card::onDie(Event event) const {
+void Card::onDie(Action &action) const {
 
 }
-void Card::onSummon(Event event) const {
+void Card::onSummon(Action &action) const {
 
 }
 Card::Card(const RSID Id,
@@ -44,13 +44,13 @@ Card::Card(const RSID Id,
       rarity(Rarity), type(Type), supType(SupType), subType(SubType), keywords(Keywords), cost(Cost), attack(Attack),
       health(Health), collectible(Collectible), associatedCards(AssociatedCards) {}
 
-bool Card::castable(Event event) const {
+bool Card::castable(const Action &action) const {
   return true;
 }
-void Card::onPlay(Event event) const {
+void Card::onPlay(Action &action) const {
   if (type == CardType::UNIT)
-    onSummon(event);
+    onSummon(action);
 }
-void Card::onDeclAttack(Event event) const {
+void Card::onDeclAttack(Action &action) const {
 
 }

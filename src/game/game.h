@@ -64,7 +64,7 @@ public:
   umap<RSID, set<RSID>> elByCardId;
   sptr<Player> players[2];
   vec<RSID> frontier[2];
-  vec<Event> spellStack;
+  vec<Action> spellStack;
   i32 round = 0;
   i32 passCnt = 0;
   GameState state;

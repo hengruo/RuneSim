@@ -603,7 +603,7 @@ public:
                               K_NONE,
                               1, 2, 1, true, {149}) {}
 
-  void onDeclAttack(Event event) const override;
+  void onDeclAttack(Action &action) const override;
 };
 class Hecarim0057 final : public Card {
 public:
@@ -845,7 +845,7 @@ public:
                             K_BURST,
                             2, 0, 0, true, {}) {}
 
-  void onCast(Event event) const override;
+  void onCast(Action &action) const override;
 };
 class HouseSpider0081 final : public Card {
 public:
@@ -944,7 +944,7 @@ public:
                        4,
                        false,
                        {91, 195}) {}
-  void onDeclAttack(Event event) const;
+  void onDeclAttack(Action &action) const;
 };
 class Entreat0089 final : public Card {
 public:
@@ -975,8 +975,8 @@ public:
                        CardType::UNIT, CardSupType::CHAMPION, CardSubType::NONE,
                        K_FEARSOME,
                        3, 4, 3, true, {88, 195}) {}
-  void onSummon(Event event) const;
-  void onDie(Event event) const;
+  void onSummon(Action &action) const;
+  void onDie(Action &action) const;
 };
 class SownSeeds0092 final : public Card {
 public:
@@ -1593,7 +1593,7 @@ public:
                         CardType::ABILITY, CardSupType::NONE, CardSubType::NONE,
                         K_SKILL,
                         0, 0, 0, false, {}) {}
-  void onCast(Event event) const;
+  void onCast(Action &action) const;
 };
 class StalkingWolf0150 final : public Card {
 public:
@@ -2043,8 +2043,8 @@ public:
                           K_FAST,
                           1, 0, 0, true, {}) {}
 
-  bool castable(Event event) const override;
-  void onCast(Event event) const override;
+  bool castable(const Action &action) const override;
+  void onCast(Action &action) const override;
 };
 class SilverwingScout0193 final : public Card {
 public:
@@ -2764,8 +2764,8 @@ public:
                              K_BURST,
                              1, 0, 0, true, {}) {}
 
-  bool castable(Event event) const override;
-  void onCast(Event event) const override;
+  bool castable(const Action &action) const override;
+  void onCast(Action &action) const override;
 };
 class SilentShadowseer0263 final : public Card {
 public:
@@ -2846,7 +2846,7 @@ public:
                           CardType::UNIT, CardSupType::NONE, CardSubType::PORO,
                           K_NONE,
                           1, 1, 1, true, {70}) {}
-  void onSummon(Event event) const override;
+  void onSummon(Action &action) const override;
 };
 class Karma0271 final : public Card {
 public:
@@ -2898,7 +2898,7 @@ public:
                           K_FAST,
                           2, 0, 0, true, {}) {}
 
-  void onCast(Event event) const override;
+  void onCast(Action &action) const override;
 };
 class Mk0WindupShredder0276 final : public Card {
 public:
@@ -3518,8 +3518,8 @@ public:
                     CardType::SPELL, CardSupType::NONE, CardSubType::NONE,
                     K_FAST,
                     4, 0, 0, true, {}) {}
-  bool castable(Event event) const override;
-  void onCast(Event event) const override;
+  bool castable(const Action &action) const override;
+  void onCast(Action &action) const override;
 };
 class TrifarianGloryseeker0337 final : public Card {
 public:
@@ -3910,7 +3910,7 @@ public:
                                  true,
                                  {130}) {}
 
-  void onSummon(Event event) const override;
+  void onSummon(Action &action) const override;
 };
 class GlacialStorm0375 final : public Card {
 public:
@@ -4329,8 +4329,8 @@ public:
                      K_SLOW,
                      1, 0, 0, true, {}) {}
 
-  bool castable(Event event) const override;
-  void onCast(Event event) const override;
+  bool castable(const Action &action) const override;
+  void onCast(Action &action) const override;
 };
 class BabblingBjerg0414 final : public Card {
 public:

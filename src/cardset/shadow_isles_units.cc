@@ -5,11 +5,11 @@
 #include "gallery.h"
 #include "../game/game.h"
 
-void Kalista0088::onDeclAttack(Event event) const {
-  auto ent = GAME_PTR->ents[event.args.declAttackArgs.attackerId];
+void Kalista0088::onDeclAttack(Action &action) const {
+  auto ent = GAME_PTR->ents[action.declAttack.attackerId];
   i8 maxPower = 0;
   Entity strongest;
-  for(RSID id : GAME_PTR->players[event.playerId]->graveyard){
+  for(RSID id : GAME_PTR->players[action.declAttack.playerId]->graveyard){
     if(GAME_PTR->ents[id].isFollower()){
       if(GAME_PTR->ents[id].getAttack() > maxPower){
         maxPower = GAME_PTR->ents[id].getAttack();
@@ -18,7 +18,7 @@ void Kalista0088::onDeclAttack(Event event) const {
     }
   }
   auto bondee = strongest.getEphemeralCopy();
-  auto & front = GAME_PTR->frontier[event.playerId];
+  auto & front = GAME_PTR->frontier[action.declAttack.playerId];
   if(front.size()<FRONTIER_LIMIT){
     bondee.prepareAttack(front.size()-1);
     ent.bond(bondee.getId());
@@ -27,11 +27,11 @@ void Kalista0088::onDeclAttack(Event event) const {
   }
 }
 
-void Kalista0091::onSummon(Event event) const {
+void Kalista0091::onSummon(Action &action) const {
   RSID lid = generateId();
   EventListener listener = EventListener::buildAndReg(lid, EventType::DIE);
-  RSID kalistaPlayerId = event.playerId;
-  RSID kalistaId = event.args.summonArgs.objectId;
+  RSID kalistaPlayerId = action.summon.playerId;
+  RSID kalistaId = action.summon.summoneeId;
   listener.data[0] = kalistaPlayerId;
   listener.data[1] = kalistaId;
   auto func = [=](RSID lid, Event e) {
@@ -47,8 +47,8 @@ void Kalista0091::onSummon(Event event) const {
   GAME_PTR->elByEntId[kalistaId].insert(lid);
 }
 
-void Kalista0091::onDie(Event event) const {
-  RSID kalistaId = event.args.dieArgs.subjectId;
+void Kalista0091::onDie(Action &action) const {
+  RSID kalistaId = action.die.deadId;
   set<RSID> lids = GAME_PTR->elByEntId[kalistaId];
   for(auto lid: lids)
     GAME_PTR->evlsnr.erase(lid);

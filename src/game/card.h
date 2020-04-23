@@ -133,17 +133,17 @@ public:
   // functions to register event listeners
   virtual void beforeGameStarts(RSID playerId, RSID entityId) const;
   // whether this card can be played
-  virtual bool playable(Action action) const;
+  virtual bool playable(const Action &action) const;
   // whether this spell or skill can be casted
-  virtual bool castable(Event event) const;
-  // action when play this card
-  virtual void onPlay(Event event) const;
-  // action when cast this spell, skill, or trap
-  virtual void onCast(Event event) const;
-  virtual void onDiscard(Event event) const;
-  virtual void onDie(Event event) const;
-  virtual void onSummon(Event event) const;
-  virtual void onDeclAttack(Event event) const;
+  virtual bool castable(const Action &action) const;
+  // reaction when play this card
+  virtual void onPlay(Action &action) const;
+  // reaction when cast this spell, skill, or trap
+  virtual void onCast(Action &action) const;
+  virtual void onDiscard(Action &action) const;
+  virtual void onDie(Action &action) const;
+  virtual void onSummon(Action &action) const;
+  virtual void onDeclAttack(Action &action) const;
 };
 
 #endif //RUNESIM_GAME_CARD_H

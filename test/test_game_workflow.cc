@@ -83,17 +83,17 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   RSID pid1 = 0, pid2 = 1;
   Game::build(deckSpiderKarma, deckThreshLux, pid2);
   sptr<Player> p1 = GAME_PTR->players[pid1], p2 = GAME_PTR->players[pid2];
-  vec<RSID> firstDrawRes1 = {1, 2, 7, 13};
-  vec<RSID> firstDrawRes2 = {45, 49, 58, 61};
+  vec<RSID> firstDrawRes1 = {4, 5, 10, 16};
+  vec<RSID> firstDrawRes2 = {49, 53, 62, 65};
   GAME_PTR->putFirstDrawInHandAndShuffleDeck(pid1, firstDrawRes1);
   GAME_PTR->putFirstDrawInHandAndShuffleDeck(pid2, firstDrawRes2);
 
   p1->deck =
-      {8, 15, 19, 6, 11, 22, 12, 24, 5, 32, 38, 16, 39, 14, 27, 31, 26, 17, 28, 33, 25, 40, 29, 18, 3, 34, 21, 37, 36,
-       9, 23, 4, 20, 35, 10, 30};
+      {11, 18, 22, 9, 14, 25, 15, 27, 8, 35, 41, 19, 42, 17, 30, 34, 29, 20, 31, 36, 28, 43, 32, 21, 6, 37, 24, 40, 39,
+       12, 26, 7, 23, 38, 13, 33};
   p2->deck =
-      {47, 54, 59, 46, 51, 63, 52, 65, 44, 73, 79, 55, 80, 53, 68, 72, 67, 56, 69, 74, 66, 81, 70, 57, 42, 75, 62, 78,
-       77, 48, 64, 43, 60, 76, 50, 71};
+      {50, 57, 62, 49, 54, 66, 55, 68, 47, 76, 82, 58, 83, 56, 71, 75, 70, 59, 72, 77, 69, 84, 73, 60, 45, 78, 65, 81,
+       80, 51, 67, 46, 63, 79, 53, 74};
 
   GAME_PTR->startRound();
   EXPECT_EQ(GAME_PTR->state, GameState::FREE);
@@ -108,9 +108,9 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   for (auto eid: p2->hand)
     GAME_PTR->printEntity(eid);
   RSID eventArgs[EVENT_ARG_MAX_NUM];
-  Event event = Event::buildSummonEvent(pid2, 49, 0, eventArgs);
+  Event event = Event::buildSummonEvent(pid2, 53, 0, eventArgs);
   EXPECT_EQ(GAME_PTR->canSummonFromHand(event), true);
-  if(GAME_PTR->canSummonFromHand(event))
+  if (GAME_PTR->canSummonFromHand(event))
     GAME_PTR->summonFromHand(event);
   EXPECT_EQ(p2->unitMana, 0);
   EXPECT_EQ(GAME_PTR->whosTurn, pid1);
