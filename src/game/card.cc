@@ -48,8 +48,11 @@ bool Card::castable(const Action &action) const {
   return true;
 }
 void Card::onPlay(Action &action) const {
-  if (type == CardType::UNIT)
+  if (type == CardType::UNIT) {
+    action.any.type = ActionType::SUMMON;
     onSummon(action);
+  }else if(type == CardType::SPELL)
+    action.any.type = ActionType::CAST;
 }
 void Card::onDeclAttack(Action &action) const {
 

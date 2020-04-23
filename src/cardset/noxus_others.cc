@@ -6,6 +6,6 @@
 #include "../game/game.h"
 
 void Sabotage0149::onCast(Action &action) const {
-  RSID enemy = 1 - action.playerId;
+  RSID enemy = FLIP(action.cast.playerId);
   GAME_PTR->players[enemy];
 }

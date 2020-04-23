@@ -244,6 +244,10 @@ public:
       return end();
     return begin() + rsid2idx[id];
   }
+
+  inline bool has(RSID id){
+    return find(id) != end();
+  }
 };
 
 #endif //RUNESIM_BASE_RSVEC_H

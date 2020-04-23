@@ -26,6 +26,7 @@ private:
   bool summoned = false;
   bool purified = false;
   bool detained = false;
+  bool obliterated = false;
   bool barriered = false;
   bool discarded = false; // if discarded
   bool dead = false; // if in graveyard
@@ -99,10 +100,10 @@ public:
   void transform(RSID cardId);
   void die();
   void levelUp(RSID cardId);
-  bool isCastable(Event event);
-  bool isPlayable(Event event);
+  bool isCastable(Action &action);
+  bool isPlayable(Action &action);
   // perform effects of spells or skills
-  void perform(Event event);
+  void perform(Action &action);
   void bond(RSID bondeeId);
   void quench();
   void prepareAttack(i8 position);

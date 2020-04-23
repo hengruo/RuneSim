@@ -5,7 +5,6 @@
 #ifndef RUNESIM_GAME_CARD_H
 #define RUNESIM_GAME_CARD_H
 
-#include "event.h"
 #include "action.h"
 
 #define K_NONE 0x0000000000000000
@@ -92,7 +91,7 @@ enum class CardRegion {
 };
 
 class Game;
-class Event;
+union Action;
 
 extern Game *GAME_PTR;
 

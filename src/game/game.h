@@ -8,6 +8,7 @@
 #include "entity.h"
 #include "event.h"
 #include "event_listener.h"
+#include "action.h"
 
 #define SINGLE_CARD_LIMIT 3
 #define REGION_LIMIT 2
@@ -26,6 +27,7 @@ class Player {
 public:
   RSID playerId{};
   RSID nexusId;
+  RSID opNexusId;
   i8 nexusHealth = 20;
   i8 unitMana = 0;
   i8 spellMana = 0;
@@ -33,6 +35,7 @@ public:
   i8 deadAllyCnt = 0;
   i8 deadAllyInRoundCnt = 0;
   bool hasToken = false;
+  bool attackDone = false;
   rsvec deck;
   rsvec hand;
   rsvec table;
@@ -46,16 +49,18 @@ enum class GameState{
   INIT,
   AFTER_FIRST_DRAW,
   START_OF_ROUND,
-  END_OF_ROUND,
-  IN_SLOW_SPELL,
-  IN_FAST_SPELL,
-  IN_ATTACK_DECLARATION,
+  IN_SPELL,
+  IN_SKILL,
   FREE
 };
 
 #define FLIP(X) (1 - (X))
 
 class Game final {
+private:
+  // check game state
+  bool isArenaClean();
+  bool hasBattlingUnits();
 public:
   umap<RSID, Entity> ents;
   umap<RSID, EventListener> evlsnr;
@@ -68,29 +73,37 @@ public:
   i32 round = 0;
   i32 passCnt = 0;
   GameState state;
-  bool attackDone = false;
   RSID winner = -1;
   RSID startingHand = -1;
   RSID starterInRound = -1;
-  RSID whosTurn = -1;
+  RSID whoseTurn = -1;
+  RSID stateInitiator = -1;
 
   static Result<Game *> build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2, RSID firstPlayer);
   static Result<void *> checkDeck(vec<pair<RSID, isize>> &v);
 
   vec<RSID> firstDraw(RSID pid);
-  void replaceFirstDraw(RSID pid, vec<RSID> &draw, vec<bool> toRep);
-  void putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw);
+
+  // Game or card action
   void startRound();
   void drawACard(RSID pid);
-  bool canSummonFromHand(Event event);
-  void summonFromHand(Event event);
-//  void castBurst(RSID playerId);
-//  void declCast(RSID playerId, vec<Event> events);
-//  void declAttack(RSID playerId);
-//  void declBlock(RSID playerId);
-//  void endDeclBlock(RSID playerId);
-  void endDeclCast(RSID playerId);
-//  void endRound(RSID playerId);
+  void releaseSkill(Action &action);
+  void releaseSpells();
+//  void endRound();
+  // Player action
+  void replaceFirstDraw(RSID pid, vec<RSID> &draw, vec<bool> toRep);
+  void putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw);
+  bool canPlayUnit(Action &action);
+  void playUnit(Action &action);
+  bool canPlaySpell(Action &action);
+  void playSpell(Action &action);
+//  bool canCastBurst(Action &action);
+//  void castBurst(Action &action);
+//  bool canPutUnitToAttack(Action &action);
+//  void putUnitToAttack(Action &action);
+//  bool canPutUnitToBlock(Action &action);
+//  void putUnitToBlock(Action &action);
+  void hitButton(RSID pid);
 
   bool isEnded();
   void end(RSID Winner);

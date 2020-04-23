@@ -36,7 +36,7 @@ void Kalista0091::onSummon(Action &action) const {
   listener.data[1] = kalistaId;
   auto func = [=](RSID lid, Event e) {
     auto el = GAME_PTR->evlsnr[lid];
-    if (e.type != EventType::DIE || e.playerId != kalistaPlayerId)
+    if (e.any.type != EventType::DIE || e.die.playerId != kalistaPlayerId)
       return;
     el.data[2] += 1;
     if(el.data[2] >= 4){

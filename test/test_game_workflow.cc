@@ -107,13 +107,14 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
     GAME_PTR->printEntity(eid);
   for (auto eid: p2->hand)
     GAME_PTR->printEntity(eid);
-  RSID eventArgs[EVENT_ARG_MAX_NUM];
-  Event event = Event::buildSummonEvent(pid2, 53, 0, eventArgs);
-  EXPECT_EQ(GAME_PTR->canSummonFromHand(event), true);
-  if (GAME_PTR->canSummonFromHand(event))
-    GAME_PTR->summonFromHand(event);
+  RSID actionArgs[EVENT_MAX_SIZE];
+  Action action(SummonAction(pid2, 53));
+  action.summon.argc = 0;
+  EXPECT_EQ(GAME_PTR->canPlayUnit(action), true);
+  if (GAME_PTR->canPlayUnit(action))
+    GAME_PTR->playUnit(action);
   EXPECT_EQ(p2->unitMana, 0);
-  EXPECT_EQ(GAME_PTR->whosTurn, pid1);
+  EXPECT_EQ(GAME_PTR->whoseTurn, pid1);
 
   delete GAME_PTR;
 }

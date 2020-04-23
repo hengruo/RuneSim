@@ -126,8 +126,8 @@ i8 Entity::getAttack() const {
 
 void Entity::beHurt(i8 damage) {
   content->currentHealth -= damage;
-  if (isNexus() && content->currentHealth <= 0) {
-    GAME_PTR->end(1 - content->playerId);
+  if (isNexus() && getHealth() <= 0) {
+    GAME_PTR->end(FLIP(getPlayerId()));
   } else if (isCard() && getHealth() <= 0) {
     die();
   }
@@ -163,23 +163,23 @@ void Entity::beDiscarded() {
 void Entity::die() {
 
 }
-void Entity::perform(Event event) {
-  getCard()->onCast(event);
+void Entity::perform(Action &action) {
+  getCard()->onCast(action);
   content->dead = true;
   auto player = GAME_PTR->players[getPlayerId()];
 }
 void Entity::quench() {
   content->dead = true;
 }
-bool Entity::isCastable(Event event) {
+bool Entity::isCastable(Action &action) {
   if (isDead() || getCard()->type != CardType::SPELL || getCard()->type != CardType::ABILITY)
     return false;
-  return getCard()->castable(event);
+  return getCard()->castable(action);
 }
-bool Entity::isPlayable(Event event) {
+bool Entity::isPlayable(Action &action) {
   if (isDead())
     return false;
-  return getCard()->playable(event);
+  return getCard()->playable(action);
 }
 void Entity::transform(RSID cardId) {
   content->cardId = cardId;
@@ -188,9 +188,11 @@ void Entity::transform(RSID cardId) {
 void Entity::levelUp(RSID cardId) {
   content->cardId = cardId;
   content->card = GALLERY[cardId];
-  content->card->onSummon((Event::buildLevelUpEvent(getPlayerId(), getId())));
+  Action summon(SummonAction(getPlayerId(), getId()));
+  content->card->onSummon(summon);
   if (isInAttack()) {
-    content->card->onDeclAttack(Event::buildDeclAttackEvent(getPlayerId(), getId(), content->attackPosition));
+    Action declAttack(DeclAttackAction(getPlayerId(), getId(), content->attackPosition));
+    content->card->onDeclAttack(declAttack);
   }
 }
 void Entity::prepareAttack(i8 position) {

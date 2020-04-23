@@ -19,13 +19,11 @@ void DravensBiggestFan0374::onSummon(Action &action) const {
 }
 
 void LegionSaboteur0056::onDeclAttack(Action &action) const {
-  if(GAME_PTR->spellStack.size() < SPELL_STACK_LIMIT){
     RSID pid = action.summon.playerId;
     Entity sabotage = Entity::buildAndRegCard(generateId(), Sabotage0149().id, pid).val();
     GAME_PTR->ents[sabotage.getId()] = sabotage;
     Action cast(CastAction(pid, sabotage.getId()));
-    GAME_PTR->spellStack.push_back(cast);
-  }
+    GAME_PTR->releaseSkill(cast);
 }
 
 void LonelyPoro0270::onSummon(Action &action) const {

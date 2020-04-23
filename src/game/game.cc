@@ -55,7 +55,7 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   GAME_PTR = _game;
   _game->startingHand = firstPlayer;
   _game->starterInRound = firstPlayer;
-  _game->whosTurn = firstPlayer;
+  _game->whoseTurn = firstPlayer;
   // build decks
   auto res1 = Game::checkDeck(v1);
   if (res1.isErr())
@@ -74,6 +74,8 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   if (p2.isErr())
     return p2.castErr<Game *>();
   _game->players[1] = p2.val();
+  _game->players[0]->opNexusId = _game->players[1]->nexusId;
+  _game->players[1]->opNexusId = _game->players[0]->nexusId;
   // init frontier
   _game->frontier[0].resize(FRONTIER_LIMIT);
   _game->frontier[1].resize(FRONTIER_LIMIT);
@@ -86,6 +88,7 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
     _game->ents[eid].getCard()->beforeGameStarts(1, eid);
 
   _game->state = GameState::INIT;
+
   return Result<Game *>::mkVal(_game);
 }
 
@@ -98,6 +101,78 @@ vec<RSID> Game::firstDraw(RSID pid) {
     res.insert(players[pid]->deck[i]);
   }
   return vec<RSID>(res.begin(), res.end());
+}
+
+bool Game::isEnded() {
+  return winner != -1;
+}
+void Game::printEntity(RSID entityId) {
+  auto obj = ents[entityId];
+  if (obj.isCard())
+    log("[EID %04d] CARD ID: %04d, NAME: %s", obj.getId(), obj.getCard()->id, obj.getCard()->name);
+  else if (obj.isNexus())
+    log("[EID %04d] Player %d's nexus health: %d", obj.getId(), obj.getPlayerId() + 1, obj.getHealth());
+}
+void Game::end(RSID Winner) {
+  winner = Winner;
+}
+
+void Game::startRound() {
+  round += 1;
+  RSID pid1 = GAME_PTR->starterInRound;
+  RSID pid2 = FLIP(GAME_PTR->starterInRound);
+  whoseTurn = starterInRound;
+  auto p1 = players[pid1], p2 = players[pid2];
+  p1->spellMana = min(p1->spellMana + p1->unitMana, MAX_SPELL_MANA);
+  p2->spellMana = min(p2->spellMana + p2->unitMana, MAX_SPELL_MANA);
+  p1->unitMana = min(round, MAX_MANA);
+  p2->unitMana = min(round, MAX_MANA);
+  p1->hasToken = true;
+  p2->hasToken = false;
+//  if(round >= MAX_MANA){
+//    enlighten();
+//  }
+  trigger(Event(StartRoundEvent(round)));
+  drawACard(pid1);
+  drawACard(pid2);
+  passCnt = 1;
+}
+
+void Game::drawACard(RSID pid) {
+  auto p = players[pid];
+  RSID id = p->deck.back();
+  p->deck.pop_back();
+  auto card = ents[id];
+  if (p->hand.size() >= HAND_LIMIT) {
+    card.beDiscarded();
+  } else {
+    p->hand.push_back(id);
+    trigger(Event(DrawCardEvent(pid, id)));
+    trigger(Event(GetCardEvent(pid, id)));
+  }
+}
+
+void Game::releaseSkill(Action &action) {
+  if (spellStack.size() < SPELL_STACK_LIMIT) {
+    spellStack.push_back(action);
+    state = GameState::IN_SKILL;
+    whoseTurn = FLIP(whoseTurn);
+  }
+}
+
+void Game::releaseSpells() {
+  for (int i = spellStack.size() - 1; i >= 0; i--) {
+    RSID spellId = spellStack[i].cast.spellId;
+    auto spell = ents[spellId];
+    if (spell.isCastable(spellStack[i])) {
+      spell.perform(spellStack[i]);
+    } else
+      spell.quench();
+  }
+  for (int i = spellStack.size() - 1; i >= 0; i--) {
+    RSID spellId = spellStack[i].cast.spellId;
+    GAME_PTR->players[ents[spellId].getPlayerId()]->graveyard.push_back(spellId);
+  }
 }
 
 void Game::replaceFirstDraw(RSID pid, vec<RSID> &draw, vec<bool> toRep) {
@@ -119,66 +194,21 @@ void Game::replaceFirstDraw(RSID pid, vec<RSID> &draw, vec<bool> toRep) {
 void Game::putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw) {
   for (auto eid: draw) {
     players[pid]->hand.push_back(eid);
-    trigger(Event::buildGetCardEvent(pid, eid));
+    trigger(Event(GetCardEvent(pid, eid)));
   }
   players[pid]->deck.erase(draw);
   std::shuffle(players[pid]->deck.begin(), players[pid]->deck.end(), getRandomGenerator());
   GAME_PTR->state = GameState::AFTER_FIRST_DRAW;
 }
 
-bool Game::isEnded() {
-  return winner != -1;
-}
-void Game::printEntity(RSID entityId) {
-  auto obj = ents[entityId];
-  if (obj.isCard())
-    log("[EID %04d] CARD ID: %04d, NAME: %s", obj.getId(), obj.getCard()->id, obj.getCard()->name);
-  else if (obj.isNexus())
-    log("[EID %04d] Player %d's nexus health: %d", obj.getId(), obj.getPlayerId() + 1, obj.getHealth());
-}
-void Game::end(RSID Winner) {
-  winner = Winner;
-}
-
-void Game::startRound() {
-  GAME_PTR->state = GameState::START_OF_ROUND;
-  round += 1;
-  RSID pid1 = GAME_PTR->starterInRound;
-  RSID pid2 = FLIP(GAME_PTR->starterInRound);
-  auto p1 = players[pid1], p2 = players[pid2];
-  p1->spellMana = min(p1->spellMana + p1->unitMana, MAX_SPELL_MANA);
-  p2->spellMana = min(p2->spellMana + p2->unitMana, MAX_SPELL_MANA);
-  p1->unitMana = min(round, MAX_MANA);
-  p2->unitMana = min(round, MAX_MANA);
-  p1->hasToken = true;
-  p2->hasToken = false;
-  trigger(Event::buildStartRoundEvent(starterInRound, round));
-  drawACard(pid1);
-  drawACard(pid2);
-  GAME_PTR->state = GameState::FREE;
-}
-
-void Game::drawACard(RSID pid) {
-  auto p = players[pid];
-  RSID id = p->deck.back();
-  p->deck.pop_back();
-  auto card = ents[id];
-  if (p->hand.size() >= HAND_LIMIT) {
-    card.beDiscarded();
-  } else {
-    p->hand.push_back(id);
-    trigger(Event::buildDrawCardEvent(pid, id));
-  }
-}
-
-bool Game::canSummonFromHand(Event event) {
-  RSID pid = event.playerId;
-  RSID id = event.args.summonArgs.objectId;
-  if (pid != whosTurn)
+bool Game::canPlayUnit(Action &action) {
+  if (action.play.type != ActionType::PLAY)
+    return false;
+  RSID pid = action.play.playerId;
+  RSID id = action.play.cardId;
+  if (pid != whoseTurn)
     return false;
   if (state != GameState::FREE)
-    return false;
-  if (passCnt >= 2)
     return false;
   if (!isInHand(pid, id))
     return false;
@@ -189,35 +219,104 @@ bool Game::canSummonFromHand(Event event) {
     return false;
   if (card.getCost() > players[pid]->unitMana)
     return false;
-  return card.getCard()->playable(event);
+  if (players[pid]->table.size() >= TABLE_LIMIT)
+    return false;
+  return card.getCard()->playable(action);
 }
 
-void Game::summonFromHand(Event event) {
-  auto p = players[event.playerId];
-  auto eid = event.args.summonArgs.objectId;
+void Game::playUnit(Action &action) {
+  stateInitiator = whoseTurn;
+  RSID playerId = action.play.playerId;
+  RSID eid = action.play.cardId;
+  auto p = players[playerId];
   p->hand.erase(eid);
   p->unitMana -= ents[eid].getCost();
-  ents[eid].getCard()->onSummon(event);
-  trigger(event);
+  ents[eid].getCard()->onPlay(action);
+  trigger(Event(PlayEvent(playerId, eid)));
+  trigger(Event(SummonEvent(action.summon.playerId, action.summon.summoneeId)));
   p->table.push_back(eid);
-  whosTurn = FLIP(whosTurn);
+  passCnt = 1;
+  whoseTurn = FLIP(whoseTurn);
+}
+
+bool Game::canPlaySpell(Action &action) {
+  if (action.play.type != ActionType::PLAY)
+    return false;
+  RSID pid = action.play.playerId;
+  RSID id = action.play.cardId;
+  if (pid != whoseTurn)
+    return false;
+  if (!isInHand(pid, id))
+    return false;
+  if (ents.find(id) == ents.end())
+    return false;
+  auto card = ents[id];
+  if (!card.isSpell())
+    return false;
+  if (state != GameState::FREE && CHECK_K_SLOW(card.getCard()->keywords))
+    return false;
+  if (card.getCost() > players[pid]->unitMana + players[pid]->spellMana)
+    return false;
+  if (spellStack.size() >= SPELL_STACK_LIMIT)
+    return false;
+  return card.getCard()->playable(action);
+}
+
+void Game::playSpell(Action &action) {
+  if (isArenaClean())
+    stateInitiator = whoseTurn;
+  RSID playerId = action.play.playerId;
+  RSID eid = action.play.cardId;
+  auto p = players[playerId];
+  p->hand.erase(eid);
+  i8 oldUnitMana = p->unitMana;
+  p->unitMana = max(0, oldUnitMana - ents[eid].getCost());
+  p->spellMana = p->spellMana + min(0, oldUnitMana - ents[eid].getCost());
+  ents[eid].getCard()->onPlay(action);
+  spellStack.push_back(action);
+  trigger(Event(PlayEvent(playerId, eid)));
+  trigger(Event(DeclCastEvent(action.cast.playerId, action.cast.spellId)));
+  for (i64 i = 0; i < action.cast.argc; i++)
+    trigger(Event(TargetEvent(action.cast.playerId, action.cast.args[i])));
+  u64 keywords = ents[eid].getCard()->keywords;
   passCnt = 0;
 }
 
-void Game::endDeclCast(RSID playerId) {
-  for (int i = spellStack.size() - 1; i >= 0; i--) {
-    RSID spellId = spellStack[i].args.castArgs.objectId;
-    auto spell = ents[spellId];
-    if (spell.isCastable(spellStack[i])) {
-      spellStack[i].type = EventType::CAST;
-      spell.perform(spellStack[i]);
-    } else
-      spell.quench();
+void Game::hitButton(RSID pid) {
+  if (isArenaClean()) {
+    if(passCnt >= 2){
+      // endRound();
+      return;
+    }
+    passCnt += 1;
+    whoseTurn = FLIP(whoseTurn);
   }
-  for (int i = spellStack.size() - 1; i >= 0; i--) {
-    RSID spellId = spellStack[i].args.castArgs.objectId;
-    GAME_PTR->players[ents[spellId].getPlayerId()]->graveyard.push_back(spellId);
+  if (hasBattlingUnits()) {
+    if (stateInitiator == pid) {
+      whoseTurn = FLIP(whoseTurn);
+    } else if (!spellStack.empty() && spellStack.back().cast.playerId == pid) {
+      whoseTurn = FLIP(whoseTurn);
+    } else {
+      // battle();
+      passCnt = 1;
+      whoseTurn = FLIP(stateInitiator);
+    }
+  } else {
+    if (spellStack.back().cast.playerId == pid) {
+      whoseTurn = FLIP(whoseTurn);
+    } else {
+      releaseSpells();
+      passCnt = 1;
+      whoseTurn = FLIP(stateInitiator);
+    }
   }
+}
+
+bool Game::isArenaClean() {
+  return spellStack.empty() && frontier[0].empty() && frontier[1].empty();
+}
+bool Game::hasBattlingUnits() {
+  return !frontier[0].empty() || !frontier[1].empty();
 }
 
 bool Game::isInHand(RSID playerId, RSID entityId) {
@@ -331,12 +430,11 @@ RSID Game::summonAUnitInAttack(RSID playerId, RSID cardId) {
   return 0;
 }
 void Game::trigger(Event event) {
-  for (const RSID &lid: elByType[event.type]) {
+  for (const RSID &lid: elByType[event.any.type]) {
     if (evlsnr.find(lid) != evlsnr.end()) {
       auto l = evlsnr[lid];
       l(event);
     } else
-      elByType[event.type].erase(lid);
+      elByType[event.any.type].erase(lid);
   }
 }
-

@@ -9,7 +9,6 @@
 #define ACTION_ARG_MAX_NUM 6
 
 enum class ActionType {
-  NONE,
   PLAY,
   SUMMON,
   CAST,
@@ -18,15 +17,15 @@ enum class ActionType {
   DIE
 };
 
-struct NoneAction {
-  i64 data[10];
+struct AnyAction {
+  ActionType type;
 };
 
 struct PlayAction {
   ActionType type = ActionType::PLAY;
   RSID playerId;
   RSID cardId;
-  i8 argc;
+  i64 argc;
   RSID args[ACTION_ARG_MAX_NUM];
   PlayAction(RSID PlayerId, RSID CardId);
 };
@@ -35,7 +34,7 @@ struct SummonAction {
   ActionType type = ActionType::SUMMON;
   RSID playerId;
   RSID summoneeId;
-  i8 argc;
+  i64 argc;
   RSID args[ACTION_ARG_MAX_NUM];
   SummonAction(RSID PlayerId, RSID SummoneeId);
 };
@@ -44,7 +43,7 @@ struct CastAction {
   ActionType type = ActionType::CAST;
   RSID playerId;
   RSID spellId;
-  i8 argc;
+  i64 argc;
   RSID args[ACTION_ARG_MAX_NUM];
   CastAction(RSID PlayerId, RSID SpellId);
 };
@@ -55,7 +54,7 @@ struct DeclAttackAction {
   RSID attackerId;
   i64 position;
   RSID supportedId;
-  DeclAttackAction(RSID PlayerId, RSID AttackerId, i64 Position, RSID SupportedId);
+  DeclAttackAction(RSID PlayerId, RSID AttackerId, i64 Position);
 };
 
 struct DeclBlockAction {
@@ -74,7 +73,7 @@ struct DieAction {
 };
 
 union Action {
-  NoneAction none;
+  AnyAction any;
   PlayAction play;
   SummonAction summon;
   CastAction cast;
@@ -83,6 +82,8 @@ union Action {
   DieAction die;
   Action();
   Action(const CastAction &Cast);
+  Action(const DeclAttackAction &DeclAttack);
+  Action(const SummonAction &Summon);
 };
 
 #endif //RUNESIM_SRC_GAME_ACTION_H
