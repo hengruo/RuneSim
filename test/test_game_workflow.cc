@@ -47,7 +47,7 @@ TEST(GAME_WORKFLOW, GAME_INIT_SUCCESS) {
   log("====================================");
   RSID pid1 = 0, pid2 = 1;
   Game::build(deckSpiderKarma, deckThreshLux, pid2);
-  EXPECT_EQ(GAME_PTR->startingHand, pid2);
+  EXPECT_EQ(GAME_PTR->firstPlayerId, pid2);
   log("Player %d is the starting hand.", pid2 + 1);
   sptr<Player> p1 = GAME_PTR->players[pid1], p2 = GAME_PTR->players[pid2];
   auto firstDrawRes1 = GAME_PTR->firstDraw(pid1);
@@ -95,26 +95,32 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
       {50, 57, 62, 49, 54, 66, 55, 68, 47, 76, 82, 58, 83, 56, 71, 75, 70, 59, 72, 77, 69, 84, 73, 60, 45, 78, 65, 81,
        80, 51, 67, 46, 63, 79, 53, 74};
 
+  // Round 1
   GAME_PTR->startRound();
-  EXPECT_EQ(GAME_PTR->state, GameState::FREE);
   EXPECT_EQ(p1->deck.size(), 35);
   EXPECT_EQ(p2->deck.size(), 35);
   EXPECT_EQ(p1->hand.size(), 5);
   EXPECT_EQ(p2->hand.size(), 5);
   EXPECT_EQ(p1->unitMana, 1);
   EXPECT_EQ(p2->unitMana, 1);
-  for (auto eid: p1->hand)
-    GAME_PTR->printEntity(eid);
-  for (auto eid: p2->hand)
-    GAME_PTR->printEntity(eid);
-  RSID actionArgs[EVENT_MAX_SIZE];
-  Action action(SummonAction(pid2, 53));
-  action.summon.argc = 0;
+  // P2 passes
+  GAME_PTR->hitButton(pid2);
+  // P1 summons 'Hapless Aristocrat'
+  Action action(PlayAction(pid1, 10));
+  action.play.argc = 0;
   EXPECT_EQ(GAME_PTR->canPlayUnit(action), true);
   if (GAME_PTR->canPlayUnit(action))
     GAME_PTR->playUnit(action);
-  EXPECT_EQ(p2->unitMana, 0);
-  EXPECT_EQ(GAME_PTR->whoseTurn, pid1);
+  EXPECT_EQ(p1->unitMana, 0);
+  EXPECT_EQ(GAME_PTR->whoseTurn, pid2);
+  // P2 passes.
+  GAME_PTR->hitButton(pid2);
+  // P1 passes. End round.
+  GAME_PTR->hitButton(pid1);
+
+  // Round 2
+  EXPECT_EQ(GAME_PTR->starterInRound, pid1);
+  GAME_PTR->printGameView();
 
   delete GAME_PTR;
 }

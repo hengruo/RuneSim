@@ -117,17 +117,20 @@ Entity Entity::getCopy() {
 }
 Entity Entity::getEphemeralCopy() {
   Entity ent = getCopy();
-  ent.content->keywordsMask = K_EPHEMERAL | ent.content->card->keywords;
+  ent.content->enableMask = K_EPHEMERAL | ent.content->card->keywords;
   return ent;
 }
 i8 Entity::getAttack() const {
   return content->currentAttack;
 }
+u64 Entity::getKeywords() const {
+  return content->disableMask & (content->enableMask | getCard()->keywords);
+}
 
 void Entity::beHurt(i8 damage) {
   content->currentHealth -= damage;
   if (isNexus() && getHealth() <= 0) {
-    GAME_PTR->end(FLIP(getPlayerId()));
+//    GAME_PTR->end(FLIP(getPlayerId()));
   } else if (isCard() && getHealth() <= 0) {
     die();
   }
@@ -217,4 +220,16 @@ void Entity::bond(RSID bondeeId) {
   enableBonder(bondeeId);
   auto bondee = GAME_PTR->ents[bondeeId];
   bondee.enableBonder(getId());
+}
+void Entity::enableKeywords(u64 keyword) {
+  content->enableMask |= keyword;
+}
+void Entity::disableKeywords(u64 keyword) {
+  content->disableMask &= (~keyword);
+}
+str Entity::getInfo() const {
+  if(isSpell() || isSkill())
+    return format("[%02d] S %s", getId(), content->card->name);
+  if(isUnit())
+    return format("[%02d] U %02d %02d %s", getId(), getAttack(), getHealth(), content->card->name);
 }

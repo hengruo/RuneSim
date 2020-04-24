@@ -34,7 +34,9 @@ target_link_libraries(rscmd rsgame)
 enable_testing()
 find_package(GTest REQUIRED)
 get_filename_component(GTEST_LIBRARY_DIR ${GTEST_LIBRARY} DIRECTORY)
-add_executable(unit_tests test/test.h test/main.cc test/test_game_workflow.cc test/test_game_component.cc test/test_base.cc src/runesim.h)
+add_executable(unit_tests
+        test/test.h src/runesim.h test/json.hpp
+        test/main.cc test/test_game_workflow.cc test/test_game_component.cc test/test_base.cc)
 target_include_directories(unit_tests PRIVATE src/game ${GTEST_INCLUDE_DIR})
 target_link_directories(unit_tests PUBLIC ${GTEST_LIBRARY_DIR})
 if (APPLE)

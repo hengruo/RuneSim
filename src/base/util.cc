@@ -3,6 +3,7 @@
 //
 
 #include "util.h"
+#include <cstdio>
 
 static RSID id = 0;
 
@@ -34,4 +35,11 @@ std::mt19937 getRandomGenerator() {
 }
 void resetId() {
   id = 0;
+}
+str format(const char *fmt, ...) {
+  va_list arg;
+  va_start(arg, fmt);
+  vsprintf(buffer, fmt, arg);
+  va_end (arg);
+  return str(buffer);
 }

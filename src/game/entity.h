@@ -22,7 +22,8 @@ private:
   i8 maxAttackInRound = 0;
   i8 currentAttack = 0;
   i8 attackPosition = -1;
-  u64 keywordsMask = 0;
+  u64 enableMask = 0;
+  u64 disableMask = 0xFFFFFFFFFFFFFFFF;
   bool summoned = false;
   bool purified = false;
   bool detained = false;
@@ -84,9 +85,12 @@ public:
   bool isBondee() const;
   RSID getBondedId() const;
   RSID getDetainerId() const;
+  u64 getKeywords() const;
+  str getInfo() const;
 
   // ================================
   // perform an action
+  // methods of Entity class can only modify Entity itself
   // ================================
   Entity getCopy();
   Entity getEphemeralCopy();
@@ -108,6 +112,8 @@ public:
   void quench();
   void prepareAttack(i8 position);
   void quitAttack();
+  void enableKeywords(u64 keyword);
+  void disableKeywords(u64 keyword);
 };
 
 #endif //RUNESIM_GAME_ENTITY_H

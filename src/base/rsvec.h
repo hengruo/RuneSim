@@ -248,6 +248,11 @@ public:
   inline bool has(RSID id){
     return find(id) != end();
   }
+
+  inline isize getIndex(RSID id){
+    if(has(id)) return rsid2idx[id];
+    else return ERR;
+  }
 };
 
 #endif //RUNESIM_BASE_RSVEC_H

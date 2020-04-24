@@ -11,29 +11,30 @@
 // 1. Player triggered:
 // 2. Card triggered:
 enum class EventType {
-  START_ROUND,
-  END_ROUND,
-  SUMMON,
-  DRAW_CARD,
-  GET_CARD,
-  DIE,
-  DECL_ATTACK,
-  DECL_CAST,
-  DECL_BLOCK,
   ATTACK,
   BLOCK,
-  GET_HURT,
-  ENLIGHTEN,
-  LEVEL_UP,
-  PLAY,
-  USE_MANA,
-  GAIN_MANA,
   CAST,
-  STRIKE,
-  TARGET,
-  STUN,
+  DECL_ATTACK,
+  DECL_BLOCK,
+  DECL_CAST,
+  DIE,
+  DRAW_CARD,
+  END_ROUND,
+  ENLIGHTEN,
+  GAIN_MANA,
+  GAME_END,
+  GET_CARD,
+  GET_HURT,
+  LEVEL_UP,
+  NEXUS_STRIKE,
+  PLAY,
   RECALL,
-  GAME_END
+  START_ROUND,
+  STRIKE,
+  STUN,
+  SUMMON,
+  TARGET,
+  USE_MANA
 };
 struct AnyEvent {
   EventType type;
@@ -66,6 +67,12 @@ struct DrawCardEvent {
   RSID indeckCardId;
   DrawCardEvent(RSID PlayerId, RSID IndeckCardId);
 };
+struct EndRoundEvent{
+  EventType type = EventType::END_ROUND;
+};
+struct EnlightenEvent{
+  EventType type = EventType::ENLIGHTEN;
+};
 struct GetCardEvent {
   EventType type = EventType::GET_CARD;
   RSID playerId;
@@ -77,6 +84,13 @@ struct LevelUpEvent {
   RSID playerId;
   RSID championId;
   LevelUpEvent(RSID PlayerId, RSID ChampionId);
+};
+struct NexusStrikeEvent {
+  EventType type = EventType::NEXUS_STRIKE;
+  RSID attackingPlayerId;
+  RSID attackedNexusId;
+  i64 damage;
+  NexusStrikeEvent(RSID AttackingPlayerId, RSID AttackedNexusId, i64 Damage);
 };
 struct PlayEvent {
   EventType type = EventType::PLAY;
@@ -108,8 +122,11 @@ union Event {
   DeclCastEvent declCast;
   DieEvent die;
   DrawCardEvent drawCard;
+  EndRoundEvent endRound;
+  EnlightenEvent enlighten;
   GetCardEvent getCard;
   LevelUpEvent levelUp;
+  NexusStrikeEvent nexusStrike;
   PlayEvent play;
   StartRoundEvent startRound;
   SummonEvent summon;
@@ -119,8 +136,11 @@ union Event {
   Event(const DeclCastEvent &DeclCast);
   Event(const DieEvent &Die);
   Event(const DrawCardEvent &DrawCard);
+  Event(const EndRoundEvent &EndRound);
+  Event(const EnlightenEvent &Enlighten);
   Event(const GetCardEvent &GetCard);
   Event(const LevelUpEvent &LevelUp);
+  Event(const NexusStrikeEvent &NexusStrike);
   Event(const PlayEvent &Play);
   Event(const StartRoundEvent &StartRound);
   Event(const SummonEvent &Summon);

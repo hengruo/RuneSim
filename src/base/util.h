@@ -18,5 +18,6 @@ void resetId();
 RSID generateId();
 RSID rsidByTime();
 isize log(const char *format, ...);
+str format(const char *fmt, ...);
 
 #endif //RUNESIM_BASE_UTIL_H

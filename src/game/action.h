@@ -83,6 +83,7 @@ union Action {
   Action();
   Action(const CastAction &Cast);
   Action(const DeclAttackAction &DeclAttack);
+  Action(const PlayAction &Play);
   Action(const SummonAction &Summon);
 };
 

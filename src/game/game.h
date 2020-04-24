@@ -45,15 +45,6 @@ public:
   static Result<sptr<Player>> build(RSID pid, vec<pair<RSID, isize>> &v);
 };
 
-enum class GameState{
-  INIT,
-  AFTER_FIRST_DRAW,
-  START_OF_ROUND,
-  IN_SPELL,
-  IN_SKILL,
-  FREE
-};
-
 #define FLIP(X) (1 - (X))
 
 class Game final {
@@ -61,23 +52,29 @@ private:
   // check game state
   bool isArenaClean();
   bool hasBattlingUnits();
+  void killEphemeralOnTable(RSID playerId);
+  void discardFleetingInHand(RSID playerId);
 public:
+  // Player acting first in odd number round
+  RSID firstPlayerId = -1;
+  // Player acting first in even number round
+  RSID secondPlayerId = -1;
+  // Player acting first in this round
+  RSID starterInRound = -1;
+  RSID whoseTurn = -1;
+  // Player who initiates casting a fast/slow spell or attack
+  RSID initiator = -1;
   umap<RSID, Entity> ents;
   umap<RSID, EventListener> evlsnr;
   umap<EventType, set<RSID>> elByType;
   umap<RSID, set<RSID>> elByEntId;
   umap<RSID, set<RSID>> elByCardId;
   sptr<Player> players[2];
-  vec<RSID> frontier[2];
+  rsvec frontier[2];
   vec<Action> spellStack;
   i32 round = 0;
   i32 passCnt = 0;
-  GameState state;
   RSID winner = -1;
-  RSID startingHand = -1;
-  RSID starterInRound = -1;
-  RSID whoseTurn = -1;
-  RSID stateInitiator = -1;
 
   static Result<Game *> build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2, RSID firstPlayer);
   static Result<void *> checkDeck(vec<pair<RSID, isize>> &v);
@@ -89,6 +86,7 @@ public:
   void drawACard(RSID pid);
   void releaseSkill(Action &action);
   void releaseSpells();
+  void endRound();
 //  void endRound();
   // Player action
   void replaceFirstDraw(RSID pid, vec<RSID> &draw, vec<bool> toRep);
@@ -128,6 +126,7 @@ public:
   void trigger(Event event);
 
   void printEntity(RSID entityId);
+  void printGameView();
 
   virtual ~Game();
 };
