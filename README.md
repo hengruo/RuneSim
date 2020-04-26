@@ -8,7 +8,7 @@ RuneSim is a simulator of *Legends of Runeterra*.
 3. `cmake .. && make`
 4. `(sudo) make install`
 
-*Tested building on macOS 10.15.4 and Ubuntu 20.04.*
+*Build succeeded on macOS 10.15.4 and Ubuntu 20.04.*
 
 ## Roadmap
 - [x] basic game workflow 
