@@ -62,6 +62,7 @@ public:
   // Player acting first in this round
   RSID starterInRound = -1;
   GameState state;
+  function<void(RSID)> afterGame;
   umap<RSID, Entity> ents;
   umap<RSID, EventListener> evlsnr;
   umap<EventType, set<RSID>> elByType;
@@ -74,18 +75,22 @@ public:
   i32 passCnt = 0;
   RSID winner = -1;
 
-  static Result<Game *> build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2, RSID firstPlayer);
+  static Result<Game *> build(vec<pair<RSID, isize>> &v1,
+                              vec<pair<RSID, isize>> &v2,
+                              RSID firstPlayer,
+                              function<void(RSID)> afterGame);
   static Result<void *> checkDeck(vec<pair<RSID, isize>> &v);
 
   vec<RSID> firstDraw(RSID pid);
 
   // Game or card action
   void startRound();
-  void drawACard(RSID pid);
+  bool drawACard(RSID pid);
   void putSkill(Action &action);
   void releaseSpells();
+  void battle();
   void endRound();
-//  void endRound();
+
   // Player action
   void replaceFirstDraw(RSID pid, vec<RSID> &draw, vec<bool> toRep);
   void putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw);
@@ -102,7 +107,7 @@ public:
 //  void putUnitToBlock(Action &action);
   void hitButton(RSID pid);
 
-  bool isEnded();
+  bool isEnded() const;
   void end(RSID Winner);
 
   bool isInHand(RSID playerId, RSID entityId);

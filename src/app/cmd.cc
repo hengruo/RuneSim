@@ -9,6 +9,13 @@ using namespace std;
 
 extern umap<RSID, Card *> GALLERY;
 
+void afterGame(RSID winner) {
+  if (winner == 2)
+    log("Tied!");
+  else
+    log("Winner is P%d", winner + 1);
+}
+
 int main() {
   // Initialization
   init_gallery();
@@ -48,7 +55,7 @@ int main() {
     generateId();
     generateId();
     // Initialize game environment
-    auto res = Game::build(decks[0], decks[1], former);
+    auto res = Game::build(decks[0], decks[1], former, afterGame);
     if (res.isErr()) {
       res.printErr();
       continue;

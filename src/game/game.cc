@@ -50,9 +50,13 @@ Result<void *> Game::checkDeck(vec<pair<RSID, isize>> &v) {
   return Result<void *>::mkVal(nullptr);
 }
 
-Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v2, RSID firstPlayer) {
+Result<Game *> Game::build(vec<pair<RSID, isize>> &v1,
+                           vec<pair<RSID, isize>> &v2,
+                           RSID firstPlayer,
+                           function<void(RSID)> afterGame) {
   Game *_game = new Game;
   GAME_PTR = _game;
+  _game->afterGame = afterGame;
   _game->firstPlayerId = firstPlayer;
   _game->secondPlayerId = FLIP(firstPlayer);
   _game->starterInRound = firstPlayer;
@@ -96,7 +100,7 @@ vec<RSID> Game::firstDraw(RSID pid) {
   return vec<RSID>(res.begin(), res.end());
 }
 
-bool Game::isEnded() {
+bool Game::isEnded() const {
   return winner != -1;
 }
 void Game::printEntity(RSID entityId) {
@@ -108,6 +112,7 @@ void Game::printEntity(RSID entityId) {
 }
 void Game::end(RSID Winner) {
   winner = Winner;
+  afterGame(winner);
 }
 
 void Game::startRound() {
@@ -127,8 +132,14 @@ void Game::startRound() {
     trigger(Event(EnlightenEvent()));
 
   trigger(Event(StartRoundEvent(round)));
-  drawACard(pid1);
-  drawACard(pid2);
+  bool p1CanDraw = drawACard(pid1);
+  bool p2CanDraw = drawACard(pid2);
+  if (!p1CanDraw && !p2CanDraw)
+    end(2);
+  else if (p1CanDraw && !p2CanDraw)
+    end(pid1);
+  else if (!p1CanDraw && p2CanDraw)
+    end(pid2);
   state.reset(starterInRound);
 }
 
@@ -141,8 +152,11 @@ void Game::endRound() {
   starterInRound = FLIP(starterInRound);
 }
 
-void Game::drawACard(RSID pid) {
+bool Game::drawACard(RSID pid) {
   auto p = players[pid];
+  // if the deck is empty, lose the game
+  if (p->deck.empty())
+    return false;
   RSID id = p->deck.back();
   p->deck.pop_back();
   auto card = ents[id];
@@ -153,6 +167,7 @@ void Game::drawACard(RSID pid) {
     trigger(Event(DrawCardEvent(pid, id)));
     trigger(Event(GetCardEvent(pid, id)));
   }
+  return true;
 }
 
 void Game::putSkill(Action &action) {

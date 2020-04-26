@@ -40,13 +40,20 @@ vec<pair<RSID, isize>> deckThreshLux = {
     {411, 1}
 };
 
+void afterGame(RSID winner) {
+  if (winner == 2)
+    log("Tied!");
+  else
+    log("Winner is P%d", winner + 1);
+}
+
 TEST(GAME_WORKFLOW, GAME_INIT_SUCCESS) {
   resetId();
   log("====================================");
   log("PREPARE");
   log("====================================");
   RSID pid1 = 0, pid2 = 1;
-  Game::build(deckSpiderKarma, deckThreshLux, pid2);
+  Game::build(deckSpiderKarma, deckThreshLux, pid2, afterGame);
   EXPECT_EQ(GAME_PTR->firstPlayerId, pid2);
   log("Player %d is the starting hand.", pid2 + 1);
   sptr<Player> p1 = GAME_PTR->players[pid1], p2 = GAME_PTR->players[pid2];
@@ -81,7 +88,7 @@ TEST(GAME_WORKFLOW, GAME_INIT_SUCCESS) {
 TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   resetId();
   RSID pid1 = 0, pid2 = 1;
-  Game::build(deckSpiderKarma, deckThreshLux, pid2);
+  Game::build(deckSpiderKarma, deckThreshLux, pid2,afterGame);
   sptr<Player> p1 = GAME_PTR->players[pid1], p2 = GAME_PTR->players[pid2];
   vec<RSID> firstDrawRes1 = {4, 5, 10, 16};
   vec<RSID> firstDrawRes2 = {49, 53, 62, 65};
@@ -112,8 +119,9 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   if (GAME_PTR->canPlayUnit(action))
     GAME_PTR->playUnit(action);
   EXPECT_EQ(p1->unitMana, 0);
-  EXPECT_EQ(GAME_PTR->state.whoseTurn, pid2);
+  GAME_PTR->hitButton(pid1);
   // P2 passes.
+  EXPECT_EQ(GAME_PTR->state.whoseTurn, pid2);
   GAME_PTR->hitButton(pid2);
   // P1 passes. End round.
   GAME_PTR->hitButton(pid1);
@@ -124,7 +132,7 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   EXPECT_EQ(GAME_PTR->canPlayUnit(action), false);
   action.play = PlayAction(pid1, 5);
   // P1 summons Elise
-  if(GAME_PTR->canPlayUnit(action))
+  if (GAME_PTR->canPlayUnit(action))
     GAME_PTR->playUnit(action);
   EXPECT_EQ(GAME_PTR->ents[p1->hand[0]].getCard()->id, 28);
   // P2 passes
