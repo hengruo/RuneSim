@@ -22,6 +22,12 @@ I'm too lazy to write that now 😅
 Please feel free to create a new issue to ask 
 if you have any questions about this repo.
 
+## Disclaimer
+RuneSim is only used for research. Under no circumstances shall 
+any person or organization use the code of RuneSim for commecial 
+activities. Contributors won't be liable for any damages to 
+Riot Games, Inc. that arise from commecial activities using RuneSim .
+
 ## Credits
 ### Main Contributors
 - [Hengruo Zhang](https://github.com/hengruo)
