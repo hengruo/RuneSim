@@ -185,6 +185,7 @@ bool Entity::isPlayable(Action &action) {
   return getCard()->playable(action);
 }
 void Entity::transform(RSID cardId) {
+  content->originalCardId = content->cardId;
   content->cardId = cardId;
   content->card = GALLERY[cardId];
 }
@@ -232,4 +233,5 @@ str Entity::getInfo() const {
     return format("[%02d] S %s", getId(), content->card->name);
   if(isUnit())
     return format("[%02d] U %02d %02d %s", getId(), getAttack(), getHealth(), content->card->name);
+  return format("INVALID ENTITY");
 }

@@ -3,9 +3,10 @@
 //
 
 #include "event.h"
+CastEvent::CastEvent(RSID PlayerId, RSID SpellId) : playerId(PlayerId), spellId(SpellId) {}
 DeclAttackEvent::DeclAttackEvent(RSID PlayerId, RSID AttackerId, i8 Position)
     : playerId(PlayerId), attackerId(AttackerId), position(Position) {}
-DeclCastEvent::DeclCastEvent(RSID PlayerId, RSID SpellId) : playerId(PlayerId), spellId(SpellId) {}
+PutSpell::PutSpell(RSID PlayerId, RSID SpellId) : playerId(PlayerId), spellId(SpellId) {}
 DieEvent::DieEvent(RSID PlayerId, RSID DeadId) : playerId(PlayerId), deadId(DeadId) {}
 DrawCardEvent::DrawCardEvent(RSID PlayerId, RSID IndeckCardId) : playerId(PlayerId), indeckCardId(IndeckCardId) {}
 GetCardEvent::GetCardEvent(RSID PlayerId, RSID CardEntityId) : playerId(PlayerId), cardEntityId(CardEntityId) {}
@@ -18,8 +19,9 @@ SummonEvent::SummonEvent(RSID PlayerId, RSID SummoneeId) : playerId(PlayerId), s
 TargetEvent::TargetEvent(RSID PlayerId, RSID TargetedId) : playerId(PlayerId), targetedId(TargetedId) {}
 Event::Event(const LevelUpEvent &LevelUp) : levelUp(LevelUp) {}
 Event::Event(const AnyEvent &Any) : any(Any) {}
+Event::Event(const CastEvent &Cast) : cast(Cast) {}
 Event::Event(const DeclAttackEvent &DeclAttack) : declAttack(DeclAttack) {}
-Event::Event(const DeclCastEvent &DeclCast) : declCast(DeclCast) {}
+Event::Event(const PutSpell &PutSpell) : putSpell(PutSpell) {}
 Event::Event(const DieEvent &Die) : die(Die) {}
 Event::Event(const DrawCardEvent &DrawCard) : drawCard(DrawCard) {}
 Event::Event(const EndRoundEvent &EndRound) : endRound(EndRound) {}

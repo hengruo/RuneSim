@@ -9,6 +9,7 @@
 #include "event.h"
 #include "event_listener.h"
 #include "action.h"
+#include "game_state.h"
 
 #define SINGLE_CARD_LIMIT 3
 #define REGION_LIMIT 2
@@ -22,6 +23,7 @@
 #define MAX_SPELL_MANA 3
 
 extern umap<RSID, Card *> GALLERY;
+extern umap<RSID, RSID> CHAMPION_TO_SPELL;
 
 class Player {
 public:
@@ -45,8 +47,6 @@ public:
   static Result<sptr<Player>> build(RSID pid, vec<pair<RSID, isize>> &v);
 };
 
-#define FLIP(X) (1 - (X))
-
 class Game final {
 private:
   // check game state
@@ -61,9 +61,7 @@ public:
   RSID secondPlayerId = -1;
   // Player acting first in this round
   RSID starterInRound = -1;
-  RSID whoseTurn = -1;
-  // Player who initiates casting a fast/slow spell or attack
-  RSID initiator = -1;
+  GameState state;
   umap<RSID, Entity> ents;
   umap<RSID, EventListener> evlsnr;
   umap<EventType, set<RSID>> elByType;
@@ -84,7 +82,7 @@ public:
   // Game or card action
   void startRound();
   void drawACard(RSID pid);
-  void releaseSkill(Action &action);
+  void putSkill(Action &action);
   void releaseSpells();
   void endRound();
 //  void endRound();
@@ -94,7 +92,8 @@ public:
   bool canPlayUnit(Action &action);
   void playUnit(Action &action);
   bool canPlaySpell(Action &action);
-  void playSpell(Action &action);
+  void playSlowOrFastSpell(Action &action);
+  void playBurstSpell(Action &action);
 //  bool canCastBurst(Action &action);
 //  void castBurst(Action &action);
 //  bool canPutUnitToAttack(Action &action);

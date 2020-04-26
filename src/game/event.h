@@ -16,7 +16,6 @@ enum class EventType {
   CAST,
   DECL_ATTACK,
   DECL_BLOCK,
-  DECL_CAST,
   DIE,
   DRAW_CARD,
   END_ROUND,
@@ -28,6 +27,7 @@ enum class EventType {
   LEVEL_UP,
   NEXUS_STRIKE,
   PLAY,
+  PUT_SPELL,
   RECALL,
   START_ROUND,
   STRIKE,
@@ -40,20 +40,19 @@ struct AnyEvent {
   EventType type;
   i64 data[EVENT_MAX_SIZE];
 };
+struct CastEvent{
+  EventType type = EventType::CAST;
+  RSID playerId;
+  RSID spellId;
+  i8 cardType = 0;
+  CastEvent(RSID PlayerId, RSID SpellId);
+};
 struct DeclAttackEvent {
   EventType type = EventType::DECL_ATTACK;
   RSID playerId;
   RSID attackerId;
   i8 position;
   DeclAttackEvent(RSID PlayerId, RSID AttackerId, i8 Position);
-};
-struct DeclCastEvent {
-  EventType type = EventType::DECL_CAST;
-  RSID playerId;
-  RSID spellId;
-  // 0 - spell; 1 - skill.
-  i8 cardType = 0;
-  DeclCastEvent(RSID PlayerId, RSID SpellId);
 };
 struct DieEvent {
   EventType type = EventType::DIE;
@@ -98,6 +97,14 @@ struct PlayEvent {
   RSID inhandCardId;
   PlayEvent(RSID PlayerId, RSID InhandCardId);
 };
+struct PutSpell {
+  EventType type = EventType::PUT_SPELL;
+  RSID playerId;
+  RSID spellId;
+  // 0 - spell; 1 - skill.
+  i8 cardType = 0;
+  PutSpell(RSID PlayerId, RSID SpellId);
+};
 struct StartRoundEvent {
   EventType type = EventType::START_ROUND;
   i32 round;
@@ -118,8 +125,9 @@ struct TargetEvent {
 
 union Event {
   AnyEvent any;
+  CastEvent cast;
   DeclAttackEvent declAttack;
-  DeclCastEvent declCast;
+  PutSpell putSpell;
   DieEvent die;
   DrawCardEvent drawCard;
   EndRoundEvent endRound;
@@ -132,8 +140,8 @@ union Event {
   SummonEvent summon;
   TargetEvent target;
   Event(const AnyEvent &Any);
+  Event(const CastEvent &Cast);
   Event(const DeclAttackEvent &DeclAttack);
-  Event(const DeclCastEvent &DeclCast);
   Event(const DieEvent &Die);
   Event(const DrawCardEvent &DrawCard);
   Event(const EndRoundEvent &EndRound);
@@ -142,6 +150,7 @@ union Event {
   Event(const LevelUpEvent &LevelUp);
   Event(const NexusStrikeEvent &NexusStrike);
   Event(const PlayEvent &Play);
+  Event(const PutSpell &PutSpell);
   Event(const StartRoundEvent &StartRound);
   Event(const SummonEvent &Summon);
   Event(const TargetEvent &Target);

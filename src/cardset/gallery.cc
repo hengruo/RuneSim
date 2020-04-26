@@ -4,6 +4,10 @@ umap<RSID, Card *> GALLERY;
 umap<RSID, Card *> COLLECTIBLE;
 vec<RSID> DRAVEN = {1, 130};
 vec<RSID> PORO_WITH_1_COST = {67, 119, 125, 143, 270, 370};
+umap<RSID, RSID> CHAMPION_TO_SPELL = {
+    {50, 28}, {117, 28},
+    {372, 18}, {187, 18}
+};
 
 void init_gallery_() {
   GALLERY[0] = new DisciplineOfFortitude0000;

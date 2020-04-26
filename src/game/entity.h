@@ -37,6 +37,7 @@ private:
   bool isBonder = false;
   RSID detainerId = -1;
   RSID bondedId = -1;
+  RSID originalCardId = -1;
 public:
   EntityImpl();
   EntityImpl(RSID EntId, RSID CardId, RSID PlayerId);

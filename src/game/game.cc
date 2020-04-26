@@ -56,7 +56,6 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1, vec<pair<RSID, isize>> &v
   _game->firstPlayerId = firstPlayer;
   _game->secondPlayerId = FLIP(firstPlayer);
   _game->starterInRound = firstPlayer;
-  _game->whoseTurn = firstPlayer;
   // build decks
   auto res1 = Game::checkDeck(v1);
   if (res1.isErr())
@@ -115,7 +114,6 @@ void Game::startRound() {
   round += 1;
   RSID pid1 = starterInRound;
   RSID pid2 = FLIP(starterInRound);
-  whoseTurn = starterInRound;
   players[starterInRound]->hasToken = true;
   players[FLIP(starterInRound)]->hasToken = false;
   auto p1 = players[pid1], p2 = players[pid2];
@@ -131,7 +129,7 @@ void Game::startRound() {
   trigger(Event(StartRoundEvent(round)));
   drawACard(pid1);
   drawACard(pid2);
-  passCnt = 1;
+  state.reset(starterInRound);
 }
 
 void Game::endRound() {
@@ -157,11 +155,11 @@ void Game::drawACard(RSID pid) {
   }
 }
 
-void Game::releaseSkill(Action &action) {
+void Game::putSkill(Action &action) {
   if (spellStack.size() < SPELL_STACK_LIMIT) {
     spellStack.push_back(action);
-    whoseTurn = FLIP(whoseTurn);
   }
+  state.putSkill(action.cast.playerId);
 }
 
 void Game::releaseSpells() {
@@ -209,9 +207,7 @@ bool Game::canPlayUnit(Action &action) {
     return false;
   RSID pid = action.play.playerId;
   RSID id = action.play.cardId;
-  if (pid != whoseTurn)
-    return false;
-  if (!isArenaClean())
+  if (!state.canSummon(pid))
     return false;
   if (!isInHand(pid, id))
     return false;
@@ -228,7 +224,6 @@ bool Game::canPlayUnit(Action &action) {
 }
 
 void Game::playUnit(Action &action) {
-  initiator = whoseTurn;
   RSID playerId = action.play.playerId;
   RSID eid = action.play.cardId;
   auto p = players[playerId];
@@ -238,8 +233,14 @@ void Game::playUnit(Action &action) {
   trigger(Event(PlayEvent(playerId, eid)));
   trigger(Event(SummonEvent(action.summon.playerId, action.summon.summoneeId)));
   p->table.push_back(eid);
-  passCnt = 1;
-  whoseTurn = FLIP(whoseTurn);
+  if (ents[eid].isChampion()) {
+    for (RSID eid_ : p->hand) {
+      if (ents[eid_].getCard()->id == ents[eid].getCard()->id) {
+        ents[eid_].transform(CHAMPION_TO_SPELL[ents[eid].getCard()->id]);
+      }
+    }
+  }
+  state.summoned(playerId);
 }
 
 bool Game::canPlaySpell(Action &action) {
@@ -247,8 +248,6 @@ bool Game::canPlaySpell(Action &action) {
     return false;
   RSID pid = action.play.playerId;
   RSID id = action.play.cardId;
-  if (pid != whoseTurn)
-    return false;
   if (!isInHand(pid, id))
     return false;
   if (ents.find(id) == ents.end())
@@ -256,18 +255,20 @@ bool Game::canPlaySpell(Action &action) {
   auto card = ents[id];
   if (!card.isSpell())
     return false;
-  if (!isArenaClean() && CHECK_K_SLOW(card.getKeywords()))
+  if (!state.canPutSlowSpell(pid) && CHECK_K_SLOW(card.getKeywords()))
+    return false;
+  if (!state.canPutFastSpell(pid) && CHECK_K_FAST(card.getKeywords()))
+    return false;
+  if (!state.canCastBurstSpell(pid) && CHECK_K_BURST(card.getKeywords()))
     return false;
   if (card.getCost() > players[pid]->unitMana + players[pid]->spellMana)
     return false;
-  if (spellStack.size() >= SPELL_STACK_LIMIT)
+  if (!CHECK_K_BURST(card.getKeywords()) && spellStack.size() >= SPELL_STACK_LIMIT)
     return false;
   return card.getCard()->playable(action);
 }
 
-void Game::playSpell(Action &action) {
-  if (isArenaClean())
-    initiator = whoseTurn;
+void Game::playSlowOrFastSpell(Action &action) {
   RSID playerId = action.play.playerId;
   RSID eid = action.play.cardId;
   auto p = players[playerId];
@@ -278,43 +279,52 @@ void Game::playSpell(Action &action) {
   ents[eid].getCard()->onPlay(action);
   spellStack.push_back(action);
   trigger(Event(PlayEvent(playerId, eid)));
-  trigger(Event(DeclCastEvent(action.cast.playerId, action.cast.spellId)));
+  trigger(Event(PutSpell(action.cast.playerId, action.cast.spellId)));
   for (i64 i = 0; i < action.cast.argc; i++)
     trigger(Event(TargetEvent(action.cast.playerId, action.cast.args[i])));
-  u64 keywords = ents[eid].getCard()->keywords;
-  passCnt = 0;
+  state.putSlowSpell(playerId);
+}
+
+void Game::playBurstSpell(Action &action) {
+  RSID playerId = action.play.playerId;
+  RSID eid = action.play.cardId;
+  auto p = players[playerId];
+  p->hand.erase(eid);
+  i8 oldUnitMana = p->unitMana;
+  p->unitMana = max(0, oldUnitMana - ents[eid].getCost());
+  p->spellMana = p->spellMana + min(0, oldUnitMana - ents[eid].getCost());
+  action.any.type = ActionType::CAST;
+  ents[eid].getCard()->onCast(action);
+  trigger(Event(PlayEvent(playerId, eid)));
+  trigger(Event(CastEvent(playerId, eid)));
+  for (i64 i = 0; i < action.cast.argc; i++)
+    trigger(Event(TargetEvent(action.cast.playerId, action.cast.args[i])));
+  state.castedBurstSpell();
 }
 
 void Game::hitButton(RSID pid) {
-  if (isArenaClean()) {
-    if (passCnt >= 2) {
-      endRound();
-      startRound();
+  if (state.didNothingRespondable(pid)) {
+    if (!state.needsResponse(pid)) {
+      if (state.passedTwice()) {
+        endRound();
+        startRound();
+      } else
+        state.pass();
     } else {
-      passCnt += 1;
-      whoseTurn = FLIP(whoseTurn);
+      if (state.needsRespondingSpell(pid)) {
+        state.startCasting();
+        releaseSpells();
+        state.endCasting();
+      }
+      if (state.needsRespondingAttack(pid)) {
+        state.startBattling();
+        // battle();
+        state.endBattling();
+      }
+      state.finishTurn();
     }
-    return;
-  }
-  if (hasBattlingUnits()) {
-    if (initiator == pid) {
-      whoseTurn = FLIP(whoseTurn);
-    } else if (!spellStack.empty() && spellStack.back().cast.playerId == pid) {
-      whoseTurn = FLIP(whoseTurn);
-    } else {
-      // battle();
-      passCnt = 1;
-      whoseTurn = FLIP(initiator);
-    }
-  } else {
-    if (spellStack.back().cast.playerId == pid) {
-      whoseTurn = FLIP(whoseTurn);
-    } else {
-      releaseSpells();
-      passCnt = 1;
-      whoseTurn = FLIP(initiator);
-    }
-  }
+  } else
+    state.finishTurn();
 }
 
 bool Game::isArenaClean() {

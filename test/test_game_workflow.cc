@@ -112,7 +112,7 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
   if (GAME_PTR->canPlayUnit(action))
     GAME_PTR->playUnit(action);
   EXPECT_EQ(p1->unitMana, 0);
-  EXPECT_EQ(GAME_PTR->whoseTurn, pid2);
+  EXPECT_EQ(GAME_PTR->state.whoseTurn, pid2);
   // P2 passes.
   GAME_PTR->hitButton(pid2);
   // P1 passes. End round.
@@ -120,7 +120,16 @@ TEST(GAME_WORKFLOW, WALK_THROUGH_SUCCESS) {
 
   // Round 2
   EXPECT_EQ(GAME_PTR->starterInRound, pid1);
-  GAME_PTR->printGameView();
+  action.play = PlayAction(pid1, 16);
+  EXPECT_EQ(GAME_PTR->canPlayUnit(action), false);
+  action.play = PlayAction(pid1, 5);
+  // P1 summons Elise
+  if(GAME_PTR->canPlayUnit(action))
+    GAME_PTR->playUnit(action);
+  EXPECT_EQ(GAME_PTR->ents[p1->hand[0]].getCard()->id, 28);
+  // P2 passes
+  GAME_PTR->hitButton(pid2);
+  // P1 declares attack
 
   delete GAME_PTR;
 }
