@@ -10,7 +10,8 @@ message("C++ Compiler: ${CMAKE_CXX_COMPILER}")
 set(RS_HEADER_FILES
         src/base/type.h src/base/util.h src/base/result.h src/base/error.h src/base/base.h src/base/rsvec.h
         src/cardset/gallery.h src/cardset/cardset01.h
-        src/game/card.h src/game/event.h src/game/entity.h src/game/game.h src/game/event_listener.h src/game/game_state.h)
+        src/game/card.h src/game/event.h src/game/entity.h src/game/game.h src/game/event_listener.h
+        src/game/game_state.h src/game/action.h)
 
 set(RS_BASE_SOURCE_FILES src/base/util.cc src/base/error.cc src/base/result.cc)
 set(RS_CARD_SOURCE_FILES
@@ -20,7 +21,7 @@ set(RS_CARD_SOURCE_FILES
         src/cardset/shadow_isles_units.cc)
 set(RS_GAME_SOURCE_FILES
         src/game/card.cc src/game/game.cc src/game/player.cc src/game/event.cc
-        src/game/entity.cc src/game/event_listener.cc src/game/action.h src/game/action.cc)
+        src/game/entity.cc src/game/event_listener.cc src/game/action.cc)
 
 add_library(rsgame SHARED ${RS_HEADER_FILES}
         ${RS_BASE_SOURCE_FILES} ${RS_CARD_SOURCE_FILES} ${RS_GAME_SOURCE_FILES} src/runesim.h)
