@@ -182,7 +182,7 @@ void Game::releaseSpells() {
     RSID spellId = spellStack[i].cast.spellId;
     auto spell = ents[spellId];
     if (spell.isCastable(spellStack[i])) {
-      spell.perform(spellStack[i]);
+      spell.onCast(spellStack[i]);
     } else
       spell.quench();
   }
@@ -217,6 +217,25 @@ void Game::putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw) {
   std::shuffle(players[pid]->deck.begin(), players[pid]->deck.end(), getRandomGenerator());
 }
 
+bool Game::canPutUnitToAttack(Action &action) {
+  RSID playerId = action.declAttack.playerId;
+  RSID attackerId = action.declAttack.attackerId;
+  Entity &unit = ents[attackerId];
+  if (!state.canDeclAttack(playerId))
+    return false;
+  if (!players[playerId]->table.has(attackerId))
+    return false;
+  if (players[playerId]->frontier.size() >= FRONTIER_LIMIT)
+    return false;
+  if (unit.beStunned())
+    return false;
+
+}
+
+bool Game::canPutUnitToBlock(Action &action) {
+  return false;
+}
+
 bool Game::canPlayUnit(Action &action) {
   if (action.play.type != ActionType::PLAY)
     return false;
@@ -244,7 +263,7 @@ void Game::playUnit(Action &action) {
   auto p = players[playerId];
   p->hand.erase(eid);
   p->unitMana -= ents[eid].getCost();
-  ents[eid].getCard()->onPlay(action);
+  ents[eid].onPlay(action);
   trigger(Event(PlayEvent(playerId, eid)));
   trigger(Event(SummonEvent(action.summon.playerId, action.summon.summoneeId)));
   p->table.push_back(eid);
@@ -291,7 +310,7 @@ void Game::playSlowOrFastSpell(Action &action) {
   i8 oldUnitMana = p->unitMana;
   p->unitMana = max(0, oldUnitMana - ents[eid].getCost());
   p->spellMana = p->spellMana + min(0, oldUnitMana - ents[eid].getCost());
-  ents[eid].getCard()->onPlay(action);
+  ents[eid].onPlay(action);
   spellStack.push_back(action);
   trigger(Event(PlayEvent(playerId, eid)));
   trigger(Event(PutSpell(action.cast.playerId, action.cast.spellId)));
@@ -309,12 +328,27 @@ void Game::playBurstSpell(Action &action) {
   p->unitMana = max(0, oldUnitMana - ents[eid].getCost());
   p->spellMana = p->spellMana + min(0, oldUnitMana - ents[eid].getCost());
   action.any.type = ActionType::CAST;
-  ents[eid].getCard()->onCast(action);
+  ents[eid].onCast(action);
   trigger(Event(PlayEvent(playerId, eid)));
   trigger(Event(CastEvent(playerId, eid)));
   for (i64 i = 0; i < action.cast.argc; i++)
     trigger(Event(TargetEvent(action.cast.playerId, action.cast.args[i])));
+  p->graveyard.push_back(eid);
   state.castedBurstSpell();
+}
+
+void Game::castBurst(Action &action) {
+
+}
+void Game::putUnitToAttack(Action &action) {
+
+}
+void Game::putUnitToBlock(Action &action) {
+
+}
+
+void Game::battle() {
+
 }
 
 void Game::hitButton(RSID pid) {
@@ -333,20 +367,30 @@ void Game::hitButton(RSID pid) {
       }
       if (state.needsRespondingAttack(pid)) {
         state.startBattling();
-        // battle();
+        battle();
         state.endBattling();
       }
       state.finishTurn();
     }
-  } else
+  } else {
+    if (state.declaredAttack(pid)) {
+      auto f = players[pid]->frontier;
+      for (RSID eid: f) {
+        i8 pos = f.getIndex(eid);
+        Action action(DeclAttackAction(pid, eid, pos));
+        ents[eid].getCard()->onDeclAttack(action);
+        trigger(Event(DeclAttackEvent(pid, eid, pos)));
+      }
+    }
+    if (state.declaredBlock(pid)) {
+      auto f = players[pid]->frontier;
+      for (RSID eid: f) {
+        i8 pos = f.getIndex(eid);
+        trigger(Event(DeclBlockEvent(pid, eid, pos)));
+      }
+    }
     state.finishTurn();
-}
-
-bool Game::isArenaClean() {
-  return spellStack.empty() && frontier[0].empty() && frontier[1].empty();
-}
-bool Game::hasBattlingUnits() {
-  return !frontier[0].empty() || !frontier[1].empty();
+  }
 }
 
 bool Game::isInHand(RSID playerId, RSID entityId) {
@@ -357,13 +401,13 @@ bool Game::isObjInGameView(RSID entityId) {
   if (GAME_PTR->ents.find(entityId) == GAME_PTR->ents.end())
     return false;
   Entity obj = GAME_PTR->ents[entityId];
-  return !(obj.isDead() || obj.isDiscarded() || obj.isDetained());
+  return !(obj.isDead() || obj.isDiscarded() || obj.isCaptured());
 }
 bool Game::isDestructibleObjInGameView(RSID entityId) {
   if (GAME_PTR->ents.find(entityId) == GAME_PTR->ents.end())
     return false;
   Entity obj = GAME_PTR->ents[entityId];
-  if (obj.isDead() || obj.isDiscarded() || obj.isDetained() || !obj.isSummoned())
+  if (obj.isDead() || obj.isDiscarded() || obj.isCaptured() || !obj.isSummoned())
     return false;
   return obj.isNexus() || obj.getCard()->type == CardType::UNIT;
 }
@@ -371,7 +415,7 @@ bool Game::isUnitInGameView(RSID entityId) {
   if (GAME_PTR->ents.find(entityId) == GAME_PTR->ents.end())
     return false;
   Entity obj = GAME_PTR->ents[entityId];
-  if (obj.isDead() || obj.isDiscarded() || obj.isDetained() || !obj.isSummoned())
+  if (obj.isDead() || obj.isDiscarded() || obj.isCaptured() || !obj.isSummoned())
     return false;
   return obj.getCard()->type == CardType::UNIT;
 }
@@ -379,7 +423,7 @@ bool Game::isAlly(RSID playerId, RSID entityId) {
   if (GAME_PTR->ents.find(entityId) == GAME_PTR->ents.end())
     return false;
   Entity obj = GAME_PTR->ents[entityId];
-  if (obj.isDead() || obj.isDiscarded() || obj.isDetained() || !obj.isSummoned())
+  if (obj.isDead() || obj.isDiscarded() || obj.isCaptured() || !obj.isSummoned())
     return false;
   return obj.getCard()->type == CardType::UNIT && obj.getPlayerId() == playerId;
 }
@@ -388,7 +432,7 @@ bool Game::isEnemy(RSID playerId, RSID entityId) {
   if (GAME_PTR->ents.find(entityId) == GAME_PTR->ents.end())
     return false;
   Entity obj = GAME_PTR->ents[entityId];
-  if (obj.isDead() || obj.isDiscarded() || obj.isDetained() || !obj.isSummoned())
+  if (obj.isDead() || obj.isDiscarded() || obj.isCaptured() || !obj.isSummoned())
     return false;
   return obj.getCard()->type == CardType::UNIT && obj.getPlayerId() == FLIP(playerId);
 }
@@ -397,7 +441,7 @@ bool Game::isFollowerInGameView(RSID entityId) {
   if (GAME_PTR->ents.find(entityId) == GAME_PTR->ents.end())
     return false;
   Entity obj = GAME_PTR->ents[entityId];
-  if (obj.isDead() || obj.isDiscarded() || obj.isDetained() || !obj.isSummoned())
+  if (obj.isDead() || obj.isDiscarded() || obj.isCaptured() || !obj.isSummoned())
     return false;
   return obj.getCard()->type == CardType::UNIT && obj.getCard()->supType != CardSupType::CHAMPION;
 }
@@ -409,8 +453,8 @@ bool Game::hasSummonedCard(RSID playerId, RSID cardId) {
     if (obj.getCard()->id == cardId)
       return true;
   }
-  for (int i = 0; i < frontier[playerId].size(); i++) {
-    RSID id = frontier[playerId][i];
+  for (int i = 0; i < players[playerId]->frontier.size(); i++) {
+    RSID id = players[playerId]->frontier[i];
     auto obj = ents[id];
     if (obj.getCard()->id == cardId)
       return true;
@@ -451,12 +495,21 @@ RSID Game::putCardInHand(RSID playerId, RSID cardId) {
     return obj.getId();
   }
   GAME_PTR->players[playerId]->hand.push_back(obj.getId());
+  // trigger GET_CARD event
   return obj.getId();
 }
 RSID Game::summonAUnitOnTable(RSID playerId, RSID cardId) {
+  // build the card
+  // summon
+  // put on the table
+  // trigger GET_CARD event
   return 0;
 }
 RSID Game::summonAUnitInAttack(RSID playerId, RSID cardId) {
+  // build the card
+  // summon
+  // put into the frontier
+  // trigger GET_CARD event
   return 0;
 }
 void Game::trigger(Event event) {
@@ -513,12 +566,12 @@ void Game::printGameView() {
     log("#%d:%s", p2->table.getIndex(eid), ents[eid].getInfo().c_str());
   log("================================");
   log("Player %d's frontier:", pid1 + 1);
-  for (auto eid: frontier[pid1])
-    log("#%d:%s", frontier[pid1].getIndex(eid), ents[eid].getInfo().c_str());
+  for (auto eid: p1->frontier)
+    log("#%d:%s", p1->frontier.getIndex(eid), ents[eid].getInfo().c_str());
   log("--------------------------------");
   log("Player %d's frontier:", pid2 + 1);
-  for (auto eid: frontier[pid2])
-    log("#%d:%s", frontier[pid2].getIndex(eid), ents[eid].getInfo().c_str());
+  for (auto eid: p2->frontier)
+    log("#%d:%s", p2->frontier.getIndex(eid), ents[eid].getInfo().c_str());
   log("--------------------------------");
   log("Spell stack:");
   for (i64 i = spellStack.size() - 1; i >= 0; i--) {

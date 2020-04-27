@@ -69,6 +69,12 @@ public:
       return !putSpellInTurn && attackMode != 3;
     return true;
   }
+  inline bool declaredAttack(RSID pid){
+    return pid == whoseTurn && !respondingAttack && attackMode == 1;
+  }
+  inline bool declaredBlock(RSID pid){
+    return pid == whoseTurn && respondingAttack && attackMode == 3;
+  }
   inline bool passedTwice() {
     return passCnt >= 2;
   }
@@ -103,12 +109,12 @@ public:
       respondingSpell = true;
       castMode = 2;
     }
-    // just prepared attack
+    // just declared attack
     if (!respondingAttack && attackMode == 1) {
       respondingAttack = true;
       attackMode = 2;
     }
-    // just prepared block
+    // just declared block
     if (respondingAttack && attackMode == 3)
       attackMode = 4;
     // just responded a spell

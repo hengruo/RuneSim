@@ -5,6 +5,8 @@
 #ifndef RUNESIM_GAME_ENTITY_H
 #define RUNESIM_GAME_ENTITY_H
 
+// Methods in Entity class only modify the internal data instead of fields in other classes.
+
 #include "card.h"
 class Entity;
 class EntityImpl {
@@ -25,8 +27,8 @@ private:
   u64 enableMask = 0;
   u64 disableMask = 0xFFFFFFFFFFFFFFFF;
   bool summoned = false;
-  bool purified = false;
-  bool detained = false;
+  bool silenced = false;
+  bool captured = false;
   bool obliterated = false;
   bool barriered = false;
   bool discarded = false; // if discarded
@@ -35,7 +37,7 @@ private:
   bool inAttack = false;
   bool bonded = false;
   bool isBonder = false;
-  RSID detainerId = -1;
+  RSID capturer = -1;
   RSID bondedId = -1;
   RSID originalCardId = -1;
 public:
@@ -72,7 +74,7 @@ public:
   i8 getAttackPosition() const;
   i8 getCost() const;
   bool isDead() const;
-  bool isDetained() const;
+  bool isCaptured() const;
   bool isInAttack() const;
   bool isDiscarded() const;
   bool isSummoned() const;
@@ -85,7 +87,7 @@ public:
   bool isBonder() const;
   bool isBondee() const;
   RSID getBondedId() const;
-  RSID getDetainerId() const;
+  RSID getCapturerId() const;
   u64 getKeywords() const;
   str getInfo() const;
 
@@ -115,6 +117,16 @@ public:
   void quitAttack();
   void enableKeywords(u64 keyword);
   void disableKeywords(u64 keyword);
+
+  void beforeGameStarts(RSID playerId, RSID entityId);
+  void onPlay(Action &action);
+  void onCast(Action &action);
+  void onDiscard(Action &action);
+  void onDie(Action &action);
+  void onSummon(Action &action);
+  void onDeclAttack(Action &action);
+  void onStrike(Action &action);
+  void onSupport(Action &action);
 };
 
 #endif //RUNESIM_GAME_ENTITY_H

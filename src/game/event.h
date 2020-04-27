@@ -54,6 +54,13 @@ struct DeclAttackEvent {
   i8 position;
   DeclAttackEvent(RSID PlayerId, RSID AttackerId, i8 Position);
 };
+struct DeclBlockEvent {
+  EventType type = EventType::DECL_BLOCK;
+  RSID playerId;
+  RSID attackerId;
+  i8 position;
+  DeclBlockEvent(RSID PlayerId, RSID AttackerId, i8 Position);
+};
 struct DieEvent {
   EventType type = EventType::DIE;
   RSID playerId;
@@ -127,7 +134,7 @@ union Event {
   AnyEvent any;
   CastEvent cast;
   DeclAttackEvent declAttack;
-  PutSpell putSpell;
+  DeclBlockEvent declBlock;
   DieEvent die;
   DrawCardEvent drawCard;
   EndRoundEvent endRound;
@@ -136,12 +143,14 @@ union Event {
   LevelUpEvent levelUp;
   NexusStrikeEvent nexusStrike;
   PlayEvent play;
+  PutSpell putSpell;
   StartRoundEvent startRound;
   SummonEvent summon;
   TargetEvent target;
   Event(const AnyEvent &Any);
   Event(const CastEvent &Cast);
   Event(const DeclAttackEvent &DeclAttack);
+  Event(const DeclBlockEvent &DeclBlock);
   Event(const DieEvent &Die);
   Event(const DrawCardEvent &DrawCard);
   Event(const EndRoundEvent &EndRound);

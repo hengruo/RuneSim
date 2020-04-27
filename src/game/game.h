@@ -41,6 +41,7 @@ public:
   rsvec deck;
   rsvec hand;
   rsvec table;
+  rsvec frontier;
   rsvec graveyard;
 
   static Result<rsvec> buildDeck(const vec<pair<RSID, isize>> &v, RSID pid);
@@ -50,8 +51,6 @@ public:
 class Game final {
 private:
   // check game state
-  bool isArenaClean();
-  bool hasBattlingUnits();
   void killEphemeralOnTable(RSID playerId);
   void discardFleetingInHand(RSID playerId);
 public:
@@ -65,11 +64,10 @@ public:
   function<void(RSID)> afterGame;
   umap<RSID, Entity> ents;
   umap<RSID, EventListener> evlsnr;
-  umap<EventType, set<RSID>> elByType;
-  umap<RSID, set<RSID>> elByEntId;
-  umap<RSID, set<RSID>> elByCardId;
+  umap<EventType, rsvec> elByType;
+  umap<RSID, rsvec> elByEntId;
+  umap<RSID, rsvec> elByCardId;
   sptr<Player> players[2];
-  rsvec frontier[2];
   vec<Action> spellStack;
   i32 round = 0;
   i32 passCnt = 0;
@@ -100,11 +98,11 @@ public:
   void playSlowOrFastSpell(Action &action);
   void playBurstSpell(Action &action);
 //  bool canCastBurst(Action &action);
-//  void castBurst(Action &action);
-//  bool canPutUnitToAttack(Action &action);
-//  void putUnitToAttack(Action &action);
-//  bool canPutUnitToBlock(Action &action);
-//  void putUnitToBlock(Action &action);
+  void castBurst(Action &action);
+  bool canPutUnitToAttack(Action &action);
+  void putUnitToAttack(Action &action);
+  bool canPutUnitToBlock(Action &action);
+  void putUnitToBlock(Action &action);
   void hitButton(RSID pid);
 
   bool isEnded() const;

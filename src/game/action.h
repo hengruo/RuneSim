@@ -9,12 +9,13 @@
 #define ACTION_ARG_MAX_NUM 6
 
 enum class ActionType {
-  PLAY,
-  SUMMON,
   CAST,
   DECL_ATTACK,
   DECL_BLOCK,
-  DIE
+  DIE,
+  PLAY,
+  SUMMON,
+  SUPPORT
 };
 
 struct AnyAction {
@@ -52,17 +53,14 @@ struct DeclAttackAction {
   ActionType type = ActionType::DECL_ATTACK;
   RSID playerId;
   RSID attackerId;
-  i64 position;
-  RSID supportedId;
-  DeclAttackAction(RSID PlayerId, RSID AttackerId, i64 Position);
+  DeclAttackAction(RSID PlayerId, RSID AttackerId);
 };
 
 struct DeclBlockAction {
   ActionType type = ActionType::DECL_BLOCK;
   RSID playerId;
   RSID blockerId;
-  i64 position;
-  DeclBlockAction(RSID PlayerId, RSID BlockerId, i64 Position);
+  DeclBlockAction(RSID PlayerId, RSID BlockerId);
 };
 
 struct DieAction {
@@ -72,10 +70,19 @@ struct DieAction {
   DieAction(ActionType Type, RSID PlayerId, RSID DeadId);
 };
 
+struct SupportAction {
+  ActionType type = ActionType::SUPPORT;
+  RSID playerId;
+  RSID supporterId;
+  RSID supporteeId;
+  SupportAction(RSID PlayerId, RSID SupporterId, RSID SupporteeId);
+};
+
 union Action {
   AnyAction any;
   PlayAction play;
   SummonAction summon;
+  SupportAction support;
   CastAction cast;
   DeclAttackAction declAttack;
   DeclBlockAction declBlock;
@@ -85,6 +92,7 @@ union Action {
   Action(const DeclAttackAction &DeclAttack);
   Action(const PlayAction &Play);
   Action(const SummonAction &Summon);
+  Action(const SupportAction &Support);
 };
 
 #endif //RUNESIM_GAME_ACTION_H

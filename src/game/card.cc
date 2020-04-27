@@ -57,3 +57,9 @@ void Card::onPlay(Action &action) const {
 void Card::onDeclAttack(Action &action) const {
 
 }
+void Card::onStrike(Action &action) const {
+
+}
+void Card::onSupport(Action &action) const {
+
+}

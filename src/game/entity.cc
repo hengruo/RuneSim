@@ -56,8 +56,8 @@ bool Entity::isDiscarded() const {
 bool Entity::isDead() const {
   return content->dead;
 }
-bool Entity::isDetained() const {
-  return content->detained;
+bool Entity::isCaptured() const {
+  return content->captured;
 }
 bool Entity::isSummoned() const {
   return content->summoned;
@@ -93,8 +93,8 @@ bool Entity::isBondee() const {
 RSID Entity::getBondedId() const {
   return content->bonded ? content->bondedId : -1;
 }
-RSID Entity::getDetainerId() const {
-  return isDetained() ? content->detainerId : -1;
+RSID Entity::getCapturerId() const {
+  return isCaptured() ? content->capturer : -1;
 }
 i8 Entity::getAttackPosition() const {
   return content->attackPosition;
@@ -166,11 +166,7 @@ void Entity::beDiscarded() {
 void Entity::die() {
 
 }
-void Entity::perform(Action &action) {
-  getCard()->onCast(action);
-  content->dead = true;
-  auto player = GAME_PTR->players[getPlayerId()];
-}
+
 void Entity::quench() {
   content->dead = true;
 }
@@ -195,7 +191,7 @@ void Entity::levelUp(RSID cardId) {
   Action summon(SummonAction(getPlayerId(), getId()));
   content->card->onSummon(summon);
   if (isInAttack()) {
-    Action declAttack(DeclAttackAction(getPlayerId(), getId(), content->attackPosition));
+    Action declAttack(DeclAttackAction(getPlayerId(), getId()));
     content->card->onDeclAttack(declAttack);
   }
 }
@@ -229,9 +225,42 @@ void Entity::disableKeywords(u64 keyword) {
   content->disableMask &= (~keyword);
 }
 str Entity::getInfo() const {
-  if(isSpell() || isSkill())
+  if (isSpell() || isSkill())
     return format("[%02d] S %s", getId(), content->card->name);
-  if(isUnit())
+  if (isUnit())
     return format("[%02d] U %02d %02d %s", getId(), getAttack(), getHealth(), content->card->name);
   return format("INVALID ENTITY");
+}
+void Entity::beforeGameStarts(RSID playerId, RSID entityId) {
+  content->card->beforeGameStarts(playerId, entityId);
+}
+void Entity::onPlay(Action &action) {
+  if(content->silenced || content->captured) return;
+  content->card->onPlay(action);
+}
+void Entity::onCast(Action &action) {
+  content->card->onCast(action);
+  content->dead = true;
+}
+void Entity::onDiscard(Action &action) {
+  content->card->onDiscard(action);
+}
+void Entity::onDie(Action &action) {
+  content->card->onDie(action);
+}
+void Entity::onSummon(Action &action) {
+  if(content->silenced || content->captured) return;
+  content->card->onSummon(action);
+}
+void Entity::onDeclAttack(Action &action) {
+  if(content->silenced || content->captured) return;
+  content->card->onDeclAttack(action);
+}
+void Entity::onStrike(Action &action) {
+  if(content->silenced || content->captured) return;
+  content->card->onStrike(action);
+}
+void Entity::onSupport(Action &action) {
+  if(content->silenced || content->captured) return;
+  content->card->onSupport(action);
 }

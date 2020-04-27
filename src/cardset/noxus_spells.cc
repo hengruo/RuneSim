@@ -40,8 +40,8 @@ void BrothersBond0080::onCast(Action &action) const {
 }
 
 void DeathLotus0275::onCast(Action &action) const {
-  for (RSID id : GAME_PTR->frontier[0])
+  for (RSID id : GAME_PTR->players[0]->frontier)
     GAME_PTR->ents[id].beHurt(1);
-  for (RSID id : GAME_PTR->frontier[1])
+  for (RSID id : GAME_PTR->players[1]->frontier)
     GAME_PTR->ents[id].beHurt(1);
 }
