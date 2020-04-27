@@ -30,7 +30,7 @@ activities. Contributors won't be liable for any damages to
 
 ## Credits
 ### Main Contributors
-- [Hengruo Zhang](https://github.com/hengruo)
+- [setoidz](https://github.com/setoidz)
 
 ### Contributors
 
