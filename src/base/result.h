@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 4/3/20.
 //
 
-#ifndef RUNESIM_BASE_RESULT_H
-#define RUNESIM_BASE_RESULT_H
+#ifndef RUNESIM_RESULT_H
+#define RUNESIM_RESULT_H
 
 #include "type.h"
 #include "util.h"
@@ -39,4 +39,4 @@ public:
   }
 };
 
-#endif //RUNESIM_BASE_RESULT_H
+#endif //RUNESIM_RESULT_H

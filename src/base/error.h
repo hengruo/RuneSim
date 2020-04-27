@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 4/3/20.
 //
 
-#ifndef RUNESIM_BASE_ERROR_H
-#define RUNESIM_BASE_ERROR_H
+#ifndef RUNESIM_ERROR_H
+#define RUNESIM_ERROR_H
 
 #include "type.h"
 
@@ -22,4 +22,4 @@ public:
   Error(ErrorType Type, const str &Message);
 };
 
-#endif //RUNESIM_BASE_ERROR_H
+#endif //RUNESIM_ERROR_H

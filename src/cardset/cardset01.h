@@ -1,8 +1,8 @@
 //
 // Generate by Python
 //
-#ifndef RUNESIM_CARD_CARDSET01_H
-#define RUNESIM_CARD_CARDSET01_H
+#ifndef RUNESIM_CARDSET01_H
+#define RUNESIM_CARDSET01_H
 
 #include "../game/card.h"
 
@@ -4393,4 +4393,4 @@ public:
                           6, 3, 7, true, {}) {}
 };
 
-#endif //RUNESIM_CARD_CARDSET01_H
+#endif //RUNESIM_CARDSET01_H

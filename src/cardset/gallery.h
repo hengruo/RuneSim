@@ -1,5 +1,5 @@
-#ifndef RUNESIM_CARD_GALLERY_H
-#define RUNESIM_CARD_GALLERY_H
+#ifndef RUNESIM_GALLERY_H
+#define RUNESIM_GALLERY_H
 
 #include "cardset01.h"
 
@@ -10,4 +10,4 @@ extern vec<RSID> PORO_WITH_1_COST;
 extern umap<RSID, RSID> CHAMPION_TO_SPELL;
 void init_gallery();
 void clear_gallery();
-#endif //RUNESIM_CARD_GALLERY_H
+#endif //RUNESIM_GALLERY_H

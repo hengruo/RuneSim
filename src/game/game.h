@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 2/9/20.
 //
 
-#ifndef RUNESIM_GAME_GAME_H
-#define RUNESIM_GAME_GAME_H
+#ifndef RUNESIM_GAME_H
+#define RUNESIM_GAME_H
 
 #include "entity.h"
 #include "event.h"
@@ -133,4 +133,4 @@ public:
   virtual ~Game();
 };
 
-#endif //RUNESIM_GAME_GAME_H
+#endif //RUNESIM_GAME_H

@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 2/10/20.
 //
 
-#ifndef RUNESIM_GAME_EVENT_H
-#define RUNESIM_GAME_EVENT_H
+#ifndef RUNESIM_EVENT_H
+#define RUNESIM_EVENT_H
 #include "../base/base.h"
 
 #define EVENT_MAX_SIZE 6
@@ -165,4 +165,4 @@ union Event {
   Event(const TargetEvent &Target);
 };
 
-#endif //RUNESIM_GAME_EVENT_H
+#endif //RUNESIM_EVENT_H

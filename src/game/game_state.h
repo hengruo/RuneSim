@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 4/24/20.
 //
 
-#ifndef RUNESIM_GAME_GAMESTATE_H
-#define RUNESIM_GAME_GAMESTATE_H
+#ifndef RUNESIM_GAMESTATE_H
+#define RUNESIM_GAMESTATE_H
 #include "../base/base.h"
 
 #define FLIP(X) (1 - (X))
@@ -166,4 +166,4 @@ public:
   }
 };
 
-#endif //RUNESIM_GAME_GAMESTATE_H
+#endif //RUNESIM_GAMESTATE_H

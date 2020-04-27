@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 2/7/20.
 //
 
-#ifndef RUNESIM_GAME_CARD_H
-#define RUNESIM_GAME_CARD_H
+#ifndef RUNESIM_CARD_H
+#define RUNESIM_CARD_H
 
 #include "action.h"
 
@@ -147,4 +147,4 @@ public:
   virtual void onSupport(Action &action) const;
 };
 
-#endif //RUNESIM_GAME_CARD_H
+#endif //RUNESIM_CARD_H

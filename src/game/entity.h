@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 3/29/20.
 //
 
-#ifndef RUNESIM_GAME_ENTITY_H
-#define RUNESIM_GAME_ENTITY_H
+#ifndef RUNESIM_ENTITY_H
+#define RUNESIM_ENTITY_H
 
 // Methods in Entity class only modify the internal data instead of fields in other classes.
 
@@ -129,4 +129,4 @@ public:
   void onSupport(Action &action);
 };
 
-#endif //RUNESIM_GAME_ENTITY_H
+#endif //RUNESIM_ENTITY_H

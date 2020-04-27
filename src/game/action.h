@@ -2,8 +2,8 @@
 // Created by Hengruo Zhang on 4/22/20.
 //
 
-#ifndef RUNESIM_GAME_ACTION_H
-#define RUNESIM_GAME_ACTION_H
+#ifndef RUNESIM_ACTION_H
+#define RUNESIM_ACTION_H
 #include "../base/base.h"
 
 #define ACTION_ARG_MAX_NUM 6
@@ -95,4 +95,4 @@ union Action {
   Action(const SupportAction &Support);
 };
 
-#endif //RUNESIM_GAME_ACTION_H
+#endif //RUNESIM_ACTION_H
