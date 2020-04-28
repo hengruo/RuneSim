@@ -46,17 +46,17 @@ gallery_cc.append("umap<RSID, RSID> CHAMPION_TO_SPELL = {" + ",".join(csp) + "};
 gallery_cc.append('''
 
 void init_gallery() {
-  init_gallery01();
-  init_gallery02();
-  init01IO049();
-  init01SI030();
-  init01SI030T2();
-  init01NX050();
+  init_cardset01();
+  init_cardset02();
   for (auto p: GALLERY) {
     if (p.second->collectible)
       COLLECTIBLE[p.first] = p.second;
     CODE_TO_CARD[str(p.second->code)] = p.second;
   }
+  init01IO049();
+  init01SI030();
+  init01SI030T2();
+  init01NX050();
 }
 
 void clear_gallery() {
