@@ -56,7 +56,6 @@ cardset_h = ['''//
 //
 
 #include "gallery.h"
-#include "card.h"
 
 void init_cardset01(){
 ''']
