@@ -10,6 +10,7 @@
 #include "event_listener.h"
 #include "action.h"
 #include "game_state.h"
+#include "frontier.h"
 
 #define SINGLE_CARD_LIMIT 3
 #define REGION_LIMIT 2
@@ -17,7 +18,6 @@
 #define DECK_LIMIT 40
 #define HAND_LIMIT 10
 #define TABLE_LIMIT 6
-#define FRONTIER_LIMIT 6
 #define SPELL_STACK_LIMIT 10
 #define MAX_MANA 10
 #define MAX_SPELL_MANA 3
@@ -41,8 +41,8 @@ public:
   rsvec deck;
   rsvec hand;
   rsvec table;
-  rsvec frontier;
   rsvec graveyard;
+  Frontier frontier;
 
   static Result<rsvec> buildDeck(const vec<pair<RSID, isize>> &v, RSID pid);
   static Result<sptr<Player>> build(RSID pid, vec<pair<RSID, isize>> &v);
@@ -53,6 +53,7 @@ private:
   // check game state
   void killEphemeralOnTable(RSID playerId);
   void discardFleetingInHand(RSID playerId);
+  bool canBeChallenged(RSID pid, RSID eid);
 public:
   // Player acting first in odd number round
   RSID firstPlayerId = -1;
@@ -85,7 +86,7 @@ public:
   void startRound();
   bool drawACard(RSID pid);
   void putSkill(Action &action);
-  void releaseSpells();
+  void resolveSpells();
   void battle();
   void endRound();
 
@@ -97,8 +98,6 @@ public:
   bool canPlaySpell(Action &action);
   void playSlowOrFastSpell(Action &action);
   void playBurstSpell(Action &action);
-//  bool canCastBurst(Action &action);
-  void castBurst(Action &action);
   bool canPutUnitToAttack(Action &action);
   void putUnitToAttack(Action &action);
   bool canPutUnitToBlock(Action &action);
@@ -109,8 +108,8 @@ public:
   void end(RSID Winner);
 
   bool isInHand(RSID playerId, RSID entityId);
-  bool isObjInGameView(RSID entityId);
-  bool isDestructibleObjInGameView(RSID entityId);
+  bool isInPlay(RSID entityId);
+  bool isStrikableEntity(RSID entityId);
   bool isAlly(RSID playerId, RSID entityId);
   bool isEnemy(RSID playerId, RSID entityId);
   bool isUnitInGameView(RSID entityId);

@@ -26,18 +26,16 @@ private:
   i8 attackPosition = -1;
   u64 enableMask = 0;
   u64 disableMask = 0xFFFFFFFFFFFFFFFF;
-  bool summoned = false;
   bool silenced = false;
   bool captured = false;
-  bool obliterated = false;
   bool barriered = false;
-  bool discarded = false; // if discarded
-  bool dead = false; // if in graveyard
+  bool summoned = false;
+  bool discarded = false;
+  bool dead = false;
   bool stunned = false;
-  bool inAttack = false;
   bool bonded = false;
   bool isBonder = false;
-  RSID capturer = -1;
+  RSID capturerId = -1;
   RSID bondedId = -1;
   RSID originalCardId = -1;
 public:
@@ -69,21 +67,21 @@ public:
   RSID getPlayerId() const;
   bool isNexus() const;
   bool isCard() const;
+  bool isFollower() const;
+  bool isChampion() const;
+  bool isSpell() const;
+  bool isSkill() const;
+  bool isTrap() const;
   i8 getHealth() const;
   i8 getAttack() const;
   i8 getAttackPosition() const;
   i8 getCost() const;
   bool isDead() const;
   bool isCaptured() const;
-  bool isInAttack() const;
   bool isDiscarded() const;
   bool isSummoned() const;
+  bool isStunned() const;
   bool isUnit() const;
-  bool isFollower() const;
-  bool isChampion() const;
-  bool isSpell() const;
-  bool isSkill() const;
-  bool isTrap() const;
   bool isBonder() const;
   bool isBondee() const;
   RSID getBondedId() const;
@@ -109,16 +107,12 @@ public:
   void levelUp(RSID cardId);
   bool isCastable(Action &action);
   bool isPlayable(Action &action);
-  // perform effects of spells or skills
-  void perform(Action &action);
   void bond(RSID bondeeId);
   void quench();
-  void prepareAttack(i8 position);
-  void quitAttack();
   void enableKeywords(u64 keyword);
   void disableKeywords(u64 keyword);
 
-  void beforeGameStarts(RSID playerId, RSID entityId);
+  void onStartGame(RSID playerId, RSID entityId);
   void onPlay(Action &action);
   void onCast(Action &action);
   void onDiscard(Action &action);

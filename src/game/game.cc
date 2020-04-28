@@ -82,9 +82,9 @@ Result<Game *> Game::build(vec<pair<RSID, isize>> &v1,
   _game->players[1]->opNexusId = _game->players[0]->nexusId;
 
   for (auto eid: _game->players[0]->deck)
-    _game->ents[eid].getCard()->beforeGameStarts(0, eid);
+    _game->ents[eid].onStartGame(0, eid);
   for (auto eid: _game->players[1]->deck)
-    _game->ents[eid].getCard()->beforeGameStarts(1, eid);
+    _game->ents[eid].onStartGame(1, eid);
 
   return Result<Game *>::mkVal(_game);
 }
@@ -177,7 +177,7 @@ void Game::putSkill(Action &action) {
   state.putSkill(action.cast.playerId);
 }
 
-void Game::releaseSpells() {
+void Game::resolveSpells() {
   for (int i = spellStack.size() - 1; i >= 0; i--) {
     RSID spellId = spellStack[i].cast.spellId;
     auto spell = ents[spellId];
@@ -217,25 +217,6 @@ void Game::putFirstDrawInHandAndShuffleDeck(RSID pid, vec<RSID> &draw) {
   std::shuffle(players[pid]->deck.begin(), players[pid]->deck.end(), getRandomGenerator());
 }
 
-bool Game::canPutUnitToAttack(Action &action) {
-  RSID playerId = action.declAttack.playerId;
-  RSID attackerId = action.declAttack.attackerId;
-  Entity &unit = ents[attackerId];
-  if (!state.canDeclAttack(playerId))
-    return false;
-  if (!players[playerId]->table.has(attackerId))
-    return false;
-  if (players[playerId]->frontier.size() >= FRONTIER_LIMIT)
-    return false;
-  if (unit.beStunned())
-    return false;
-
-}
-
-bool Game::canPutUnitToBlock(Action &action) {
-  return false;
-}
-
 bool Game::canPlayUnit(Action &action) {
   if (action.play.type != ActionType::PLAY)
     return false;
@@ -254,10 +235,12 @@ bool Game::canPlayUnit(Action &action) {
     return false;
   if (players[pid]->table.size() >= TABLE_LIMIT)
     return false;
-  return card.getCard()->playable(action);
+  return action.play.passCheck = card.isPlayable(action);
 }
 
 void Game::playUnit(Action &action) {
+  if (!action.play.passCheck)
+    return;
   RSID playerId = action.play.playerId;
   RSID eid = action.play.cardId;
   auto p = players[playerId];
@@ -299,10 +282,12 @@ bool Game::canPlaySpell(Action &action) {
     return false;
   if (!CHECK_K_BURST(card.getKeywords()) && spellStack.size() >= SPELL_STACK_LIMIT)
     return false;
-  return card.getCard()->playable(action);
+  return action.play.passCheck = card.isPlayable(action);
 }
 
 void Game::playSlowOrFastSpell(Action &action) {
+  if (!action.play.passCheck)
+    return;
   RSID playerId = action.play.playerId;
   RSID eid = action.play.cardId;
   auto p = players[playerId];
@@ -320,6 +305,8 @@ void Game::playSlowOrFastSpell(Action &action) {
 }
 
 void Game::playBurstSpell(Action &action) {
+  if (!action.play.passCheck)
+    return;
   RSID playerId = action.play.playerId;
   RSID eid = action.play.cardId;
   auto p = players[playerId];
@@ -337,14 +324,88 @@ void Game::playBurstSpell(Action &action) {
   state.castedBurstSpell();
 }
 
-void Game::castBurst(Action &action) {
-
+bool Game::canPutUnitToAttack(Action &action) {
+  RSID pid = action.declAttack.playerId;
+  RSID attackerId = action.declAttack.attackerId;
+  if (ents.find(attackerId) == ents.end())
+    return false;
+  Entity &unit = ents[attackerId];
+  if (!state.canDeclAttack(pid))
+    return false;
+  if (!players[pid]->table.has(attackerId))
+    return false;
+  if (players[pid]->frontier.full())
+    return false;
+  if (unit.isStunned() || !unit.isUnit() || unit.isDead() || unit.isCaptured())
+    return false;
+  return action.declAttack.passCheck = true;
 }
+
+bool Game::canBeChallenged(RSID pid, RSID eid) {
+  if (!isInPlay(eid))
+    return false;
+  if (!players[FLIP(pid)]->table.has(eid))
+    return false;
+  Entity &unit = ents[eid];
+  if (!unit.isUnit())
+    return false;
+  return true;
+}
+
 void Game::putUnitToAttack(Action &action) {
-
+  if (!action.declAttack.passCheck)
+    return;
+  RSID pid = action.declAttack.playerId;
+  RSID opid = FLIP(pid);
+  RSID aid = action.declAttack.attackerId;
+  RSID cid = action.declAttack.challengedId;
+  i8 pos = players[pid]->frontier.firstVacancy();
+  Entity &unit = ents[aid];
+  if (CHECK_K_CHALLENGER(unit.getKeywords()) && canBeChallenged(pid, cid)) {
+    players[opid]->frontier[pos] = cid;
+    players[opid]->table.erase(cid);
+  }
+  players[pid]->frontier[pos] = aid;
+  players[pid]->table.erase(aid);
 }
-void Game::putUnitToBlock(Action &action) {
 
+bool Game::canPutUnitToBlock(Action &action) {
+  RSID pid = action.declBlock.playerId;
+  RSID blockerId = action.declBlock.blockerId;
+  i8 pos = action.declBlock.pos;
+  if (ents.find(blockerId) == ents.end())
+    return false;
+  Entity &unit = ents[blockerId];
+  if (!state.canDeclBlock(pid))
+    return false;
+  if (!players[pid]->table.has(blockerId))
+    return false;
+  if (players[pid]->frontier.full())
+    return false;
+  if (unit.isStunned() || !unit.isUnit() || unit.isDead() || unit.isCaptured())
+    return false;
+  if (CHECK_K_CANT_BLOCK(unit.getKeywords()))
+    return false;
+  if (!players[FLIP(pid)]->frontier.isUnit(pos))
+    return false;
+  else {
+    RSID attackerId = players[FLIP(pid)]->frontier[pos];
+    if (CHECK_K_ELUSIVE(ents[attackerId].getKeywords()) && !CHECK_K_ELUSIVE(unit.getKeywords()))
+      return false;
+  }
+  return action.declBlock.passCheck = true;
+}
+
+void Game::putUnitToBlock(Action &action) {
+  if (!action.declBlock.passCheck)
+    return;
+  RSID pid = action.declBlock.playerId;
+  RSID opid = FLIP(pid);
+  RSID bid = action.declAttack.attackerId;
+  i8 pos = action.declBlock.pos;
+  Entity &unit = ents[bid];
+  players[pid]->frontier[pos] = bid;
+  players[pid]->table.erase(bid);
 }
 
 void Game::battle() {
@@ -362,7 +423,7 @@ void Game::hitButton(RSID pid) {
     } else {
       if (state.needsRespondingSpell(pid)) {
         state.startCasting();
-        releaseSpells();
+        resolveSpells();
         state.endCasting();
       }
       if (state.needsRespondingAttack(pid)) {
@@ -375,17 +436,21 @@ void Game::hitButton(RSID pid) {
   } else {
     if (state.declaredAttack(pid)) {
       auto f = players[pid]->frontier;
-      for (RSID eid: f) {
-        i8 pos = f.getIndex(eid);
-        Action action(DeclAttackAction(pid, eid, pos));
-        ents[eid].getCard()->onDeclAttack(action);
+      for (i8 pos: f.getUnitIndices()) {
+        RSID eid = f[pos];
+        Action action(DeclAttackAction(pid, eid));
+        ents[eid].onDeclAttack(action);
+        if(f.isUnit(pos+1)) {
+          Action action(SupportAction(pid, eid, f[pos+1]));
+          ents[eid].onSupport(action);
+        }
         trigger(Event(DeclAttackEvent(pid, eid, pos)));
       }
     }
     if (state.declaredBlock(pid)) {
       auto f = players[pid]->frontier;
-      for (RSID eid: f) {
-        i8 pos = f.getIndex(eid);
+      for (i8 pos: f.getUnitIndices()) {
+        RSID eid = f[pos];
         trigger(Event(DeclBlockEvent(pid, eid, pos)));
       }
     }
@@ -397,13 +462,23 @@ bool Game::isInHand(RSID playerId, RSID entityId) {
   rsvec &hand = GAME_PTR->players[playerId]->hand;
   return hand.find(entityId) != hand.end();
 }
-bool Game::isObjInGameView(RSID entityId) {
-  if (GAME_PTR->ents.find(entityId) == GAME_PTR->ents.end())
+bool Game::isInPlay(RSID entityId) {
+  if (ents.find(entityId) == ents.end())
     return false;
   Entity obj = GAME_PTR->ents[entityId];
+  if (obj.isUnit() &&
+      !players[0]->table.has(entityId) && !players[1]->table.has(entityId) &&
+      !players[0]->frontier.has(entityId) && !players[1]->frontier.has(entityId))
+    return false;
+  if (obj.isSpell() || obj.isSkill()) {
+    for (Action &a: spellStack)
+      if (a.cast.spellId == entityId)
+        break;
+    return false;
+  }
   return !(obj.isDead() || obj.isDiscarded() || obj.isCaptured());
 }
-bool Game::isDestructibleObjInGameView(RSID entityId) {
+bool Game::isStrikableEntity(RSID entityId) {
   if (GAME_PTR->ents.find(entityId) == GAME_PTR->ents.end())
     return false;
   Entity obj = GAME_PTR->ents[entityId];
@@ -447,13 +522,13 @@ bool Game::isFollowerInGameView(RSID entityId) {
 }
 
 bool Game::hasSummonedCard(RSID playerId, RSID cardId) {
-  for (int i = 0; i < players[playerId]->table.size(); i++) {
+  for (i32 i = 0; i < players[playerId]->table.size(); i++) {
     RSID id = players[playerId]->table[i];
     auto obj = ents[id];
     if (obj.getCard()->id == cardId)
       return true;
   }
-  for (int i = 0; i < players[playerId]->frontier.size(); i++) {
+  for (i32 i : players[playerId]->frontier.getUnitIndices()) {
     RSID id = players[playerId]->frontier[i];
     auto obj = ents[id];
     if (obj.getCard()->id == cardId)
@@ -566,11 +641,11 @@ void Game::printGameView() {
     log("#%d:%s", p2->table.getIndex(eid), ents[eid].getInfo().c_str());
   log("================================");
   log("Player %d's frontier:", pid1 + 1);
-  for (auto eid: p1->frontier)
+  for (auto eid: p1->frontier.getUnits())
     log("#%d:%s", p1->frontier.getIndex(eid), ents[eid].getInfo().c_str());
   log("--------------------------------");
   log("Player %d's frontier:", pid2 + 1);
-  for (auto eid: p2->frontier)
+  for (auto eid: p2->frontier.getUnits())
     log("#%d:%s", p2->frontier.getIndex(eid), ents[eid].getInfo().c_str());
   log("--------------------------------");
   log("Spell stack:");

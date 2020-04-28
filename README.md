@@ -17,7 +17,8 @@ RuneSim is a simulator of *Legends of Runeterra*.
 - [ ] Python wrapper for RL
 
 ## Development Guide
-I'm too lazy to write that now 😅
+If you are using CLion, please import the code style file 
+`misc/RuneSim.xml` to avoid dirty commits full of whitespaces.
 
 Please feel free to create a new issue to ask 
 if you have any questions about this repo.

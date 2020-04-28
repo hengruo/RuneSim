@@ -5,7 +5,7 @@
 #include "action.h"
 CastAction::CastAction(RSID PlayerId, RSID SpellId) : playerId(PlayerId), spellId(SpellId) {}
 DeclAttackAction::DeclAttackAction(RSID PlayerId, RSID AttackerId) : playerId(PlayerId), attackerId(AttackerId) {}
-DeclBlockAction::DeclBlockAction(RSID PlayerId, RSID BlockerId) : playerId(PlayerId), blockerId(BlockerId) {}
+DeclBlockAction::DeclBlockAction(RSID PlayerId, RSID BlockerId, i8 Pos) : playerId(PlayerId), blockerId(BlockerId), pos(Pos) {}
 DieAction::DieAction(ActionType Type, RSID PlayerId, RSID DeadId) : type(Type), playerId(PlayerId), deadId(DeadId) {}
 PlayAction::PlayAction(RSID PlayerId, RSID CardId) : playerId(PlayerId), cardId(CardId) {}
 SummonAction::SummonAction(RSID PlayerId, RSID SummoneeId) : playerId(PlayerId), summoneeId(SummoneeId) { argc = 0; }

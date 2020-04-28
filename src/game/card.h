@@ -7,7 +7,7 @@
 
 #include "action.h"
 
-#define K_NONE 0x0000000000000000
+#define K_NONE 0x00000000000000
 #define K_FEARSOME 0x0000000000000001
 #define K_BURST 0x0000000000000002
 #define K_OVERWHELM 0x0000000000000004
@@ -28,6 +28,11 @@
 #define K_LAST_BREATH 0x0000000000020000
 #define K_TOUGH 0x0000000000040000
 #define K_TRAP 0x0000000000080000
+#define K_DEEP 0x0000000000100000
+#define K_SCOUT 0x0000000000200000
+#define K_IMMOBILE 0x0000000000400000
+#define K_ATTUNE 0x0000000000800000
+#define K_VULNERABLE 0x0000000001000000
 
 #define CHECK_K_NONE(X) (X == 0)
 #define CHECK_K_FEARSOME(X) ((K_FEARSOME & (X)) != 0)
@@ -50,6 +55,11 @@
 #define CHECK_K_LAST_BREATH(X) ((K_LAST_BREATH & (X)) != 0)
 #define CHECK_K_TOUGH(X) ((K_TOUGH & (X)) != 0)
 #define CHECK_K_TRAP(X) ((K_TRAP & (X)) != 0)
+#define CHECK_K_DEEP(X) ((K_DEEP & (X)) != 0)
+#define CHECK_K_SCOUT(X) ((K_SCOUT & (X)) != 0)
+#define CHECK_K_IMMOBILE(X) ((K_IMMOBILE & (X)) != 0)
+#define CHECK_K_ATTUNE(X) ((K_ATTUNE & (X)) != 0)
+#define CHECK_K_VULNERABLE(X) ((K_VULNERABLE & (X)) != 0)
 
 enum class CardType {
   TRAP,
@@ -65,7 +75,9 @@ enum class CardSubType {
   SPIDER,
   PORO,
   YETI,
-  ELNUK
+  ELNUK,
+  SEA_MONSTER,
+  TREASURE
 };
 
 enum class CardSupType {
@@ -82,6 +94,7 @@ enum class CardRarity {
 };
 
 enum class CardRegion {
+  BILGEWATER,
   DEMACIA,
   FRELJORD,
   IONIA,
@@ -112,39 +125,48 @@ public:
   const u8 attack;
   const u8 health;
   const bool collectible;
-  const vec<RSID> associatedCards;
   Card(const RSID Id,
-       const char *const Name,
-       const char *const Description,
-       const char *const LevelUpDescription,
-       const char *const Code,
-       const CardRegion Region,
-       const CardRarity Rarity,
-       const CardType Type,
-       const CardSupType SupType,
-       const CardSubType SubType,
-       const u64 Keywords,
-       const u8 Cost,
-       const u8 Attack,
-       const u8 Health,
-       const bool Collectible,
-       const vec<RSID> &AssociatedCards);
-  // functions to register event listeners
-  virtual void beforeGameStarts(RSID playerId, RSID entityId) const;
+             const char *const Name,
+             const char *const Description,
+             const char *const LevelUpDescription,
+             const char *const Code,
+             const CardRegion Region,
+             const CardRarity Rarity,
+             const CardType Type,
+             const CardSupType SupType,
+             const CardSubType SubType,
+             const u64 Keywords,
+             const u8 Cost,
+             const u8 Attack,
+             const u8 Health,
+             const bool Collectible)
+      : id(Id), name(Name), description(Description), levelUpDescription(LevelUpDescription), code(Code), region(Region),
+        rarity(Rarity), type(Type), supType(SupType), subType(SubType), keywords(Keywords), cost(Cost), attack(Attack),
+        health(Health), collectible(Collectible) {
+    return;
+  }
+  // functions to register event listeners when game starts
+  function<void(RSID, RSID)> onStartGame = [](RSID pid, RSID eid){};
   // whether this card can be played
-  [[nodiscard]] virtual bool playable(const Action &action) const;
+  function<bool(Action&)> playable = [](Action& action)->bool{return true;};
   // whether this spell or skill can be casted
-  [[nodiscard]] virtual bool castable(const Action &action) const;
+  function<bool(Action&)> castable = [](Action& action)->bool{return true;};
   // reaction when play this card
-  virtual void onPlay(Action &action) const;
+  function<void(Action&)> onPlay = [this](Action& action){
+      if (type == CardType::UNIT) {
+        action.any.type = ActionType::SUMMON;
+        onSummon(action);
+      }else if(type == CardType::SPELL)
+        action.any.type = ActionType::CAST;
+  };
   // reaction when cast this spell, skill, or trap
-  virtual void onCast(Action &action) const;
-  virtual void onDiscard(Action &action) const;
-  virtual void onDie(Action &action) const;
-  virtual void onSummon(Action &action) const;
-  virtual void onDeclAttack(Action &action) const;
-  virtual void onStrike(Action &action) const;
-  virtual void onSupport(Action &action) const;
+  function<void(Action&)> onCast = [](Action& action){};
+  function<void(Action&)> onDiscard = [](Action& action){};
+  function<void(Action&)> onDie = [](Action& action){};
+  function<void(Action&)> onSummon = [](Action& action){};
+  function<void(Action&)> onDeclAttack = [](Action& action){};
+  function<void(Action&)> onStrike = [](Action& action){};
+  function<void(Action&)> onSupport = [](Action& action){};
 };
 
 #endif //RUNESIM_CARD_H

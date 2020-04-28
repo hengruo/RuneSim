@@ -62,9 +62,6 @@ bool Entity::isCaptured() const {
 bool Entity::isSummoned() const {
   return content->summoned;
 }
-bool Entity::isInAttack() const {
-  return content->inAttack;
-}
 bool Entity::isUnit() const {
   return isCard() && content->card->type == CardType::UNIT;
 }
@@ -94,7 +91,7 @@ RSID Entity::getBondedId() const {
   return content->bonded ? content->bondedId : -1;
 }
 RSID Entity::getCapturerId() const {
-  return isCaptured() ? content->capturer : -1;
+  return isCaptured() ? content->capturerId : -1;
 }
 i8 Entity::getAttackPosition() const {
   return content->attackPosition;
@@ -190,18 +187,6 @@ void Entity::levelUp(RSID cardId) {
   content->card = GALLERY[cardId];
   Action summon(SummonAction(getPlayerId(), getId()));
   content->card->onSummon(summon);
-  if (isInAttack()) {
-    Action declAttack(DeclAttackAction(getPlayerId(), getId()));
-    content->card->onDeclAttack(declAttack);
-  }
-}
-void Entity::prepareAttack(i8 position) {
-  content->inAttack = true;
-  content->attackPosition = position;
-}
-void Entity::quitAttack() {
-  content->inAttack = false;
-  content->attackPosition = -1;
 }
 void Entity::enableBonder(RSID bondeeId) {
   content->bonded = true;
@@ -231,11 +216,11 @@ str Entity::getInfo() const {
     return format("[%02d] U %02d %02d %s", getId(), getAttack(), getHealth(), content->card->name);
   return format("INVALID ENTITY");
 }
-void Entity::beforeGameStarts(RSID playerId, RSID entityId) {
-  content->card->beforeGameStarts(playerId, entityId);
+void Entity::onStartGame(RSID playerId, RSID entityId) {
+  content->card->onStartGame(playerId, entityId);
 }
 void Entity::onPlay(Action &action) {
-  if(content->silenced || content->captured) return;
+  content->summoned = true;
   content->card->onPlay(action);
 }
 void Entity::onCast(Action &action) {
@@ -263,4 +248,7 @@ void Entity::onStrike(Action &action) {
 void Entity::onSupport(Action &action) {
   if(content->silenced || content->captured) return;
   content->card->onSupport(action);
+}
+bool Entity::isStunned() const {
+  return content->stunned;
 }
