@@ -7,54 +7,49 @@ def build_class_name(name, id):
     return name1 + "{0:#0{1}d}".format(id, 4)
 
 
-data = json.load(open("set1-en_us.json"))
+data1 = json.load(open("set1-en_us.json"))
+data2 = json.load(open("set2-en_us.json"))
+data = data1 + data2
 code2id = dict()
 id2classname = dict()
 for id, item in enumerate(data):
     code2id[item['cardCode']] = id
     id2classname[id] = build_class_name(item['name'], id)
 
-
-# generate gallery.h
-gallery_h = ['''#ifndef RUNESIM_CARD_GALLERY_H
-#define RUNESIM_CARD_GALLERY_H
-
-#include "cardset.h"
-
-extern umap<RSID, Card *> GALLERY;
-extern umap<RSID, Card *> COLLECTIBLE;
-extern vec<RSID> DRAVEN;
-extern vec<RSID> PORO_WITH_1_COST;
-void init_gallery();
-void clear_gallery();
-#endif //RUNESIM_CARD_GALLERY_H
-''']
-gh = open("../src/cardset/gallery.h", 'w')
-gh.writelines(gallery_h)
-
 # generate gallery.cc
 gallery_cc = ['''#include "gallery.h"
-void init_gallery_() {
+#include "cardset01.cc"
+#include "cardset02.cc"
 ''']
-
-for id in id2classname:
-    gallery_cc.append("  GALLERY[{}] = new {};\n".format(id, id2classname[id]))
-
-gallery_cc.append("}\n")
 poro_with_1_cost = []
+champion = dict()
 for id, item in enumerate(data):
-    if item['subtype'] == 'Poro' and item['cost'] == 1 and item['collectible']:
+    if item['type'] == 'Unit' and item['supertype'] == 'Champion':
+        champion[id] = -1
+    if item['type'] == 'Spell' and item['supertype'] == 'Champion':
+        ref = item['associatedCardRefs']
+        for code in ref:
+            if code2id[code] in champion:
+                champion[code2id[code]] = id
+    if item['subtype'] == 'PORO' and item['cost'] == 1 and item['collectible']:
         poro_with_1_cost.append(id)
+
+csp = []
+for ch in champion:
+    csp.append("{" + "{},{}".format(ch, champion[ch]) +"}")
 gallery_cc.append("umap<RSID, Card *> GALLERY;")
 gallery_cc.append("umap<RSID, Card *> COLLECTIBLE;")
 gallery_cc.append("vec<RSID> DRAVEN = {1, 130};\n")
 gallery_cc.append("vec<RSID> PORO_WITH_1_COST = {" + ",".join(map(lambda x:str(x), poro_with_1_cost)) +"};\n")
+gallery_cc.append("umap<RSID, RSID> CHAMPION_TO_SPELL = {" + ",".join(csp) +"};")
 gallery_cc.append('''
 void init_gallery() {
-  init_gallery_();
-  for(auto p: GALLERY){
-    if(p.second->collectible)
+  init_gallery01();
+  init_gallery02();
+  for (auto p: GALLERY) {
+    if (p.second->collectible)
       COLLECTIBLE[p.first] = p.second;
+    CODE_TO_CARD[str(p.second->code)] = p.second;
   }
 }
 

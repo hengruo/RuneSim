@@ -15,11 +15,9 @@ for id, item in enumerate(data):
     code2id[item['cardCode']] = id
     id2classname[id] = build_class_name(item['name'], id)
 
+
 def gen_class(id: int, name: str, des, ldes, code, reg, rar, type, sub, sup, keys: List[str], cost, att, heal,
-              collectible: bool, assoc: List[str]):
-    global code2id
-    global id2classname
-    cname = id2classname[id]
+              collectible: bool):
     if sub == "": sub = "NONE"
     if sup == "": sup = "NONE"
     klist = []
@@ -41,26 +39,14 @@ def gen_class(id: int, name: str, des, ldes, code, reg, rar, type, sub, sup, key
     elif reg == 'Shadow Isles':
         reg = 'SHADOW_ISLES'
 
-    refs = "{" + ",".join(map(lambda s: str(code2id[s]), assoc)) + "}"
-
-    item = "class {} final".format(cname)
-    item += " : public Card {\n"
-    item += "public:\n"
-    item += "  {}() : Card({}, \"{}\",\n".format(cname, id, name)
-    item += "             \"{}\",\n".format(des.replace('\r\n', '\\n'))
-    item += "             \"{}\",\n".format(ldes.replace('\r\n', '\\n'))
-    item += "             \"{}\", CardRegion::{}, CardRarity::{},\n".format(code, reg.upper(), rar.upper())
-    item += "             CardType::{}, CardSupType::{}, CardSubType::{},\n".format(type.upper(), sup.upper(),
-                                                                                    sub.upper())
-    item += "             {},\n".format(keywords)
-    item += "             {}, {}, {}, {}, {})".format(cost, att, heal, str(collectible).lower(), refs)
-    item += "{}\n"
-    # item += "bool playable(Event event) override;\n"
-    # item += "bool castable(Event event) override;\n"
-    # item += "void onPlay(Event event) override;\n"
-    # item += "void onSummon(Event event) override;\n"
-    # item += "void onCast(Event event) override;\n"
-    item += "};\n"
+    item = "\nGALLERY[{}] = ".format(id)
+    item += "new Card(\n{},\"{}\",\n".format(id, name)
+    item += "\"{}\",\n".format(des.replace('\r\n', '\\n'))
+    item += "\"{}\",\n".format(ldes.replace('\r\n', '\\n'))
+    item += "\"{}\", CardRegion::{}, CardRarity::{},\n".format(code, reg.upper(), rar.upper())
+    item += "CardType::{}, CardSupType::{}, CardSubType::{},\n".format(type.upper(), sup.upper(),sub.upper())
+    item += "{},\n".format(keywords)
+    item += "{}, {}, {}, {});\n".format(cost, att, heal, str(collectible).lower())
     return item
 
 
@@ -68,22 +54,20 @@ cardset_h = ['''//
 //
 // Generate by Python
 //
-#ifndef RUNESIM_CARD_CARDSET_H
-#define RUNESIM_CARD_CARDSET_H
 
+#include "gallery.h"
 #include "card.h"
 
+void init_cardset01(){
 ''']
 
 for id, item in enumerate(data):
     res = gen_class(id, item['name'], item['descriptionRaw'], item['levelupDescriptionRaw'],
                     item['cardCode'], item['region'], item['rarity'],
                     item['type'], item['subtype'], item['supertype'],
-                    item['keywords'], item['cost'], item['attack'], item['health'], item['collectible'],
-                    item['associatedCardRefs'])
+                    item['keywords'], item['cost'], item['attack'], item['health'], item['collectible'])
     cardset_h.append(res)
 
-cardset_h.append('#endif //RUNESIM_CARD_CARDSET_H')
-
-cf = open("../src/cardset/cardset01.h", 'w')
+cardset_h.append("}")
+cf = open("../src/cardset/cardset01.cc", 'w')
 cf.writelines(cardset_h)
