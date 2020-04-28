@@ -18,6 +18,7 @@ for id, item in enumerate(data):
 
 # generate gallery.cc
 gallery_cc = ['''#include "gallery.h"
+#include "initiator.h"
 #include "cardset01.cc"
 #include "cardset02.cc"
 ''']
@@ -26,26 +27,31 @@ champion = dict()
 for id, item in enumerate(data):
     if item['type'] == 'Unit' and item['supertype'] == 'Champion':
         champion[id] = -1
+    if item['subtype'] == 'PORO' and item['cost'] == 1 and item['collectible']:
+        poro_with_1_cost.append(id)
+for id, item in enumerate(data):
     if item['type'] == 'Spell' and item['supertype'] == 'Champion':
         ref = item['associatedCardRefs']
         for code in ref:
             if code2id[code] in champion:
                 champion[code2id[code]] = id
-    if item['subtype'] == 'PORO' and item['cost'] == 1 and item['collectible']:
-        poro_with_1_cost.append(id)
-
 csp = []
 for ch in champion:
-    csp.append("{" + "{},{}".format(ch, champion[ch]) +"}")
+    csp.append("{" + "{},{}".format(ch, champion[ch]) + "}")
 gallery_cc.append("umap<RSID, Card *> GALLERY;")
 gallery_cc.append("umap<RSID, Card *> COLLECTIBLE;")
 gallery_cc.append("vec<RSID> DRAVEN = {1, 130};\n")
-gallery_cc.append("vec<RSID> PORO_WITH_1_COST = {" + ",".join(map(lambda x:str(x), poro_with_1_cost)) +"};\n")
-gallery_cc.append("umap<RSID, RSID> CHAMPION_TO_SPELL = {" + ",".join(csp) +"};")
+gallery_cc.append("vec<RSID> PORO_WITH_1_COST = {" + ",".join(map(lambda x: str(x), poro_with_1_cost)) + "};\n")
+gallery_cc.append("umap<RSID, RSID> CHAMPION_TO_SPELL = {" + ",".join(csp) + "};")
 gallery_cc.append('''
+
 void init_gallery() {
   init_gallery01();
   init_gallery02();
+  init01IO049();
+  init01SI030();
+  init01SI030T2();
+  init01NX050();
   for (auto p: GALLERY) {
     if (p.second->collectible)
       COLLECTIBLE[p.first] = p.second;
