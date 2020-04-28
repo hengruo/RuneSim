@@ -23,7 +23,7 @@ keywords = [
     "K_SCOUT",
     "K_IMMOBILE",
     "K_ATTUNE",
-    "VULNERABLE"
+    "K_VULNERABLE"
 ]
 
 lines = ["#define K_NONE 0x00000000000000"]

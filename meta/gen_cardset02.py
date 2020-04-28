@@ -20,6 +20,7 @@ for id, item in enumerate(data):
 def gen_class(id: int, name: str, des, ldes, code, reg, rar, type, sub, sup, keys: List[str], cost, att, heal,
               collectible: bool):
     if sub == "": sub = "NONE"
+    if sub == "SEA MONSTER": sub = "SEA_MONSTER"
     if sup == "": sup = "NONE"
     klist = []
     for k in keys:
@@ -42,8 +43,8 @@ def gen_class(id: int, name: str, des, ldes, code, reg, rar, type, sub, sup, key
 
     item = "\nGALLERY[{}] = ".format(id)
     item += "new Card(\n{},\"{}\",\n".format(id, name)
-    item += "\"{}\",\n".format(des.replace('\r\n', '\\n'))
-    item += "\"{}\",\n".format(ldes.replace('\r\n', '\\n'))
+    item += "\"{}\",\n".format(des.replace('\r\n', '\\n').replace('"', '\\"'))
+    item += "\"{}\",\n".format(ldes.replace('\r\n', '\\n').replace('"', '\\"'))
     item += "\"{}\", CardRegion::{}, CardRarity::{},\n".format(code, reg.upper(), rar.upper())
     item += "CardType::{}, CardSupType::{}, CardSubType::{},\n".format(type.upper(), sup.upper(),sub.upper())
     item += "{},\n".format(keywords)
