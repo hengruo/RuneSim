@@ -1,4 +1,3 @@
-from typing import List
 import ujson as json
 
 data1 = json.load(open("set1-en_us.json"))
