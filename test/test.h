@@ -6,6 +6,5 @@
 #define RUNESIM_TEST_TEST_H
 #include "../src/runesim.h"
 #include "gtest/gtest.h"
-#include "json.hpp"
 
 #endif //RUNESIM_TEST_TEST_H

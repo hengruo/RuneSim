@@ -36,10 +36,27 @@ std::mt19937 getRandomGenerator() {
 void resetId() {
   id = 0;
 }
+
 str format(const char *fmt, ...) {
   va_list arg;
   va_start(arg, fmt);
   vsprintf(buffer, fmt, arg);
   va_end (arg);
   return str(buffer);
+}
+
+str padLeft(str input, str val, int objLen) {
+  isize inLen = input.size();
+  isize valLen = input.size();
+  i32 times = (objLen - inLen) % valLen == 0 ? (objLen - inLen) / valLen : (objLen - inLen) / valLen + 1;
+  isize outLen = times * valLen + inLen;
+  const char *input_cstr = input.c_str();
+  const char *val_cstr = val.c_str();
+  char *buffer = new char[outLen + 1];
+  for (i32 i = 0; i < times; i++)
+    std::memcpy(buffer + i * valLen, val_cstr, valLen);
+  std::memcpy(buffer + times * valLen, input_cstr, inLen + 1);
+  str res(buffer);
+  delete[] buffer;
+  return res;
 }

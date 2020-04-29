@@ -11,6 +11,8 @@
 #include "action.h"
 #include "game_state.h"
 #include "frontier.h"
+#include "lor_deck_codes.h"
+#include "../cardset/gallery.h"
 
 #define SINGLE_CARD_LIMIT 3
 #define REGION_LIMIT 2
@@ -44,8 +46,8 @@ public:
   rsvec graveyard;
   Frontier frontier;
 
-  static Result<rsvec> buildDeck(const vec<std::pair<RSID, isize>> &v, RSID pid);
-  static Result<sptr<Player>> build(RSID pid, vec<std::pair<RSID, isize>> &v);
+  static Result<rsvec> buildDeck(const str & deckCode, RSID pid);
+  static Result<sptr<Player>> build(RSID pid, const str & deckCode);
 };
 
 class Game final {
@@ -74,11 +76,11 @@ public:
   i32 passCnt = 0;
   RSID winner = -1;
 
-  static Result<Game *> build(vec<std::pair<RSID, isize>> &v1,
-                              vec<std::pair<RSID, isize>> &v2,
+  static Result<Game *> build(const str & deckCode1,
+                              const str & deckCode2,
                               RSID firstPlayer,
                               std::function<void(RSID)> afterGame);
-  static Result<void *> checkDeck(vec<std::pair<RSID, isize>> &v);
+  static Result<void *> checkDeck(std::map<RSID, i32> &deck);
 
   vec<RSID> firstDraw(RSID pid);
 

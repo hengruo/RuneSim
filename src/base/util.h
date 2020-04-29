@@ -19,5 +19,6 @@ RSID generateId();
 RSID rsidByTime();
 isize log(const char *format, ...);
 str format(const char *fmt, ...);
+str padLeft(str input, str val, int objLen);
 
 #endif //RUNESIM_UTIL_H

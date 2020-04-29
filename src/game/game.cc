@@ -12,12 +12,11 @@ Game::~Game() {
   players[1] = nullptr;
 }
 
-Result<void *> Game::checkDeck(vec<std::pair<RSID, isize>> &v) {
+Result<void *> Game::checkDeck(std::map<RSID, i32> &deck) {
   uset<CardRegion> regions;
-  umap<RSID, i32> eachCnt;
   isize championCnt = 0;
   isize totalCnt = 0;
-  for (std::pair<RSID, isize> p : v) {
+  for (std::pair<RSID, i32> p : deck) {
     if (GALLERY.find(p.first) == GALLERY.end())
       return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Non-existent card ID: %04d.", p.first);
     if (!GALLERY[p.first]->collectible)
@@ -32,12 +31,6 @@ Result<void *> Game::checkDeck(vec<std::pair<RSID, isize>> &v) {
                                    "Invalid number of card %04d: %d.",
                                    p.first,
                                    p.second);
-    eachCnt[p.first] += p.second;
-    if (eachCnt[p.first] > SINGLE_CARD_LIMIT)
-      return Result<void *>::mkErr(ErrorType::INVALID_DECK,
-                                   "Invalid number of card %04d: %d.",
-                                   p.first,
-                                   eachCnt[p.first]);
     for (RSID k = 0; k < p.second; k++) {
       totalCnt++;
       if (totalCnt > DECK_LIMIT)
@@ -50,8 +43,8 @@ Result<void *> Game::checkDeck(vec<std::pair<RSID, isize>> &v) {
   return Result<void *>::mkVal(nullptr);
 }
 
-Result<Game *> Game::build(vec<std::pair<RSID, isize>> &v1,
-                           vec<std::pair<RSID, isize>> &v2,
+Result<Game *> Game::build(const str & deckCode1,
+                           const str & deckCode2,
                            RSID firstPlayer,
                            std::function<void(RSID)> afterGame) {
   Game *_game = new Game;
@@ -61,20 +54,14 @@ Result<Game *> Game::build(vec<std::pair<RSID, isize>> &v1,
   _game->secondPlayerId = FLIP(firstPlayer);
   _game->starterInRound = firstPlayer;
   // build decks
-  auto res1 = Game::checkDeck(v1);
-  if (res1.isErr())
-    return res1.castErr<Game *>();
-  auto res2 = Game::checkDeck(v2);
-  if (res2.isErr())
-    return res2.castErr<Game *>();
   resetId();
   RSID pid1 = generateId();
   RSID pid2 = generateId();
-  auto p1 = Player::build(pid1, v1);
+  auto p1 = Player::build(pid1, deckCode1);
   if (p1.isErr())
     return p1.castErr<Game *>();
   _game->players[0] = p1.val();
-  auto p2 = Player::build(pid2, v2);
+  auto p2 = Player::build(pid2, deckCode2);
   if (p2.isErr())
     return p2.castErr<Game *>();
   _game->players[1] = p2.val();

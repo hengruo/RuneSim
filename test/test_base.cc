@@ -68,3 +68,15 @@ TEST(RSVEC, FIND){
   EXPECT_EQ(v.find(100) != v.end(), false);
   EXPECT_EQ(v.find(19) != v.end(), true);
 }
+
+TEST(PADDING, CASE1){
+  str s = "great";
+  str v = "very ";
+  EXPECT_EQ(padLeft(s, v, 20), "very very very great");
+}
+
+TEST(PADDING, CASE2){
+  str s = "great";
+  str v = "very ";
+  EXPECT_EQ(padLeft(s, v, 18), "very very very great");
+}
