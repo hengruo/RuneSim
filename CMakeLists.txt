@@ -13,7 +13,7 @@ set(RS_HEADER_FILES
         src/game/card.h src/game/event.h src/game/entity.h src/game/game.h src/game/event_listener.h
         src/game/game_state.h src/game/action.h src/game/frontier.h src/game/lor_deck_codes.h)
 
-set(RS_BASE_SOURCE_FILES src/base/util.cc src/base/error.cc src/base/result.cc)
+set(RS_BASE_SOURCE_FILES src/base/util.cc src/base/error.cc)
 set(RS_CARD_SOURCE_FILES
         src/cardset/gallery.cc src/cardset/cardset01.cc src/cardset/cardset02.cc
         src/cardset/ionia_spells.cc

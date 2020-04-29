@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 2/9/20.
-//
-
 #include "game.h"
 
 Result<rsvec> Player::buildDeck(const str & deckCode, RSID pid) {

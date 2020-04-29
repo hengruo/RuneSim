@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 4/19/20.
-//
-
 #ifndef RUNESIM_EVENT_LISTENER_H
 #define RUNESIM_EVENT_LISTENER_H
 

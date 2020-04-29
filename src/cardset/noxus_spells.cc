@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 4/11/20.
-//
-
 #include "gallery.h"
 #include "initiator.h"
 #include "../game/game.h"

@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 2/9/20.
-//
-
 #include "game.h"
 #include <algorithm>
 

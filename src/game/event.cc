@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 2/10/20.
-//
-
 #include "event.h"
 CastEvent::CastEvent(RSID PlayerId, RSID SpellId) : playerId(PlayerId), spellId(SpellId) {}
 DeclAttackEvent::DeclAttackEvent(RSID PlayerId, RSID AttackerId, i8 Position)

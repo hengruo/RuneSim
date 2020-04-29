@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 2/7/20.
-//
-
 #ifndef RUNESIM_TYPE_H
 #define RUNESIM_TYPE_H
 

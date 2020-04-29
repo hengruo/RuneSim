@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 4/24/20.
-//
-
 #ifndef RUNESIM_GAMESTATE_H
 #define RUNESIM_GAMESTATE_H
 #include "../base/base.h"

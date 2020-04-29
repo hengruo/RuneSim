@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 4/10/20.
-//
-
 #include "../runesim.h"
 #include <iostream>
 

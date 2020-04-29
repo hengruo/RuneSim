@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 3/29/20.
-//
-
 #ifndef RUNESIM_ENTITY_H
 #define RUNESIM_ENTITY_H
 

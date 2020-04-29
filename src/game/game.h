@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 2/9/20.
-//
-
 #ifndef RUNESIM_GAME_H
 #define RUNESIM_GAME_H
 

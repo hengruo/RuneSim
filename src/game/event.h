@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 2/10/20.
-//
-
 #ifndef RUNESIM_EVENT_H
 #define RUNESIM_EVENT_H
 #include "../base/base.h"

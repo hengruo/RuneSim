@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 4/27/20.
-//
-
 #ifndef RUNESIM_FRONTIER_H
 #define RUNESIM_FRONTIER_H
 

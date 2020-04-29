@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 4/20/20.
-//
-
 #ifndef RUNESIM_RSVEC_H
 #define RUNESIM_RSVEC_H
 
