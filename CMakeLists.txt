@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 # set project meta infomation
-project(RuneSim VERSION 0.6 LANGUAGES CXX)
+project(RuneSim VERSION 0.8 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 message("C Compiler: ${CMAKE_C_COMPILER}")
