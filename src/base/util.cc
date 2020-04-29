@@ -3,7 +3,7 @@
 
 static RSID id = 0;
 
-RSID rsidByTime() {
+u64 nanosec() {
   return duration_cast<nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 

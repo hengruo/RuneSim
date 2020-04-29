@@ -157,13 +157,13 @@ public:
       for (i32 j = 0; j < groupCount; j++) {
         i32 itemCount = VarInt::pop(bytes);
         i32 set = VarInt::pop(bytes);
-        i32 faction = VarInt::pop(bytes);
+        i32 fac = VarInt::pop(bytes);
 
         for (i32 k = 0; k < itemCount; k++) {
-          i32 card = VarInt::pop(bytes);
+          i32 cardNum = VarInt::pop(bytes);
           str setStr = format("%02d", set);
-          str facStr = FAC_MAP[faction];
-          str numStr = format("%03d", card);
+          str facStr = FAC_MAP[fac];
+          str numStr = format("%03d", cardNum);
           str cardCode = setStr + facStr + numStr;
           deck[cardCode] = i;
         }
@@ -173,12 +173,12 @@ public:
     while (bytes.size() > 0) {
       i32 count = VarInt::pop(bytes);
       i32 set = VarInt::pop(bytes);
-      i32 faction = VarInt::pop(bytes);
-      i32 number = VarInt::pop(bytes);
+      i32 fac = VarInt::pop(bytes);
+      i32 num = VarInt::pop(bytes);
 
-      str setStr = padLeft(std::to_string(set), "0", 2);
-      str facStr = FAC_MAP[faction];
-      str numStr = padLeft(std::to_string(number), "0", 3);
+      str setStr = format("%02d", set);
+      str facStr = FAC_MAP[fac];
+      str numStr = format("%03d", num);
       str cardCode = setStr + facStr + numStr;
       deck[cardCode] = count;
     }

@@ -12,7 +12,7 @@ std::mt19937 getRandomGenerator();
 i32 rand(i32 l, i32 r);
 void resetId();
 RSID generateId();
-RSID rsidByTime();
+u64 nanosec();
 isize log(const char *format, ...);
 str format(const char *fmt, ...);
 str padLeft(str input, str val, int objLen);
