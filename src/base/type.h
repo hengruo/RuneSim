@@ -20,8 +20,8 @@
 #include <set>
 #include <map>
 #include <iterator>
-
-using namespace std;
+#include <regex>
+#include <initializer_list>
 
 typedef uint8_t u8;
 typedef uint16_t u16;

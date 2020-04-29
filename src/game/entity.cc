@@ -15,10 +15,10 @@ EntityImpl::EntityImpl(RSID EntId, RSID CardId, RSID PlayerId)
 EntityImpl::EntityImpl() {}
 
 Entity::Entity() {
-  content = make_shared<EntityImpl>();
+  content = std::make_shared<EntityImpl>();
 }
 Entity::Entity(RSID entId, RSID cardId, RSID playerId) {
-  content = make_shared<EntityImpl>(entId, cardId, playerId);
+  content = std::make_shared<EntityImpl>(entId, cardId, playerId);
 }
 Result<Entity> Entity::buildAndRegCard(RSID entityId, RSID cardId, RSID playerId) {
   if (GALLERY.find(cardId) == GALLERY.end())
@@ -144,9 +144,9 @@ void Entity::gainHealthInRound(i8 offset) {
 }
 void Entity::loseEffectsInRound() {
   content->maxHealthInRound = content->maxHealthInGame;
-  content->currentHealth = min(content->currentHealth, content->maxHealthInGame);
+  content->currentHealth = std::min(content->currentHealth, content->maxHealthInGame);
   content->maxAttackInRound = content->maxAttackInGame;
-  content->currentAttack = min(content->currentAttack, content->maxAttackInGame);
+  content->currentAttack = std::min(content->currentAttack, content->maxAttackInGame);
   // cost
   content->stunned = false;
 }

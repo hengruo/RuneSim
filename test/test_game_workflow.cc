@@ -3,7 +3,7 @@
 //
 
 #include "test.h"
-vec<pair<RSID, isize>> deckSpiderKarma = {
+vec<std::pair<RSID, isize>> deckSpiderKarma = {
     {50, 3},
     {271, 3},
     {176, 3},
@@ -21,7 +21,7 @@ vec<pair<RSID, isize>> deckSpiderKarma = {
     {411, 1}
 };
 
-vec<pair<RSID, isize>> deckThreshLux = {
+vec<std::pair<RSID, isize>> deckThreshLux = {
     {141, 3},
     {372, 3},
     {176, 3},

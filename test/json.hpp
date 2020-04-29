@@ -45,7 +45,7 @@ SOFTWARE.
 #include <memory> // unique_ptr
 #include <numeric> // accumulate
 #include <string> // string, stoi, to_string
-#include <utility> // declval, forward, move, pair, swap
+#include <utility> // declval, forward, move, std::pair, swap
 #include <vector> // vector
 
 // #include <nlohmann/adl_serializer.hpp>
@@ -66,7 +66,7 @@ SOFTWARE.
 #include <tuple> // tuple, make_tuple
 #include <type_traits> // is_arithmetic, is_same, is_enum, underlying_type, is_convertible
 #include <unordered_map> // unordered_map
-#include <utility> // pair, declval
+#include <utility> // std::pair, declval
 #include <valarray> // valarray
 
 // #include <nlohmann/detail/exceptions.hpp>
@@ -108,7 +108,7 @@ struct position_t
 // #include <nlohmann/detail/macro_scope.hpp>
 
 
-#include <utility> // pair
+#include <utility> // std::pair
 // #include <nlohmann/thirdparty/hedley/hedley.hpp>
 /* Hedley - https://nemequ.github.io/hedley
  * Created by Evan Nemerson <evan@nemerson.com>
@@ -1789,9 +1789,9 @@ JSON_HEDLEY_DIAGNOSTIC_POP
         static_assert(std::is_enum<ENUM_TYPE>::value, #ENUM_TYPE " must be an enum!");          \
         static const std::pair<ENUM_TYPE, BasicJsonType> m[] = __VA_ARGS__;                     \
         auto it = std::find_if(std::begin(m), std::end(m),                                      \
-                               [e](const std::pair<ENUM_TYPE, BasicJsonType>& ej_pair) -> bool  \
+                               [e](const std::pair<ENUM_TYPE, BasicJsonType>& ej_std::pair) -> bool  \
         {                                                                                       \
-            return ej_pair.first == e;                                                          \
+            return ej_std::pair.first == e;                                                          \
         });                                                                                     \
         j = ((it != std::end(m)) ? it : std::begin(m))->second;                                 \
     }                                                                                           \
@@ -1801,9 +1801,9 @@ JSON_HEDLEY_DIAGNOSTIC_POP
         static_assert(std::is_enum<ENUM_TYPE>::value, #ENUM_TYPE " must be an enum!");          \
         static const std::pair<ENUM_TYPE, BasicJsonType> m[] = __VA_ARGS__;                     \
         auto it = std::find_if(std::begin(m), std::end(m),                                      \
-                               [&j](const std::pair<ENUM_TYPE, BasicJsonType>& ej_pair) -> bool \
+                               [&j](const std::pair<ENUM_TYPE, BasicJsonType>& ej_std::pair) -> bool \
         {                                                                                       \
-            return ej_pair.second == j;                                                         \
+            return ej_std::pair.second == j;                                                         \
         });                                                                                     \
         e = ((it != std::end(m)) ? it : std::begin(m))->first;                                  \
     }
@@ -1903,7 +1903,7 @@ Exceptions have ids 1xx.
 name / id                      | example message | description
 ------------------------------ | --------------- | -------------------------
 json.exception.parse_error.101 | parse error at 2: unexpected end of input; expected string literal | This error indicates a syntax error while deserializing a JSON text. The error message describes that an unexpected token (character) was encountered, and the member @a byte indicates the error position.
-json.exception.parse_error.102 | parse error at 14: missing or wrong low surrogate | JSON uses the `\uxxxx` format to describe Unicode characters. Code points above above 0xFFFF are split into two `\uxxxx` entries ("surrogate pairs"). This error indicates that the surrogate pair is incomplete or contains an invalid code point.
+json.exception.parse_error.102 | parse error at 14: missing or wrong low surrogate | JSON uses the `\uxxxx` format to describe Unicode characters. Code points above above 0xFFFF are split into two `\uxxxx` entries ("surrogate std::pairs"). This error indicates that the surrogate std::pair is incomplete or contains an invalid code point.
 json.exception.parse_error.103 | parse error: code points above 0x10FFFF are invalid | Unicode supports code points up to 0x10FFFF. Code points above 0x10FFFF are invalid.
 json.exception.parse_error.104 | parse error: JSON patch must be an array of objects | [RFC 6902](https://tools.ietf.org/html/rfc6902) requires a JSON Patch document to be a JSON document that represents an array of objects.
 json.exception.parse_error.105 | parse error: operation must have string member 'op' | An operation of a JSON Patch document must contain exactly one "op" member, whose value indicates the operation to perform. Its value must be one of "add", "remove", "replace", "move", "copy", or "test"; other values are errors.
@@ -2043,7 +2043,7 @@ Exceptions have ids 3xx.
 
 name / id                     | example message | description
 ----------------------------- | --------------- | -------------------------
-json.exception.type_error.301 | cannot create object from initializer list | To create an object from an initializer list, the initializer list must consist only of a list of pairs whose first element is a string. When this constraint is violated, an array is created instead.
+json.exception.type_error.301 | cannot create object from initializer list | To create an object from an initializer list, the initializer list must consist only of a list of std::pairs whose first element is a string. When this constraint is violated, an array is created instead.
 json.exception.type_error.302 | type must be object, but is array | During implicit or explicit value conversion, the JSON type must be compatible to the target type. For instance, a JSON string can only be converted into string types, but not into numbers or boolean types.
 json.exception.type_error.303 | incompatible ReferenceType for get_ref, actual type is object | To retrieve a reference to a value stored in a @ref basic_json object with @ref get_ref, the type of the reference must match the value type. For instance, for a JSON array, the @a ReferenceType must be @ref array_t &.
 json.exception.type_error.304 | cannot use at() with string | The @ref at() member functions can only be executed for certain JSON types.
@@ -2854,7 +2854,7 @@ value with the default value for a given type
 enum class value_t : std::uint8_t
 {
     null,             ///< null value
-    object,           ///< object (unordered set of name/value pairs)
+    object,           ///< object (unordered set of name/value std::pairs)
     array,            ///< array (ordered collection of values)
     string,           ///< string value
     boolean,          ///< boolean value
@@ -3268,7 +3268,7 @@ constexpr const auto& from_json = detail::static_const<detail::from_json_fn>::va
 #include <string> // string
 #include <tuple> // tuple, get
 #include <type_traits> // is_same, is_constructible, is_floating_point, is_enum, underlying_type
-#include <utility> // move, forward, declval, pair
+#include <utility> // move, forward, declval, std::pair
 #include <valarray> // valarray
 #include <vector> // vector
 
@@ -3854,7 +3854,7 @@ struct adl_serializer
 #include <iterator> // back_inserter
 #include <limits> // numeric_limits
 #include <string> // char_traits, string
-#include <utility> // make_pair, move
+#include <utility> // make_std::pair, move
 
 // #include <nlohmann/detail/exceptions.hpp>
 
@@ -3872,7 +3872,7 @@ struct adl_serializer
 #include <numeric> // accumulate
 #include <string> // string, char_traits
 #include <type_traits> // enable_if, is_base_of, is_pointer, is_integral, remove_pointer
-#include <utility> // pair, declval
+#include <utility> // std::pair, declval
 
 // #include <nlohmann/detail/iterators/iterator_traits.hpp>
 
@@ -4849,7 +4849,7 @@ class json_sax_dom_callback_parser
     @invariant If the ref stack contains a value, then it is an array or an
                object to which we can add elements
 
-    @return pair of boolean (whether value should be kept) and pointer (to the
+    @return std::pair of boolean (whether value should be kept) and pointer (to the
             passed value in the ref_stack hierarchy; nullptr if not kept)
     */
     template<typename Value>
@@ -5694,7 +5694,7 @@ class binary_reader
             case 0x9F: // array (indefinite length)
                 return get_cbor_array(std::size_t(-1));
 
-            // map (0x00..0x17 pairs of data items follow)
+            // map (0x00..0x17 std::pairs of data items follow)
             case 0xA0:
             case 0xA1:
             case 0xA2:
@@ -6658,9 +6658,9 @@ class binary_reader
     In the optimized UBJSON format, a type and a size can be provided to allow
     for a more compact representation.
 
-    @param[out] result  pair of the size and the type
+    @param[out] result  std::pair of the size and the type
 
-    @return whether pair creation completed
+    @return whether std::pair creation completed
     */
     bool get_ubjson_size_type(std::pair<std::size_t, int>& result)
     {
@@ -7317,11 +7317,11 @@ class lexer
     checks if it is inside the range. If a violation was detected, set up an
     error message and return false. Otherwise, return true.
 
-    @param[in] ranges  list of integers; interpreted as list of pairs of
+    @param[in] ranges  list of integers; interpreted as list of std::pairs of
                        inclusive lower and upper bound, respectively
 
     @pre The passed list @a ranges must have 2, 4, or 6 elements; that is,
-         1, 2, or 3 pairs. This precondition is enforced by an assertion.
+         1, 2, or 3 std::pairs. This precondition is enforced by an assertion.
 
     @return true if and only if no range violation was detected
     */
@@ -14940,7 +14940,7 @@ class basic_json
     @brief a type for an object
 
     [RFC 7159](http://rfc7159.net/rfc7159) describes JSON objects as follows:
-    > An object is an unordered collection of zero or more name/value pairs,
+    > An object is an unordered collection of zero or more name/value std::pairs,
     > where a name is a string and a value is a string, number, boolean, null,
     > object, or array.
 
@@ -14982,11 +14982,11 @@ class basic_json
       one of the values for a given key will be chosen. For instance,
       `{"key": 2, "key": 1}` could be equal to either `{"key": 1}` or
       `{"key": 2}`.
-    - Internally, name/value pairs are stored in lexicographical order of the
+    - Internally, name/value std::pairs are stored in lexicographical order of the
       names. Objects will also be serialized (see @ref dump) in this order.
       For instance, `{"b": 1, "a": 2}` and `{"a": 2, "b": 1}` will be stored
       and serialized as `{"a": 2, "b": 1}`.
-    - When comparing objects, the order of the name/value pairs is irrelevant.
+    - When comparing objects, the order of the name/value std::pairs is irrelevant.
       This makes objects interoperable in the sense that they will not be
       affected by these differences. For instance, `{"b": 1, "a": 2}` and
       `{"a": 2, "b": 1}` will be treated as equal.
@@ -15011,9 +15011,9 @@ class basic_json
 
     @since version 1.0.0
 
-    @note The order name/value pairs are added to the object is *not*
+    @note The order name/value std::pairs are added to the object is *not*
     preserved by the library. Therefore, iterating an object may return
-    name/value pairs in a different order than they were originally stored. In
+    name/value std::pairs in a different order than they were originally stored. In
     fact, keys will be traversed in alphabetical order as `std::map` with
     `std::less` is used by default. Please note this behavior conforms to [RFC
     7159](http://rfc7159.net/rfc7159), because any order implements the
@@ -15931,8 +15931,8 @@ class basic_json
     according to the following rules:
 
     1. If the list is empty, an empty JSON object value `{}` is created.
-    2. If the list consists of pairs whose first element is a string, a JSON
-       object value is created where the first elements of the pairs are
+    2. If the list consists of std::pairs whose first element is a string, a JSON
+       object value is created where the first elements of the std::pairs are
        treated as keys and the second elements are as values.
     3. In all other cases, an array is created.
 
@@ -15942,7 +15942,7 @@ class basic_json
     1. The empty initializer list is written as `{}` which is exactly an empty
        JSON object.
     2. C++ has no way of describing mapped types other than to list a list of
-       pairs. As JSON requires that keys must be of type string, rule 2 is the
+       std::pairs. As JSON requires that keys must be of type string, rule 2 is the
        weakest constraint one can pose on initializer lists to interpret them
        as an object.
     3. In all other cases, the initializer list could not be interpreted as
@@ -15975,7 +15975,7 @@ class basic_json
     is set to `true`, this parameter has no effect
 
     @throw type_error.301 if @a type_deduction is `false`, @a manual_type is
-    `value_t::object`, but @a init contains an element which is not a pair
+    `value_t::object`, but @a init contains an element which is not a std::pair
     whose first element is a string. In this case, the constructor could not
     create an object. If @a type_deduction would have be `true`, an array
     would have been created. See @ref object(initializer_list_t)
@@ -16026,7 +16026,7 @@ class basic_json
 
         if (is_an_object)
         {
-            // the initializer list is a list of pairs -> create object
+            // the initializer list is a list of std::pairs -> create object
             m_type = value_t::object;
             m_value = value_t::object;
 
@@ -16059,7 +16059,7 @@ class basic_json
     be realized with the initializer list constructor (@ref
     basic_json(initializer_list_t, bool, value_t)). These cases
     are:
-    1. creating an array whose elements are all pairs whose first element is a
+    1. creating an array whose elements are all std::pairs whose first element is a
     string -- in this case, the initializer list constructor would create an
     object, taking the first elements as keys
     2. creating an empty array -- passing the empty initializer list to the
@@ -16095,7 +16095,7 @@ class basic_json
     @brief explicitly create an object from an initializer list
 
     Creates a JSON object value from a given initializer list. The initializer
-    lists elements must be pairs, and their first elements must be strings. If
+    lists elements must be std::pairs, and their first elements must be strings. If
     the initializer list is empty, the empty object `{}` is created.
 
     @note This function is only added for symmetry reasons. In contrast to the
@@ -16108,7 +16108,7 @@ class basic_json
 
     @return JSON object value
 
-    @throw type_error.301 if @a init is not a list of pairs whose first
+    @throw type_error.301 if @a init is not a list of std::pairs whose first
     elements are strings. In this case, no object can be created. When such a
     value is passed to @ref basic_json(initializer_list_t, bool, value_t),
     an array would have been created from the passed initializer list @a init.
@@ -19538,7 +19538,7 @@ class basic_json
     @complexity Linear in the size of the initializer list @a init.
 
     @note This function is required to resolve an ambiguous overload error,
-          because pairs like `{"key", "value"}` can be both interpreted as
+          because std::pairs like `{"key", "value"}` can be both interpreted as
           `object_t::value_type` or `std::initializer_list<basic_json>`, see
           https://github.com/nlohmann/json/issues/235 for more information.
 
@@ -19629,7 +19629,7 @@ class basic_json
     @param[in] args arguments to forward to a constructor of @ref basic_json
     @tparam Args compatible types to create a @ref basic_json object
 
-    @return a pair consisting of an iterator to the inserted element, or the
+    @return a std::pair consisting of an iterator to the inserted element, or the
             already-existing element if no insertion happened, and a bool
             denoting whether the insertion took place.
 
@@ -19668,7 +19668,7 @@ class basic_json
         auto it = begin();
         it.m_it.object_iterator = res.first;
 
-        // return pair of iterator and boolean
+        // return std::pair of iterator and boolean
         return {it, res.second};
     }
 
@@ -21334,7 +21334,7 @@ class basic_json
     @brief Serializes the given JSON object `j` to BSON and returns a vector
            containing the corresponding BSON-representation.
 
-    BSON (Binary JSON) is a binary format in which zero or more ordered key/value pairs are
+    BSON (Binary JSON) is a binary format in which zero or more ordered key/value std::pairs are
     stored as a single entity (a so-called document).
 
     The library uses the following mapping from JSON values types to BSON types:
@@ -22552,10 +22552,10 @@ class basic_json
       if Patch is an Object:
         if Target is not an Object:
           Target = {} // Ignore the contents and set it to an empty Object
-        for each Name/Value pair in Patch:
+        for each Name/Value std::pair in Patch:
           if Value is null:
             if Name exists in Target:
-              remove the Name/Value pair from Target
+              remove the Name/Value std::pair from Target
           else:
             Target[Name] = MergePatch(Target[Name], Value)
         return Target

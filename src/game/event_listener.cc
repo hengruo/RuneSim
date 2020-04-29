@@ -17,7 +17,7 @@ EventType EventListener::getType() const {
 void EventListener::setType(EventType Type) {
   content->type = Type;
 }
-void EventListener::setListener(RSID lid, function<void(RSID, Event)> Func) {
+void EventListener::setListener(RSID lid, std::function<void(RSID, Event)> Func) {
   content->func = Func;
 }
 void EventListener::operator()(Event event) {
@@ -25,7 +25,7 @@ void EventListener::operator()(Event event) {
 }
 EventListener::EventListener() {}
 EventListener::EventListener(RSID ListenerId, EventType Type){
-  content = make_shared<EventListenerImpl>();
+  content = std::make_shared<EventListenerImpl>();
   content->listenerId = ListenerId;
   content->type = Type;
   memset(content->data, 0, sizeof(content->data));

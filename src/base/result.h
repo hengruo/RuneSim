@@ -12,9 +12,9 @@
 template<typename R>
 class Result final {
 private:
-  optional<R> value;
+  std::optional<R> value;
   sptr<Error> error;
-  Result(optional<R> Value, sptr<Error> Error) : value(Value), error(Error) {}
+  Result(std::optional<R> Value, sptr<Error> Error) : value(Value), error(Error) {}
 public:
   inline bool isErr() { return error != nullptr; }
   inline R val() { return value.value(); }
@@ -32,7 +32,7 @@ public:
     va_start(arg, format);
     vsprintf(buffer, format, arg);
     va_end (arg);
-    return Result({}, make_shared<Error>(type, string(buffer)));
+    return Result({}, std::make_shared<Error>(type, str(buffer)));
   }
   static Result mkErr(sptr<Error> err) {
     return Result({}, err);

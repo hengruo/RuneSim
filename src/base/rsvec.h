@@ -6,11 +6,10 @@
 #define RUNESIM_RSVEC_H
 
 #include "type.h"
-#include <initializer_list>
 
 class rsvec {
 public:
-  class RSVecIterator : public iterator<input_iterator_tag, RSID> {
+class RSVecIterator : public std::iterator<std::input_iterator_tag, RSID> {
   private:
     isize cur = 0;
     isize size = 0;
@@ -101,11 +100,11 @@ private:
   const RSID ERR = -1;
   isize sz = 0;
   umap<RSID, isize> rsid2idx;
-  map<isize, RSID> idx2rsid;
+  std::map<isize, RSID> idx2rsid;
 public:
   typedef RSVecIterator iterator;
   rsvec() {}
-  rsvec(initializer_list<RSID> l) {
+  rsvec(std::initializer_list<RSID> l) {
     isize i = 0;
     for (auto it = l.begin(); it != l.end(); it++, i++) {
       idx2rsid[i] = *it;

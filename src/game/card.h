@@ -146,13 +146,13 @@ public:
     return;
   }
   // functions to register event listeners when game starts
-  function<void(RSID, RSID)> onStartGame = [](RSID pid, RSID eid){};
+  std::function<void(RSID, RSID)> onStartGame = [](RSID pid, RSID eid){};
   // whether this card can be played
-  function<bool(Action&)> playable = [](Action& action)->bool{return true;};
+  std::function<bool(Action&)> playable = [](Action& action)->bool{return true;};
   // whether this spell or skill can be casted
-  function<bool(Action&)> castable = [](Action& action)->bool{return true;};
+  std::function<bool(Action&)> castable = [](Action& action)->bool{return true;};
   // reaction when play this card
-  function<void(Action&)> onPlay = [this](Action& action){
+  std::function<void(Action&)> onPlay = [this](Action& action){
       if (type == CardType::UNIT) {
         action.any.type = ActionType::SUMMON;
         onSummon(action);
@@ -160,13 +160,13 @@ public:
         action.any.type = ActionType::CAST;
   };
   // reaction when cast this spell, skill, or trap
-  function<void(Action&)> onCast = [](Action& action){};
-  function<void(Action&)> onDiscard = [](Action& action){};
-  function<void(Action&)> onDie = [](Action& action){};
-  function<void(Action&)> onSummon = [](Action& action){};
-  function<void(Action&)> onDeclAttack = [](Action& action){};
-  function<void(Action&)> onStrike = [](Action& action){};
-  function<void(Action&)> onSupport = [](Action& action){};
+  std::function<void(Action&)> onCast = [](Action& action){};
+  std::function<void(Action&)> onDiscard = [](Action& action){};
+  std::function<void(Action&)> onDie = [](Action& action){};
+  std::function<void(Action&)> onSummon = [](Action& action){};
+  std::function<void(Action&)> onDeclAttack = [](Action& action){};
+  std::function<void(Action&)> onStrike = [](Action& action){};
+  std::function<void(Action&)> onSupport = [](Action& action){};
 };
 
 #endif //RUNESIM_CARD_H

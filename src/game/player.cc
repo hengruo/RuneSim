@@ -4,9 +4,9 @@
 
 #include "game.h"
 
-Result<rsvec> Player::buildDeck(const vec<pair<RSID, isize>> &v, RSID pid) {
+Result<rsvec> Player::buildDeck(const vec<std::pair<RSID, isize>> &v, RSID pid) {
   vec<RSID> deck;
-  for (pair<RSID, isize> p : v) {
+  for (std::pair<RSID, isize> p : v) {
     for (RSID k = 0; k < p.second; k++) {
       auto res = Entity::buildAndRegCard(generateId(), p.first, pid);
       if (res.isErr())
@@ -18,8 +18,8 @@ Result<rsvec> Player::buildDeck(const vec<pair<RSID, isize>> &v, RSID pid) {
   return Result<rsvec>::mkVal(rsvec::fromVec(deck));
 }
 
-Result<sptr<Player>> Player::build(RSID pid, vec<pair<RSID, isize>> &v) {
-  sptr<Player> player = make_shared<Player>();
+Result<sptr<Player>> Player::build(RSID pid, vec<std::pair<RSID, isize>> &v) {
+  sptr<Player> player = std::make_shared<Player>();
   player->playerId = pid;
   Entity nexus = Entity::buildAndRegNexus(generateId(), pid).val();
   player->nexusId = nexus.getId();

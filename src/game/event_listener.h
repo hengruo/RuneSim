@@ -14,7 +14,7 @@ class EventListenerImpl {
 private:
   RSID listenerId;
   EventType type;
-  function<void(RSID, Event)> func;
+  std::function<void(RSID, Event)> func;
   i64 data[MAX_DATA_SIZE];
 };
 
@@ -26,7 +26,7 @@ public:
   EventListener();
   EventListener(RSID ListenerId, EventType Type);
   static EventListener buildAndReg(RSID ListenerId, EventType Type);
-  void setListener(RSID lid, function<void(RSID, Event)> Func);
+  void setListener(RSID lid, std::function<void(RSID, Event)> Func);
   RSID getId() const;
   void setId(RSID ListenerId);
   EventType getType() const;

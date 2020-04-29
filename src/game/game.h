@@ -44,8 +44,8 @@ public:
   rsvec graveyard;
   Frontier frontier;
 
-  static Result<rsvec> buildDeck(const vec<pair<RSID, isize>> &v, RSID pid);
-  static Result<sptr<Player>> build(RSID pid, vec<pair<RSID, isize>> &v);
+  static Result<rsvec> buildDeck(const vec<std::pair<RSID, isize>> &v, RSID pid);
+  static Result<sptr<Player>> build(RSID pid, vec<std::pair<RSID, isize>> &v);
 };
 
 class Game final {
@@ -62,7 +62,7 @@ public:
   // Player acting first in this round
   RSID starterInRound = -1;
   GameState state;
-  function<void(RSID)> afterGame;
+  std::function<void(RSID)> afterGame;
   umap<RSID, Entity> ents;
   umap<RSID, EventListener> evlsnr;
   umap<EventType, rsvec> elByType;
@@ -74,11 +74,11 @@ public:
   i32 passCnt = 0;
   RSID winner = -1;
 
-  static Result<Game *> build(vec<pair<RSID, isize>> &v1,
-                              vec<pair<RSID, isize>> &v2,
+  static Result<Game *> build(vec<std::pair<RSID, isize>> &v1,
+                              vec<std::pair<RSID, isize>> &v2,
                               RSID firstPlayer,
-                              function<void(RSID)> afterGame);
-  static Result<void *> checkDeck(vec<pair<RSID, isize>> &v);
+                              std::function<void(RSID)> afterGame);
+  static Result<void *> checkDeck(vec<std::pair<RSID, isize>> &v);
 
   vec<RSID> firstDraw(RSID pid);
 

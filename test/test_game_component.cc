@@ -5,7 +5,7 @@
 #include "test.h"
 
 TEST(DECK, EXCEED_SINGLE_CARD_LIMIT){
-  vec<pair<RSID, isize>> wrongDeck = {
+  vec<std::pair<RSID, isize>> wrongDeck = {
       {50, 3}, {271, 3}, {176, 2}, {199, 3},
       {127, 3}, {360, 3}, {405, 3}, {336, 2},
       {27, 3}, {297, 2}, {288, 3}, {306, 3},
@@ -18,7 +18,7 @@ TEST(DECK, EXCEED_SINGLE_CARD_LIMIT){
 }
 
 TEST(DECK, EXCEED_DECK_SIZE){
-  vec<pair<RSID, isize>> wrongDeck = {
+  vec<std::pair<RSID, isize>> wrongDeck = {
       {50, 3}, {271, 3}, {176, 2}, {199, 3},
       {127, 3}, {360, 3}, {405, 3}, {336, 2},
       {27, 3}, {297, 2}, {288, 3}, {306, 3},

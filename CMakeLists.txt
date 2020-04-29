@@ -11,7 +11,7 @@ set(RS_HEADER_FILES
         src/base/type.h src/base/util.h src/base/result.h src/base/error.h src/base/base.h src/base/rsvec.h
         src/cardset/gallery.h src/cardset/initiator.h
         src/game/card.h src/game/event.h src/game/entity.h src/game/game.h src/game/event_listener.h
-        src/game/game_state.h src/game/action.h src/game/frontier.h)
+        src/game/game_state.h src/game/action.h src/game/frontier.h src/game/lor_deck_codes.h)
 
 set(RS_BASE_SOURCE_FILES src/base/util.cc src/base/error.cc src/base/result.cc)
 set(RS_CARD_SOURCE_FILES

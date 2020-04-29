@@ -12,12 +12,12 @@ Game::~Game() {
   players[1] = nullptr;
 }
 
-Result<void *> Game::checkDeck(vec<pair<RSID, isize>> &v) {
+Result<void *> Game::checkDeck(vec<std::pair<RSID, isize>> &v) {
   uset<CardRegion> regions;
   umap<RSID, i32> eachCnt;
   isize championCnt = 0;
   isize totalCnt = 0;
-  for (pair<RSID, isize> p : v) {
+  for (std::pair<RSID, isize> p : v) {
     if (GALLERY.find(p.first) == GALLERY.end())
       return Result<void *>::mkErr(ErrorType::INVALID_DECK, "Non-existent card ID: %04d.", p.first);
     if (!GALLERY[p.first]->collectible)
@@ -50,10 +50,10 @@ Result<void *> Game::checkDeck(vec<pair<RSID, isize>> &v) {
   return Result<void *>::mkVal(nullptr);
 }
 
-Result<Game *> Game::build(vec<pair<RSID, isize>> &v1,
-                           vec<pair<RSID, isize>> &v2,
+Result<Game *> Game::build(vec<std::pair<RSID, isize>> &v1,
+                           vec<std::pair<RSID, isize>> &v2,
                            RSID firstPlayer,
-                           function<void(RSID)> afterGame) {
+                           std::function<void(RSID)> afterGame) {
   Game *_game = new Game;
   GAME_PTR = _game;
   _game->afterGame = afterGame;
@@ -122,10 +122,10 @@ void Game::startRound() {
   players[starterInRound]->hasToken = true;
   players[FLIP(starterInRound)]->hasToken = false;
   auto p1 = players[pid1], p2 = players[pid2];
-  p1->spellMana = min(p1->spellMana + p1->unitMana, MAX_SPELL_MANA);
-  p2->spellMana = min(p2->spellMana + p2->unitMana, MAX_SPELL_MANA);
-  p1->unitMana = min(round, MAX_MANA);
-  p2->unitMana = min(round, MAX_MANA);
+  p1->spellMana = std::min(p1->spellMana + p1->unitMana, MAX_SPELL_MANA);
+  p2->spellMana = std::min(p2->spellMana + p2->unitMana, MAX_SPELL_MANA);
+  p1->unitMana = std::min(round, MAX_MANA);
+  p2->unitMana = std::min(round, MAX_MANA);
   p1->hasToken = true;
   p2->hasToken = false;
   if (round >= MAX_MANA)
@@ -293,8 +293,8 @@ void Game::playSlowOrFastSpell(Action &action) {
   auto p = players[playerId];
   p->hand.erase(eid);
   i8 oldUnitMana = p->unitMana;
-  p->unitMana = max(0, oldUnitMana - ents[eid].getCost());
-  p->spellMana = p->spellMana + min(0, oldUnitMana - ents[eid].getCost());
+  p->unitMana = std::max(0, oldUnitMana - ents[eid].getCost());
+  p->spellMana = p->spellMana + std::min(0, oldUnitMana - ents[eid].getCost());
   ents[eid].onPlay(action);
   spellStack.push_back(action);
   trigger(Event(PlayEvent(playerId, eid)));
@@ -312,8 +312,8 @@ void Game::playBurstSpell(Action &action) {
   auto p = players[playerId];
   p->hand.erase(eid);
   i8 oldUnitMana = p->unitMana;
-  p->unitMana = max(0, oldUnitMana - ents[eid].getCost());
-  p->spellMana = p->spellMana + min(0, oldUnitMana - ents[eid].getCost());
+  p->unitMana = std::max(0, oldUnitMana - ents[eid].getCost());
+  p->spellMana = p->spellMana + std::min(0, oldUnitMana - ents[eid].getCost());
   action.any.type = ActionType::CAST;
   ents[eid].onCast(action);
   trigger(Event(PlayEvent(playerId, eid)));
