@@ -13,7 +13,7 @@ static umap<char, i32> CHAR_MAP = {
     {'Y', 24}, {'Z', 25}, {'2', 26}, {'3', 27},
     {'4', 28}, {'5', 29}, {'6', 30}, {'7', 31}
 };
-static umap<i32, str> FACTION_MAP = {
+static umap<i32, str> FAC_MAP = {
     {0, "DE"}, {1, "FR"}, {2, "IO"}, {3, "NX"}, {4, "PZ"}, {5, "SI"}, {6, "BW"}
 };
 
@@ -24,8 +24,8 @@ static char CHARS[] = {
     89, 90, 50, 51, 52, 53, 54, 55, 0};
 static i32 MASK = 31;
 static i32 SHIFT = 5;
-static i32 allButMSB = 0x7f;
-static i32 justMSB = 0x80;
+static i32 MSB = 0x80;
+static i32 ALL_BUT_MSB = 0x7f;
 
 class Base32 {
 public:
@@ -110,9 +110,9 @@ public:
     i32 popped = 0;
     for (i32 i = 0; i < bytes.size(); i++) {
       popped++;
-      i32 current = bytes[i] & allButMSB;
+      i32 current = bytes[i] & ALL_BUT_MSB;
       result |= current << shift;
-      if ((bytes[i] & justMSB) != justMSB) {
+      if ((bytes[i] & MSB) != MSB) {
         bytes.erase(bytes.begin(), bytes.begin() + popped);
         return result;
       }
@@ -127,10 +127,10 @@ public:
     if (value == 0)
       return {0};
     while (value != 0) {
-      i32 byteVal = ((u32) value) & allButMSB;
+      i32 byteVal = ((u32) value) & ALL_BUT_MSB;
       value >>= 7;
       if (value != 0)
-        byteVal |= justMSB;
+        byteVal |= MSB;
 
       buff[index++] = byteVal;
     }
@@ -162,7 +162,7 @@ public:
         for (i32 k = 0; k < itemCount; k++) {
           i32 card = VarInt::pop(bytes);
           str setStr = format("%02d", set);
-          str facStr = FACTION_MAP[faction];
+          str facStr = FAC_MAP[faction];
           str numStr = format("%03d", card);
           str cardCode = setStr + facStr + numStr;
           deck[cardCode] = i;
@@ -177,7 +177,7 @@ public:
       i32 number = VarInt::pop(bytes);
 
       str setStr = padLeft(std::to_string(set), "0", 2);
-      str facStr = FACTION_MAP[faction];
+      str facStr = FAC_MAP[faction];
       str numStr = padLeft(std::to_string(number), "0", 3);
       str cardCode = setStr + facStr + numStr;
       deck[cardCode] = count;
