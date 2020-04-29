@@ -165,7 +165,7 @@ void Game::putSkill(Action &action) {
 }
 
 void Game::resolveSpells() {
-  for (int i = spellStack.size() - 1; i >= 0; i--) {
+  for (i32 i = spellStack.size() - 1; i >= 0; i--) {
     RSID spellId = spellStack[i].cast.spellId;
     auto spell = ents[spellId];
     if (spell.isCastable(spellStack[i])) {
@@ -173,7 +173,7 @@ void Game::resolveSpells() {
     } else
       spell.quench();
   }
-  for (int i = spellStack.size() - 1; i >= 0; i--) {
+  for (i32 i = spellStack.size() - 1; i >= 0; i--) {
     RSID spellId = spellStack[i].cast.spellId;
     GAME_PTR->players[ents[spellId].getPlayerId()]->graveyard.push_back(spellId);
   }
@@ -524,7 +524,7 @@ bool Game::hasSummonedCard(RSID playerId, RSID cardId) {
   return false;
 }
 bool Game::hasCardInHand(RSID playerId, RSID cardId) {
-  for (int i = 0; i < players[playerId]->hand.size(); i++) {
+  for (i32 i = 0; i < players[playerId]->hand.size(); i++) {
     RSID id = players[playerId]->hand[i];
     auto card = ents[id];
     if (card.getCard()->id == cardId)
@@ -533,7 +533,7 @@ bool Game::hasCardInHand(RSID playerId, RSID cardId) {
   return false;
 }
 bool Game::hasCardInDeck(RSID playerId, RSID cardId) {
-  for (int i = 0; i < players[playerId]->deck.size(); i++) {
+  for (i32 i = 0; i < players[playerId]->deck.size(); i++) {
     RSID id = players[playerId]->deck[i];
     auto obj = ents[id];
     if (obj.getCard()->id == cardId)
@@ -542,7 +542,7 @@ bool Game::hasCardInDeck(RSID playerId, RSID cardId) {
   return false;
 }
 void Game::moveFirstAppearingCardToTop(RSID playerId, RSID cardId) {
-  for (int i = 0; i < players[playerId]->deck.size(); i++) {
+  for (i32 i = 0; i < players[playerId]->deck.size(); i++) {
     RSID id = players[playerId]->deck[i];
     auto obj = ents[id];
     if (obj.getCard()->id == cardId)
