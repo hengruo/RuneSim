@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 4/18/20.
-//
-
 #include "test.h"
 
 using namespace std;

@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 4/19/20.
-//
-
 #include "test.h"
 //vec<std::pair<RSID, isize>> deckSpiderKarma = {
 //    {50, 3},

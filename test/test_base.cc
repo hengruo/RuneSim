@@ -1,7 +1,3 @@
-//
-// Created by Hengruo Zhang on 4/20/20.
-//
-
 #include "test.h"
 
 TEST(RSVEC, ADD_ELEMS){
