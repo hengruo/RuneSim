@@ -40,4 +40,3 @@ conducted by other people or organization.
 
 ### Used Open-source Projects
 - [googletest](https://github.com/google/googletest)
-- [json](https://github.com/nlohmann/json)
