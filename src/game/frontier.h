@@ -8,8 +8,8 @@
 class Frontier final {
 private:
   vec<RSID> fr;
+  const RSID EMPTY = -1;
 public:
-  const static RSID EMPTY = -1;
   Frontier() {
     fr = vec<RSID>(FRONTIER_LIMIT, EMPTY);
   }

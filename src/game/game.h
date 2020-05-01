@@ -54,7 +54,7 @@ private:
   void killEphemeralOnTable(RSID playerId);
   void discardFleetingInHand(RSID playerId);
   bool canChallenge(RSID pid, RSID eid1, RSID eid2);
-  void battle(Entity &aunit, Entity &bunit);
+  void battle(Entity aunit, Entity bunit);
 public:
   // Player acting first in odd number round
   RSID firstPlayerId = -1;

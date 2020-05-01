@@ -695,15 +695,19 @@ void Game::printGameView() {
   }
 }
 // a for attacker, b for blocker
-void Game::battle(Entity &aunit, Entity &bunit) {
+void Game::battle(Entity aunit, Entity bunit) {
   if (aunit.isDead())
-    return;
-  if (bunit.isDead())
     return;
   u64 akey = aunit.getKeywords();
   u64 bkey = bunit.getKeywords();
   auto anexus = ents[players[aunit.getPlayerId()]->nexusId];
   auto bnexus = ents[players[bunit.getPlayerId()]->nexusId];
+  if (bunit.isDead()) {
+    if (!CHECK_K_OVERWHELM(akey))
+      return;
+    else
+      bunit = bnexus;
+  }
   if (aunit.getAttack() > 0) {
     Action action(StrikeAction(aunit.getPlayerId(), aunit.getId()));
     aunit.onStrike(action);
@@ -717,14 +721,18 @@ void Game::battle(Entity &aunit, Entity &bunit) {
       aunit.beKilled();
     if (CHECK_K_EPHEMERAL(bkey))
       bunit.beKilled();
-    if (CHECK_K_OVERWHELM(akey) && bunit.isUnit()) {
+    if (CHECK_K_OVERWHELM(akey) && bunit.isUnit() && state.inBattle()) {
       i8 exdmg = std::min(0, aunit.getAttack() - bunit.getHealth());
       bnexus.beHurt(exdmg);
     }
   }
   if (CHECK_K_QUICK_ATTACK(akey) || CHECK_K_DOUBLE_ATTACK(akey)) {
-    if (bunit.isDead())
-      return;
+    if (bunit.isDead()) {
+      if (!CHECK_K_OVERWHELM(akey))
+        return;
+      else
+        bunit = bnexus;
+    }
     if (CHECK_K_DOUBLE_ATTACK(akey) && aunit.getAttack() > 0) {
       Action action(StrikeAction(aunit.getPlayerId(), aunit.getId()));
       aunit.onStrike(action);
@@ -738,7 +746,7 @@ void Game::battle(Entity &aunit, Entity &bunit) {
         aunit.beKilled();
       if (CHECK_K_EPHEMERAL(bkey))
         bunit.beKilled();
-      if (CHECK_K_OVERWHELM(akey) && bunit.isUnit()) {
+      if (CHECK_K_OVERWHELM(akey) && bunit.isUnit() && state.inBattle()) {
         i8 exdmg = std::min(0, aunit.getAttack() - bunit.getHealth());
         bnexus.beHurt(exdmg);
       }

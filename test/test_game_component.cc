@@ -63,7 +63,7 @@ TEST(EVENT, EVENT_TYPE_WILDCARD){
   EXPECT_EQ(event2.any.type, EventType::DIE);
 }
 
-TEST(STATE, TRANSITION){
+TEST(STATE, TRANSITION1){
   GameState state;
   RSID pid1 = 0;
   RSID pid2 = 1;
@@ -72,7 +72,7 @@ TEST(STATE, TRANSITION){
   state.summoned(pid1);
   state.putSlowSpell(pid1);
   EXPECT_EQ(state.canSummon(pid1), false);
-  EXPECT_EQ(state.canPutSlowSpell(pid1), true);
+  EXPECT_EQ(state.canPutSlowSpell(pid1), false);
   EXPECT_EQ(state.didNothingRespondable(pid1), false);
   state.finishTurn();
   EXPECT_EQ(state.whoseTurn, pid2);
@@ -129,3 +129,20 @@ TEST(STATE, TRANSITION){
   EXPECT_EQ(state.canPutFastSpell(pid2), true);
   EXPECT_EQ(state.canPutSlowSpell(pid2), true);
 }
+
+TEST(STATE, TRANSITION2) {
+  GameState state;
+  RSID pid1 = 0;
+  RSID pid2 = 1;
+  state.reset(pid1);
+  state.declAttack(pid1);
+  state.declAttack(pid1);
+  state.finishTurn();
+  EXPECT_EQ(state.canDeclAttack(pid1), false);
+  EXPECT_EQ(state.canDeclAttack(pid2), false);
+  EXPECT_EQ(state.canDeclBlock(pid2), true);
+  state.declBlock(pid2);
+  state.finishTurn();
+  EXPECT_EQ(state.canPutFastSpell(pid1), true);
+  EXPECT_EQ(state.canPutSlowSpell(pid1), false);
+  }

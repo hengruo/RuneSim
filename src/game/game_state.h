@@ -34,10 +34,10 @@ public:
     return pid == whoseTurn && !respondingSpell && !summonedInTurn && attackMode == 0;
   }
   inline bool canPutSlowSpell(RSID pid) {
-    return pid == whoseTurn && !respondingSpell && attackMode == 0;
+    return pid == whoseTurn && castMode == 0 && !respondingSpell && attackMode == 0;
   }
   inline bool canPutFastSpell(RSID pid) {
-    return pid == whoseTurn;
+    return pid == whoseTurn && !(isSlowSpellInStack && !respondingSpell);
   }
   inline bool canCastBurstSpell(RSID pid) {
     return pid == whoseTurn && !respondingSpell;
@@ -166,6 +166,9 @@ public:
   }
   inline void endScout(RSID pid) {
     anotherAttack = 1;
+  }
+  inline bool inBattle(){
+    return attackMode == 5;
   }
 };
 
