@@ -33,10 +33,8 @@ activities. Each of contributors shouldn't be liable for any damages to
 conducted by other people or organization.
 
 ## Credits
-### Main Contributors
-- [setoidz](https://github.com/setoidz)
-
 ### Contributors
+- [setoidz](https://github.com/setoidz)
 
 ### Used Open-source Projects
 - [googletest](https://github.com/google/googletest)
