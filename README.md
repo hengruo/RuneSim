@@ -12,7 +12,9 @@ RuneSim is a simulator of *Legends of Runeterra*.
 
 ## Roadmap
 - [x] basic game workflow 
+- [ ] development documentation
 - [ ] complete all cards
+- [ ] command line UI
 - [ ] simple Web GUI
 - [ ] Python wrapper for RL
 
