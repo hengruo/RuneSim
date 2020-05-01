@@ -36,10 +36,12 @@ public:
   i8 deadAllyInRoundCnt = 0;
   bool hasToken = false;
   bool attackDone = false;
+  bool isPlunderer = false;
   rsvec deck;
   rsvec hand;
   rsvec table;
   rsvec graveyard;
+  rsvec tossed;
   Frontier frontier;
 
   static Result<rsvec> buildDeck(const str & deckCode, RSID pid);
@@ -51,7 +53,8 @@ private:
   // check game state
   void killEphemeralOnTable(RSID playerId);
   void discardFleetingInHand(RSID playerId);
-  bool canBeChallenged(RSID pid, RSID eid);
+  bool canChallenge(RSID pid, RSID eid1, RSID eid2);
+  void battle(Entity &aunit, Entity &bunit);
 public:
   // Player acting first in odd number round
   RSID firstPlayerId = -1;

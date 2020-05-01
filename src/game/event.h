@@ -113,6 +113,12 @@ struct StartRoundEvent {
   i32 round;
   StartRoundEvent(i32 Round);
 };
+struct StrikeEvent {
+  EventType type = EventType::STRIKE;
+  RSID playerId;
+  RSID strikerId;
+  StrikeEvent(RSID PlayerId, RSID StrikerId);
+};
 struct SummonEvent {
   EventType type = EventType::SUMMON;
   RSID playerId;
@@ -141,6 +147,7 @@ union Event {
   PlayEvent play;
   PutSpell putSpell;
   StartRoundEvent startRound;
+  StrikeEvent strike;
   SummonEvent summon;
   TargetEvent target;
   Event(const AnyEvent &Any);
@@ -157,6 +164,7 @@ union Event {
   Event(const PlayEvent &Play);
   Event(const PutSpell &PutSpell);
   Event(const StartRoundEvent &StartRound);
+  Event(const StrikeEvent &Strike);
   Event(const SummonEvent &Summon);
   Event(const TargetEvent &Target);
 };

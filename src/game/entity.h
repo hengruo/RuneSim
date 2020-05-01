@@ -87,7 +87,7 @@ public:
 
   // ================================
   // perform an action
-  // methods of Entity class can only modify Entity itself
+  // methods of Entity class can only modify Entity itself (except 'beHurt()')
   // ================================
   Entity getCopy();
   Entity getEphemeralCopy();
@@ -95,11 +95,12 @@ public:
   void beStunned();
   void beDenied();
   void beDiscarded();
+  void gainHealth(i8 offset);
   void gainAttackInRound(i8 offset);
   void gainHealthInRound(i8 offset);
-  void loseEffectsInRound();
+  void beRecalled();
   void transform(RSID cardId);
-  void die();
+  void beKilled();
   void levelUp(RSID cardId);
   bool isCastable(Action &action);
   bool isPlayable(Action &action);
@@ -107,9 +108,10 @@ public:
   void quench();
   void enableKeywords(u64 keyword);
   void disableKeywords(u64 keyword);
+  void regenerated();
 
   void onStartGame(RSID playerId, RSID entityId);
-  void onPlay(Action &action);
+  Action onPlay(Action &action);
   void onCast(Action &action);
   void onDiscard(Action &action);
   void onDie(Action &action);

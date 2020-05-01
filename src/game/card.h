@@ -126,47 +126,46 @@ public:
   const u8 health;
   const bool collectible;
   Card(const RSID Id,
-             const char *const Name,
-             const char *const Description,
-             const char *const LevelUpDescription,
-             const char *const Code,
-             const CardRegion Region,
-             const CardRarity Rarity,
-             const CardType Type,
-             const CardSupType SupType,
-             const CardSubType SubType,
-             const u64 Keywords,
-             const u8 Cost,
-             const u8 Attack,
-             const u8 Health,
-             const bool Collectible)
-      : id(Id), name(Name), description(Description), levelUpDescription(LevelUpDescription), code(Code), region(Region),
+       const char *const Name,
+       const char *const Description,
+       const char *const LevelUpDescription,
+       const char *const Code,
+       const CardRegion Region,
+       const CardRarity Rarity,
+       const CardType Type,
+       const CardSupType SupType,
+       const CardSubType SubType,
+       const u64 Keywords,
+       const u8 Cost,
+       const u8 Attack,
+       const u8 Health,
+       const bool Collectible)
+      : id(Id), name(Name), description(Description), levelUpDescription(LevelUpDescription), code(Code),
+        region(Region),
         rarity(Rarity), type(Type), supType(SupType), subType(SubType), keywords(Keywords), cost(Cost), attack(Attack),
         health(Health), collectible(Collectible) {
     return;
   }
   // functions to register event listeners when game starts
-  std::function<void(RSID, RSID)> onStartGame = [](RSID pid, RSID eid){};
+  std::function<void(RSID, RSID)> onStartGame = [](RSID pid, RSID eid) {};
   // whether this card can be played
-  std::function<bool(Action&)> playable = [](Action& action)->bool{return true;};
+  std::function<bool(Action &)> playable = [](Action &action) -> bool { return true; };
   // whether this spell or skill can be casted
-  std::function<bool(Action&)> castable = [](Action& action)->bool{return true;};
+  std::function<bool(Action &)> castable = [](Action &action) -> bool { return true; };
+  // process sth. for cards with "to play..."
+  // return an action in case that the args in the input action are changed,
+  // for example, "Get Excited!" will discard its first arg when played and deal 3 to its second arg when casted.
+  std::function<Action(Action &)> toPlay = [](Action &action) -> Action { return action; };
   // reaction when play this card
-  std::function<void(Action&)> onPlay = [this](Action& action){
-      if (type == CardType::UNIT) {
-        action.any.type = ActionType::SUMMON;
-        onSummon(action);
-      }else if(type == CardType::SPELL)
-        action.any.type = ActionType::CAST;
-  };
+  std::function<void(Action &)> onPlay = [this](Action &action) {};
   // reaction when cast this spell, skill, or trap
-  std::function<void(Action&)> onCast = [](Action& action){};
-  std::function<void(Action&)> onDiscard = [](Action& action){};
-  std::function<void(Action&)> onDie = [](Action& action){};
-  std::function<void(Action&)> onSummon = [](Action& action){};
-  std::function<void(Action&)> onDeclAttack = [](Action& action){};
-  std::function<void(Action&)> onStrike = [](Action& action){};
-  std::function<void(Action&)> onSupport = [](Action& action){};
+  std::function<void(Action &)> onCast = [](Action &action) {};
+  std::function<void(Action &)> onDiscard = [](Action &action) {};
+  std::function<void(Action &)> onDie = [](Action &action) {};
+  std::function<void(Action &)> onSummon = [](Action &action) {};
+  std::function<void(Action &)> onDeclAttack = [](Action &action) {};
+  std::function<void(Action &)> onStrike = [](Action &action) {};
+  std::function<void(Action &)> onSupport = [](Action &action) {};
 };
 
 #endif //RUNESIM_CARD_H

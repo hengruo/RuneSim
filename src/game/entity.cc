@@ -125,12 +125,17 @@ u64 Entity::getKeywords() const {
 }
 
 void Entity::beHurt(i8 damage) {
-  content->currentHealth -= damage;
-  if (isNexus() && getHealth() <= 0) {
-//    GAME_PTR->end(FLIP(getPlayerId()));
-  } else if (isCard() && getHealth() <= 0) {
-    die();
+  if (content->barriered) {
+    content->barriered = false;
+    return;
   }
+  if(CHECK_K_TOUGH(getKeywords()))
+    damage -= 1;
+  content->currentHealth -= damage;
+  if(damage > 0)
+    GAME_PTR->players[FLIP(getPlayerId())]->isPlunderer = true;
+  if (getHealth() <= 0)
+    beKilled();
 }
 RSID Entity::getPlayerId() const {
   return content->playerId;
@@ -142,13 +147,16 @@ void Entity::gainAttackInRound(i8 offset) {
 void Entity::gainHealthInRound(i8 offset) {
 
 }
-void Entity::loseEffectsInRound() {
+void Entity::beRecalled() {
   content->maxHealthInRound = content->maxHealthInGame;
   content->currentHealth = std::min(content->currentHealth, content->maxHealthInGame);
   content->maxAttackInRound = content->maxAttackInGame;
   content->currentAttack = std::min(content->currentAttack, content->maxAttackInGame);
   // cost
   content->stunned = false;
+  content->barriered = false;
+  content->enableMask = 0;
+  content->disableMask = 0xFFFFFFFFFFFFFFFF;
 }
 void Entity::beStunned() {
   content->stunned = true;
@@ -160,8 +168,12 @@ void Entity::beDiscarded() {
   content->dead = true;
   content->discarded = true;
 }
-void Entity::die() {
-
+void Entity::beKilled() {
+  if (content->captured)
+    return;
+  content->dead = true;
+  Action action(DieAction(getPlayerId(), getId()));
+  onDie(action);
 }
 
 void Entity::quench() {
@@ -219,9 +231,20 @@ str Entity::getInfo() const {
 void Entity::onStartGame(RSID playerId, RSID entityId) {
   content->card->onStartGame(playerId, entityId);
 }
-void Entity::onPlay(Action &action) {
-  content->summoned = true;
-  content->card->onPlay(action);
+Action Entity::onPlay(Action &action) {
+  Action action1 = content->card->toPlay(action);
+  content->card->onPlay(action1);
+  if (isUnit()) {
+    Action action2(SummonAction(action1.play.playerId, action1.play.cardId));
+    action2.summon.passCheck = action1.play.passCheck;
+    onSummon(action2);
+    return action2;
+  } else if (isSpell()) {
+    Action action2 = action1;
+    action2.cast.type = ActionType::CAST;
+    return action2;
+  }
+  return Action();
 }
 void Entity::onCast(Action &action) {
   content->card->onCast(action);
@@ -231,24 +254,42 @@ void Entity::onDiscard(Action &action) {
   content->card->onDiscard(action);
 }
 void Entity::onDie(Action &action) {
-  content->card->onDie(action);
+  if (isNexus())
+    GAME_PTR->end(FLIP(getPlayerId()));
+  else
+    content->card->onDie(action);
 }
 void Entity::onSummon(Action &action) {
-  if(content->silenced || content->captured) return;
+  if (content->silenced || content->captured)
+    return;
+  if (CHECK_K_ATTUNE(getKeywords())) {
+    i8 &spellMana = GAME_PTR->players[action.summon.playerId]->spellMana;
+    spellMana = (MAX_SPELL_MANA, 1 + spellMana);
+  }
   content->card->onSummon(action);
 }
 void Entity::onDeclAttack(Action &action) {
-  if(content->silenced || content->captured) return;
+  if (content->silenced || content->captured)
+    return;
   content->card->onDeclAttack(action);
 }
 void Entity::onStrike(Action &action) {
-  if(content->silenced || content->captured) return;
+  if (content->captured)
+    return;
   content->card->onStrike(action);
 }
 void Entity::onSupport(Action &action) {
-  if(content->silenced || content->captured) return;
+  if (content->silenced || content->captured)
+    return;
   content->card->onSupport(action);
 }
 bool Entity::isStunned() const {
   return content->stunned;
+}
+void Entity::regenerated() {
+  content->currentHealth = content->maxHealthInGame;
+  content->maxHealthInRound = content->maxHealthInGame;
+}
+void Entity::gainHealth(i8 offset) {
+  content->currentHealth = std::min(content->maxHealthInRound, (i8)(content->currentHealth + offset));
 }

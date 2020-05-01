@@ -15,32 +15,13 @@ enum class ActionType {
   DIE,
   PLAY,
   SUMMON,
-  SUPPORT
+  SUPPORT,
+  STRIKE
 };
 
 struct AnyAction {
   ActionType type;
   bool passCheck = false;
-};
-
-struct PlayAction {
-  ActionType type = ActionType::PLAY;
-  bool passCheck = false;
-  RSID playerId;
-  RSID cardId;
-  i64 argc;
-  RSID args[ACTION_ARG_MAX_NUM];
-  PlayAction(RSID PlayerId, RSID CardId);
-};
-
-struct SummonAction {
-  ActionType type = ActionType::SUMMON;
-  bool passCheck = false;
-  RSID playerId;
-  RSID summoneeId;
-  i64 argc;
-  RSID args[ACTION_ARG_MAX_NUM];
-  SummonAction(RSID PlayerId, RSID SummoneeId);
 };
 
 struct CastAction {
@@ -76,7 +57,35 @@ struct DieAction {
   bool passCheck = true;
   RSID playerId;
   RSID deadId;
-  DieAction(ActionType Type, RSID PlayerId, RSID DeadId);
+  DieAction(RSID PlayerId, RSID DeadId);
+};
+
+struct PlayAction {
+  ActionType type = ActionType::PLAY;
+  bool passCheck = false;
+  RSID playerId;
+  RSID cardId;
+  i64 argc;
+  RSID args[ACTION_ARG_MAX_NUM];
+  PlayAction(RSID PlayerId, RSID CardId);
+};
+
+struct StrikeAction {
+  ActionType type = ActionType::STRIKE;
+  bool passCheck = true;
+  RSID playerId;
+  RSID strikerId;
+  StrikeAction(RSID PlayerId, RSID StrikerId);
+};
+
+struct SummonAction {
+  ActionType type = ActionType::SUMMON;
+  bool passCheck = false;
+  RSID playerId;
+  RSID summoneeId;
+  i64 argc;
+  RSID args[ACTION_ARG_MAX_NUM];
+  SummonAction(RSID PlayerId, RSID SummoneeId);
 };
 
 struct SupportAction {
@@ -90,19 +99,22 @@ struct SupportAction {
 
 union Action {
   AnyAction any;
-  PlayAction play;
-  SummonAction summon;
-  SupportAction support;
   CastAction cast;
   DeclAttackAction declAttack;
   DeclBlockAction declBlock;
   DieAction die;
+  PlayAction play;
+  SummonAction summon;
+  SupportAction support;
+  StrikeAction strike;
   Action();
   Action(const CastAction &Cast);
   Action(const DeclAttackAction &DeclAttack);
+  Action(const DieAction &Die);
   Action(const PlayAction &Play);
   Action(const SummonAction &Summon);
   Action(const SupportAction &Support);
+  Action(const StrikeAction &Strike);
 };
 
 #endif //RUNESIM_ACTION_H

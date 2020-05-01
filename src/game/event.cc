@@ -13,6 +13,7 @@ NexusStrikeEvent::NexusStrikeEvent(RSID AttackingPlayerId, RSID AttackedNexusId,
 PlayEvent::PlayEvent(RSID PlayerId, RSID InhandCardId) : playerId(PlayerId), inhandCardId(InhandCardId) {}
 PutSpell::PutSpell(RSID PlayerId, RSID SpellId) : playerId(PlayerId), spellId(SpellId) {}
 StartRoundEvent::StartRoundEvent(i32 Round) : round(Round) {}
+StrikeEvent::StrikeEvent(RSID PlayerId, RSID StrikerId) : playerId(PlayerId), strikerId(StrikerId) {}
 SummonEvent::SummonEvent(RSID PlayerId, RSID SummoneeId) : playerId(PlayerId), summoneeId(SummoneeId) {}
 TargetEvent::TargetEvent(RSID PlayerId, RSID TargetedId) : playerId(PlayerId), targetedId(TargetedId) {}
 Event::Event(const LevelUpEvent &LevelUp) : levelUp(LevelUp) {}
@@ -29,5 +30,6 @@ Event::Event(const NexusStrikeEvent &NexusStrike) : nexusStrike(NexusStrike) {}
 Event::Event(const PlayEvent &Play) : play(Play) {}
 Event::Event(const PutSpell &PutSpell) : putSpell(PutSpell) {}
 Event::Event(const StartRoundEvent &StartRound) : startRound(StartRound) {}
+Event::Event(const StrikeEvent &Strike) : strike(Strike) {}
 Event::Event(const SummonEvent &Summon) : summon(Summon) {}
 Event::Event(const TargetEvent &Target) : target(Target) {}

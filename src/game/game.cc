@@ -39,8 +39,8 @@ Result<void *> Game::checkDeck(std::map<RSID, i32> &deck) {
   return Result<void *>::mkVal(nullptr);
 }
 
-Result<Game *> Game::build(const str & deckCode1,
-                           const str & deckCode2,
+Result<Game *> Game::build(const str &deckCode1,
+                           const str &deckCode2,
                            RSID firstPlayer,
                            std::function<void(RSID)> afterGame) {
   Game *_game = new Game;
@@ -111,10 +111,19 @@ void Game::startRound() {
   p2->unitMana = std::min(round, MAX_MANA);
   p1->hasToken = true;
   p2->hasToken = false;
+  p1->isPlunderer = false;
+  p2->isPlunderer = false;
   if (round >= MAX_MANA)
     trigger(Event(EnlightenEvent()));
 
   trigger(Event(StartRoundEvent(round)));
+  for (RSID &id: p1->table)
+    if (CHECK_K_REGENERATION(ents[id].getKeywords()))
+      ents[id].regenerated();
+  for (RSID &id: p2->table)
+    if (CHECK_K_REGENERATION(ents[id].getKeywords()))
+      ents[id].regenerated();
+
   bool p1CanDraw = drawACard(pid1);
   bool p2CanDraw = drawACard(pid2);
   if (!p1CanDraw && !p2CanDraw)
@@ -166,6 +175,8 @@ void Game::resolveSpells() {
     auto spell = ents[spellId];
     if (spell.isCastable(spellStack[i])) {
       spell.onCast(spellStack[i]);
+      for (i64 k = 0; k < spellStack[k].cast.argc; k++)
+        trigger(Event(TargetEvent(spellStack[i].cast.playerId, spellStack[i].cast.args[k])));
     } else
       spell.quench();
   }
@@ -229,9 +240,11 @@ void Game::playUnit(Action &action) {
   auto p = players[playerId];
   p->hand.erase(eid);
   p->unitMana -= ents[eid].getCost();
-  ents[eid].onPlay(action);
+  Action action_ = ents[eid].onPlay(action);
+  if (!action_.summon.passCheck)
+    return;
   trigger(Event(PlayEvent(playerId, eid)));
-  trigger(Event(SummonEvent(action.summon.playerId, action.summon.summoneeId)));
+  trigger(Event(SummonEvent(action_.summon.playerId, action_.summon.summoneeId)));
   p->table.push_back(eid);
   if (ents[eid].isChampion()) {
     for (RSID eid_ : p->hand) {
@@ -278,12 +291,12 @@ void Game::playSlowOrFastSpell(Action &action) {
   i8 oldUnitMana = p->unitMana;
   p->unitMana = std::max(0, oldUnitMana - ents[eid].getCost());
   p->spellMana = p->spellMana + std::min(0, oldUnitMana - ents[eid].getCost());
-  ents[eid].onPlay(action);
-  spellStack.push_back(action);
+  Action action_ = ents[eid].onPlay(action);
+  if (!action_.cast.passCheck)
+    return;
+  spellStack.push_back(action_);
   trigger(Event(PlayEvent(playerId, eid)));
-  trigger(Event(PutSpell(action.cast.playerId, action.cast.spellId)));
-  for (i64 i = 0; i < action.cast.argc; i++)
-    trigger(Event(TargetEvent(action.cast.playerId, action.cast.args[i])));
+  trigger(Event(PutSpell(action_.cast.playerId, action_.cast.spellId)));
   state.putSlowSpell(playerId);
 }
 
@@ -319,18 +332,22 @@ bool Game::canPutUnitToAttack(Action &action) {
     return false;
   if (players[pid]->frontier.full())
     return false;
+  if (CHECK_K_IMMOBILE(unit.getKeywords()))
+    return false;
   if (unit.isStunned() || !unit.isUnit() || unit.isDead() || unit.isCaptured())
     return false;
   return action.declAttack.passCheck = true;
 }
 
-bool Game::canBeChallenged(RSID pid, RSID eid) {
-  if (!isInPlay(eid))
+// Can Player [pid] uses unit [eid1] to challenge unit [eid2]
+bool Game::canChallenge(RSID pid, RSID eid1, RSID eid2) {
+  if (!isInPlay(eid1) || !isInPlay(eid2))
     return false;
-  if (!players[FLIP(pid)]->table.has(eid))
+  if (!players[pid]->table.has(eid1) || !players[FLIP(pid)]->table.has(eid2))
     return false;
-  Entity &unit = ents[eid];
-  if (!unit.isUnit())
+  Entity &unit1 = ents[eid1];
+  Entity &unit2 = ents[eid2];
+  if (!CHECK_K_CHALLENGER(unit1.getKeywords()) && !CHECK_K_VULNERABLE(unit2.getKeywords()))
     return false;
   return true;
 }
@@ -344,7 +361,7 @@ void Game::putUnitToAttack(Action &action) {
   RSID cid = action.declAttack.challengedId;
   i8 pos = players[pid]->frontier.firstVacancy();
   Entity &unit = ents[aid];
-  if (CHECK_K_CHALLENGER(unit.getKeywords()) && canBeChallenged(pid, cid)) {
+  if (CHECK_K_CHALLENGER(unit.getKeywords()) && canChallenge(pid, cid, 0)) {
     players[opid]->frontier[pos] = cid;
     players[opid]->table.erase(cid);
   }
@@ -359,6 +376,8 @@ bool Game::canPutUnitToBlock(Action &action) {
   if (ents.find(blockerId) == ents.end())
     return false;
   Entity &unit = ents[blockerId];
+  if (CHECK_K_IMMOBILE(unit.getKeywords()) || CHECK_K_CANT_BLOCK(unit.getKeywords()))
+    return false;
   if (!state.canDeclBlock(pid))
     return false;
   if (!players[pid]->table.has(blockerId))
@@ -367,13 +386,13 @@ bool Game::canPutUnitToBlock(Action &action) {
     return false;
   if (unit.isStunned() || !unit.isUnit() || unit.isDead() || unit.isCaptured())
     return false;
-  if (CHECK_K_CANT_BLOCK(unit.getKeywords()))
-    return false;
   if (!players[FLIP(pid)]->frontier.isUnit(pos))
     return false;
   else {
     RSID attackerId = players[FLIP(pid)]->frontier[pos];
     if (CHECK_K_ELUSIVE(ents[attackerId].getKeywords()) && !CHECK_K_ELUSIVE(unit.getKeywords()))
+      return false;
+    if (CHECK_K_FEARSOME(ents[attackerId].getKeywords()) && ents[blockerId].getAttack() < 3)
       return false;
   }
   return action.declBlock.passCheck = true;
@@ -392,7 +411,37 @@ void Game::putUnitToBlock(Action &action) {
 }
 
 void Game::battle() {
-
+  RSID pid = state.whoseTurn;
+  auto attacker = players[pid];
+  auto blocker = players[FLIP(pid)];
+  auto af = attacker->frontier;
+  auto bf = attacker->frontier;
+  for (i8 pos: af.getUnitIndices()) {
+    Entity aunit = ents[af[pos]];
+    Entity bunit;
+    if (bf.isUnit(pos)) {
+      bunit = ents[bf[pos]];
+    } else {
+      bunit = ents[blocker->nexusId];
+    }
+    battle(aunit, bunit);
+  }
+  for (RSID id: af.getUnits()) {
+    Entity unit = ents[id];
+    if (unit.isDead())
+      attacker->graveyard.push_back(id);
+    else
+      attacker->table.push_back(id);
+  }
+  for (RSID id: bf.getUnits()) {
+    Entity unit = ents[id];
+    if (unit.isDead())
+      blocker->graveyard.push_back(id);
+    else
+      blocker->table.push_back(id);
+  }
+  af.clear();
+  bf.clear();
 }
 
 void Game::hitButton(RSID pid) {
@@ -404,6 +453,13 @@ void Game::hitButton(RSID pid) {
       } else
         state.pass();
     } else {
+      bool isScout = true;
+      if (players[pid]->frontier.empty())
+        isScout = false;
+      for (RSID &unitId : players[pid]->frontier.getUnits()) {
+        if (CHECK_K_SCOUT(ents[unitId].getKeywords()))
+          isScout = false;
+      }
       if (state.needsRespondingSpell(pid)) {
         state.startCasting();
         resolveSpells();
@@ -413,6 +469,8 @@ void Game::hitButton(RSID pid) {
         state.startBattling();
         battle();
         state.endBattling();
+        if (isScout)
+          state.endScout(pid);
       }
       state.finishTurn();
     }
@@ -423,8 +481,8 @@ void Game::hitButton(RSID pid) {
         RSID eid = f[pos];
         Action action(DeclAttackAction(pid, eid));
         ents[eid].onDeclAttack(action);
-        if(f.isUnit(pos+1)) {
-          Action action(SupportAction(pid, eid, f[pos+1]));
+        if (f.isUnit(pos + 1)) {
+          Action action(SupportAction(pid, eid, f[pos + 1]));
           ents[eid].onSupport(action);
         }
         trigger(Event(DeclAttackEvent(pid, eid, pos)));
@@ -583,7 +641,7 @@ void Game::killEphemeralOnTable(RSID playerId) {
   vec<RSID> dead;
   for (RSID id : players[playerId]->table) {
     if (CHECK_K_EPHEMERAL(ents[id].getKeywords())) {
-      ents[id].die();
+      ents[id].beKilled();
       dead.push_back(id);
     }
   }
@@ -635,4 +693,63 @@ void Game::printGameView() {
   for (i64 i = spellStack.size() - 1; i >= 0; i--) {
     log("#%d:P%d %s", i, spellStack[i].cast.playerId + 1, ents[spellStack[i].cast.spellId].getInfo().c_str());
   }
+}
+// a for attacker, b for blocker
+void Game::battle(Entity &aunit, Entity &bunit) {
+  if (aunit.isDead())
+    return;
+  if (bunit.isDead())
+    return;
+  u64 akey = aunit.getKeywords();
+  u64 bkey = bunit.getKeywords();
+  auto anexus = ents[players[aunit.getPlayerId()]->nexusId];
+  auto bnexus = ents[players[bunit.getPlayerId()]->nexusId];
+  if (aunit.getAttack() > 0) {
+    Action action(StrikeAction(aunit.getPlayerId(), aunit.getId()));
+    aunit.onStrike(action);
+    bunit.beHurt(aunit.getAttack());
+    trigger(Event(StrikeEvent(aunit.getPlayerId(), aunit.getId())));
+    if (bunit.isNexus())
+      trigger(Event(NexusStrikeEvent(aunit.getPlayerId(), bunit.getId(), aunit.getAttack())));
+    if (CHECK_K_LIFESTEAL(akey))
+      anexus.gainHealth(aunit.getAttack());
+    if (CHECK_K_EPHEMERAL(akey))
+      aunit.beKilled();
+    if (CHECK_K_EPHEMERAL(bkey))
+      bunit.beKilled();
+    if (CHECK_K_OVERWHELM(akey) && bunit.isUnit()) {
+      i8 exdmg = std::min(0, aunit.getAttack() - bunit.getHealth());
+      bnexus.beHurt(exdmg);
+    }
+  }
+  if (CHECK_K_QUICK_ATTACK(akey) || CHECK_K_DOUBLE_ATTACK(akey)) {
+    if (bunit.isDead())
+      return;
+    if (CHECK_K_DOUBLE_ATTACK(akey) && aunit.getAttack() > 0) {
+      Action action(StrikeAction(aunit.getPlayerId(), aunit.getId()));
+      aunit.onStrike(action);
+      bunit.beHurt(aunit.getAttack());
+      trigger(Event(StrikeEvent(aunit.getPlayerId(), aunit.getId())));
+      if (bunit.isNexus())
+        trigger(Event(NexusStrikeEvent(aunit.getPlayerId(), bunit.getId(), aunit.getAttack())));
+      if (CHECK_K_LIFESTEAL(akey))
+        anexus.gainHealth(aunit.getAttack());
+      if (CHECK_K_EPHEMERAL(akey))
+        aunit.beKilled();
+      if (CHECK_K_EPHEMERAL(bkey))
+        bunit.beKilled();
+      if (CHECK_K_OVERWHELM(akey) && bunit.isUnit()) {
+        i8 exdmg = std::min(0, aunit.getAttack() - bunit.getHealth());
+        bnexus.beHurt(exdmg);
+      }
+    }
+  }
+  if (bunit.isDead() || bunit.isNexus())
+    return;
+  Action actionb(StrikeAction(bunit.getPlayerId(), bunit.getId()));
+  bunit.onStrike(actionb);
+  aunit.beHurt(bunit.getAttack());
+  trigger(Event(StrikeEvent(bunit.getPlayerId(), bunit.getId())));
+  if (CHECK_K_EPHEMERAL(bkey))
+    bunit.beKilled();
 }

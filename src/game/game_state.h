@@ -13,6 +13,7 @@ private:
   bool putSpellInTurn = false;
   bool respondingSpell = false;
   bool respondingAttack = false;
+  i8 anotherAttack = 0;
   bool isAnyBurstSpellCasted = false;
   bool isSlowSpellInStack = false;
   // 0 - no spells or skills in spell stack
@@ -42,7 +43,7 @@ public:
     return pid == whoseTurn && !respondingSpell;
   }
   inline bool canDeclAttack(RSID pid) {
-    return pid == whoseTurn && !respondingSpell && !respondingAttack && !isSlowSpellInStack;
+    return anotherAttack <= 1 && pid == whoseTurn && !respondingSpell && !respondingAttack && !isSlowSpellInStack;
   }
   inline bool canDeclBlock(RSID pid) {
     return pid == whoseTurn && !respondingSpell && !isSlowSpellInStack && (attackMode == 2 || attackMode == 3);
@@ -65,10 +66,10 @@ public:
       return !putSpellInTurn && attackMode != 3;
     return true;
   }
-  inline bool declaredAttack(RSID pid){
+  inline bool declaredAttack(RSID pid) {
     return pid == whoseTurn && !respondingAttack && attackMode == 1;
   }
-  inline bool declaredBlock(RSID pid){
+  inline bool declaredBlock(RSID pid) {
     return pid == whoseTurn && respondingAttack && attackMode == 3;
   }
   inline bool passedTwice() {
@@ -97,7 +98,8 @@ public:
       respondingSpell = respondingAttack = false;
       passCnt = 0;
       isSlowSpellInStack = false;
-      whoseTurn = FLIP(initiator);
+      if(anotherAttack != 1)
+        whoseTurn = FLIP(initiator);
       return;
     }
     // just init a spell chain
@@ -149,6 +151,8 @@ public:
   }
   inline void endBattling() {
     attackMode = 0;
+    if (anotherAttack == 1)
+      anotherAttack = 2;
   }
   inline void castedBurstSpell() {
     isAnyBurstSpellCasted = true;
@@ -159,6 +163,9 @@ public:
   }
   inline void declBlock(RSID pid) {
     attackMode = 3;
+  }
+  inline void endScout(RSID pid) {
+    anotherAttack = 1;
   }
 };
 

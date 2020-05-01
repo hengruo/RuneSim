@@ -7,9 +7,9 @@
 
 class Frontier final {
 private:
-  const RSID EMPTY = -1;
   vec<RSID> fr;
 public:
+  const static RSID EMPTY = -1;
   Frontier() {
     fr = vec<RSID>(FRONTIER_LIMIT, EMPTY);
   }
@@ -37,7 +37,11 @@ public:
         fr[i] = EMPTY;
     }
   }
-  inline vec<i8> getUnitIndices(){
+  inline void clear() {
+    for (i8 i = 0; i < FRONTIER_LIMIT; i++)
+      fr[i] = EMPTY;
+  }
+  inline vec<i8> getUnitIndices() {
     vec<i8> res;
     for (i8 i = 0; i < FRONTIER_LIMIT; i++)
       if (fr[i] != EMPTY)
@@ -51,17 +55,17 @@ public:
         res.push_back(fr[i]);
     return res;
   }
-  inline bool has(RSID id){
+  inline bool has(RSID id) {
     for (i8 i = 0; i < FRONTIER_LIMIT; i++) {
       if (fr[i] == id)
         return true;
     }
     return false;
   }
-  inline bool isUnit(i8 i){
+  inline bool isUnit(i8 i) {
     return i < FRONTIER_LIMIT && fr[i] != EMPTY;
   }
-  inline i8 getIndex(RSID id){
+  inline i8 getIndex(RSID id) {
     for (i8 i = 0; i < FRONTIER_LIMIT; i++) {
       if (fr[i] == id)
         return i;
@@ -71,7 +75,7 @@ public:
   inline RSID &operator[](isize i) {
     return fr[i];
   }
-  inline i8 firstVacancy(){
+  inline i8 firstVacancy() {
     for (i8 i = 0; i < FRONTIER_LIMIT; i++) {
       if (fr[i] == EMPTY)
         return i;
