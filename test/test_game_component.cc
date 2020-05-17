@@ -145,4 +145,4 @@ TEST(STATE, TRANSITION2) {
   state.finishTurn();
   EXPECT_EQ(state.canPutFastSpell(pid1), true);
   EXPECT_EQ(state.canPutSlowSpell(pid1), false);
-  }
+}
