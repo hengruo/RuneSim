@@ -20,7 +20,7 @@ int main() {
   char end = 'N';
   const char *pName[2] = {"[PLAYER 1]", "[PLAYER 2]"};
   const char *pPrompt[2] = {"PLAYER 1 >", "PLAYER 2 >"};
-  vector<pair<RSID, isize>> decks[2];
+  str decks[2];
   bool preset[2];
   RSID indices[2];
 
