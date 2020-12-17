@@ -1,4 +1,0 @@
-# Development Guide
-## Terminology
-
-**Play**: 
