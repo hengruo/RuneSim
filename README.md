@@ -2,6 +2,10 @@
 
 RuneSim is a simulator of *Legends of Runeterra*.
 
+## NOTICE
+
+RuneSim is being translated to Python.
+
 ## How to Build
 1. Install googletest v1.10.0 (recommend in `/usr/local/`)
 2. `mkdir build && cd build`
@@ -12,6 +16,7 @@ RuneSim is a simulator of *Legends of Runeterra*.
 
 ## Roadmap
 - [x] basic game workflow 
+- [ ] transfer to Python
 - [ ] development documentation
 - [ ] complete all cards
 - [ ] command line UI
