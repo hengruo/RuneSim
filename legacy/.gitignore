@@ -1,0 +1,9 @@
+# MacOS Cache
+.DS_Store
+
+cmake-build-debug/
+cmake-build-release/
+build/
+*.log
+.idea/
+.vscode/
