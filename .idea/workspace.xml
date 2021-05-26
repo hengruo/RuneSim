@@ -27,13 +27,12 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" ENABLED="true" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c3bfeae2-03a1-48d5-ae27-bf39f3181ecc" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/data/prepare.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,7 +52,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="develop" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -86,58 +85,48 @@
       <recent name="$PROJECT_DIR$/legacy" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="DECK.DECODE1" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests" TEST_CLASS="DECK" TEST_METHOD="DECODE1" TEST_MODE="SUITE_TEST">
+  <component name="RunManager" selected="CMake Application.rscmd">
+    <configuration name="DECK.DECODE1" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests" TEST_CLASS="DECK" TEST_METHOD="DECODE1" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="GAME_WORKFLOW.GAME_INIT_SUCCESS" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests" TEST_CLASS="GAME_WORKFLOW" TEST_METHOD="GAME_INIT_SUCCESS" TEST_MODE="SUITE_TEST">
+    <configuration name="GAME_WORKFLOW.GAME_INIT_SUCCESS" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests" TEST_CLASS="GAME_WORKFLOW" TEST_METHOD="GAME_INIT_SUCCESS" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="GAME_WORKFLOW.WALK_THROUGH_SUCCESS" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests" TEST_CLASS="GAME_WORKFLOW" TEST_METHOD="WALK_THROUGH_SUCCESS" TEST_MODE="SUITE_TEST">
+    <configuration name="GAME_WORKFLOW.WALK_THROUGH_SUCCESS" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests" TEST_CLASS="GAME_WORKFLOW" TEST_METHOD="WALK_THROUGH_SUCCESS" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="STATE.TRANSITION2" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests" TEST_CLASS="STATE" TEST_METHOD="TRANSITION2" TEST_MODE="SUITE_TEST">
+    <configuration name="STATE.TRANSITION" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests" TEST_CLASS="STATE" TEST_METHOD="TRANSITION" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="STATE.TRANSITION" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests" TEST_CLASS="STATE" TEST_METHOD="TRANSITION" TEST_MODE="SUITE_TEST">
+    <configuration name="STATE.TRANSITION2" type="CMakeGoogleTestRunConfigurationType" factoryName="Google Test" temporary="true" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests" TEST_CLASS="STATE" TEST_METHOD="TRANSITION2" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="BeforeTestRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="rscmd" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="rscmd" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="rscmd">
+    <configuration name="rscmd" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="rscmd" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="rscmd">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="rsgame" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="rsgame" CONFIG_NAME="Debug">
+    <configuration name="rsgame" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="rsgame" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="unit_tests" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests">
+    <configuration name="unit_tests" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="RuneSim" TARGET_NAME="unit_tests" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="RuneSim" RUN_TARGET_NAME="unit_tests">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -166,6 +155,8 @@
       <workItem from="1608249002772" duration="322000" />
       <workItem from="1608353280014" duration="8340000" />
       <workItem from="1608782041532" duration="709000" />
+      <workItem from="1612287395989" duration="531000" />
+      <workItem from="1612866938092" duration="19000" />
     </task>
     <task id="LOCAL-00001" summary="Update code generators">
       <created>1588060866604</created>
@@ -335,7 +326,21 @@
       <option name="project" value="LOCAL" />
       <updated>1608249312330</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Pythonize">
+      <created>1612287418289</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1612287418289</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Pythonize">
+      <created>1612287625804</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1612287625804</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
